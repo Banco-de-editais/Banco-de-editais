@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-navy-50: #f3f7fb;
+  --color-navy-100: #e6eef7;
+  --color-navy-200: #c8daed;
+  --color-navy-300: #9dbedd;
+  --color-navy-400: #6d9dc9;
+  --color-navy-500: #4d7fb2;
+  --color-navy-600: #3c6796;
+  --color-navy-700: #345579;
+  --color-navy-800: #304966;
+  --color-navy-900: #2d3f56;
+  --color-navy-950: #1d2939;
+}
+
+html { color-scheme: light; }
+html.dark { color-scheme: dark; }
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  background: #f8fafc;
+  color: #0f172a;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.dark body { background: #0f172a; color: #f8fafc; }
+
+button,
+input,
+select,
+textarea { font: inherit; }
+
+/* Keep native controls readable when browsers override their colors on focus/autofill. */
+.dark select,
+.dark select option {
+  background-color: #1e293b;
+  color: #f8fafc;
+}
+
+.dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):focus,
+.dark select:focus,
+.dark textarea:focus {
+  background-color: #1e293b;
+  color: #f8fafc;
+  caret-color: #f8fafc;
+}
+
+.dark input:-webkit-autofill,
+.dark input:-webkit-autofill:hover,
+.dark input:-webkit-autofill:focus,
+.dark textarea:-webkit-autofill,
+.dark textarea:-webkit-autofill:hover,
+.dark textarea:-webkit-autofill:focus,
+.dark select:-webkit-autofill,
+.dark select:-webkit-autofill:hover,
+.dark select:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #1e293b inset;
+  -webkit-text-fill-color: #f8fafc;
+  caret-color: #f8fafc;
+}
+
+button:not(:disabled),
+[role="button"]:not([aria-disabled="true"]) { cursor: pointer; }
+
+::selection { background: #9dbedd; color: #1d2939; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

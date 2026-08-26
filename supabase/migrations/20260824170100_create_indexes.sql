@@ -7,8 +7,12 @@ create index idx_edicts_active
 create index idx_edicts_application_deadline
     on public.edicts(application_deadline);
 
-create index idx_edict_rules_edict_id
-    on public.edict_rules(edict_id);
+create index idx_edicts_minimum_qualis
+    on public.edicts(minimum_qualis)
+    where minimum_qualis is not null;
 
 create index idx_journal_indexers_indexer_id
     on public.journal_indexers(indexer_id);
+
+create index idx_edict_indexers_indexer_id
+    on public.edict_indexers(indexer_id);

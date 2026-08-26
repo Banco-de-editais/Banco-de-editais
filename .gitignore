@@ -1,5 +1,18 @@
+# Dependencies
+node_modules/
+
+# Build and test output
+dist/
+dist-ssr/
+coverage/
+playwright-report/
+test-results/
+__screenshots__/
+/cypress/videos/
+/cypress/screenshots/
+
 # Logs
-logs
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -7,36 +20,41 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-.DS_Store
-dist
-dist-ssr
-coverage
+# Local environment files and secrets
+.env
+.env.*
+!.env.example
 *.local
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
+# Supabase local state and generated metadata
+supabase/.branches/
+supabase/.temp/
+supabase/.env
+supabase/.env.*
+supabase/snippets/
+
+# Local Codex/agent state
+.agents/
+.codex/
+
+# Tool caches
+.temp/
+.cache/
+.vite/
+*.timestamp-*-*.mjs
+*.tsbuildinfo
+.eslintcache
+
+# Editors
+.vscode/
+.idea/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
 
-*.tsbuildinfo
-
-.eslintcache
-
-# Cypress
-/cypress/videos/
-/cypress/screenshots/
-
-# Vitest
-__screenshots__/
-
-# Vite
-*.timestamp-*-*.mjs
-.vscode/
-.env
+# Operating system files
+.DS_Store
+Thumbs.db
 .directory

@@ -3,7 +3,7 @@ alter table public.journals enable row level security;
 alter table public.indexers enable row level security;
 alter table public.journal_indexers enable row level security;
 alter table public.edicts enable row level security;
-alter table public.edict_rules enable row level security;
+alter table public.edict_indexers enable row level security;
 
 
 -- =========================================================
@@ -157,30 +157,30 @@ using ((select public.is_admin()));
 
 
 -- =========================================================
--- edict_rules
+-- edict_indexers
 -- =========================================================
 
-create policy "Authenticated users can read edict rules"
-on public.edict_rules
+create policy "Authenticated users can read edict indexers"
+on public.edict_indexers
 for select
 to authenticated
 using (true);
 
-create policy "Admins can insert edict rules"
-on public.edict_rules
+create policy "Admins can insert edict indexers"
+on public.edict_indexers
 for insert
 to authenticated
 with check ((select public.is_admin()));
 
-create policy "Admins can update edict rules"
-on public.edict_rules
+create policy "Admins can update edict indexers"
+on public.edict_indexers
 for update
 to authenticated
 using ((select public.is_admin()))
 with check ((select public.is_admin()));
 
-create policy "Admins can delete edict rules"
-on public.edict_rules
+create policy "Admins can delete edict indexers"
+on public.edict_indexers
 for delete
 to authenticated
 using ((select public.is_admin()));
