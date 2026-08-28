@@ -9,6 +9,11 @@ const routes = [
     meta: { guestOnly: true },
   },
   {
+    path: '/auth/confirm',
+    name: 'auth-confirm',
+    component: () => import('@/views/AuthConfirmView.vue'),
+  },
+  {
     path: '/',
     component: () => import('@/components/layout/AppLayout.vue'),
     meta: { requiresAuth: true },
@@ -64,6 +69,7 @@ router.beforeEach(async (to) => {
 router.afterEach((to) => {
   const titles = {
     login: 'Entrar',
+    'auth-confirm': 'Ativar conta',
     consultation: 'Consulta',
     'admin-users': 'Usuários',
     'admin-institutions': 'Instituições',

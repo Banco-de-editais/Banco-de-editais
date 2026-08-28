@@ -1,5 +1,5 @@
 import { requireSupabase } from '@/lib/supabase'
-import { toAppError } from './errors'
+import { AppError, toAppError } from './errors'
 
 export async function signInWithPassword(email, password) {
   try {
@@ -24,5 +24,37 @@ export async function signOut() {
     if (error) throw error
   } catch (error) {
     throw toAppError(error, 'Não foi possível encerrar a sessão.')
+  }
+}
+
+export async function createUser({ name, email, isAdmin }) {
+  try {
+    const { data, error } = await requireSupabase().functions.invoke('admin-create-user', {
+      body: {
+        name,
+        email,
+        role: isAdmin ? 'admin' : 'user',
+      },
+    })
+
+    if (error) {
+      const response = error.context
+      const payload = response instanceof Response ? await response.json().catch(() => null) : null
+      throw new AppError(payload?.message ?? 'Não foi possível criar o usuário.', String(response?.status ?? error.name), error)
+    }
+
+    return data
+  } catch (error) {
+    throw toAppError(error, 'Não foi possível criar o usuário.')
+  }
+}
+
+export async function updatePassword(password) {
+  try {
+    const { data, error } = await requireSupabase().auth.updateUser({ password })
+    if (error) throw error
+    return data
+  } catch (error) {
+    throw toAppError(error, 'Não foi possível definir a senha. Tente novamente.')
   }
 }
