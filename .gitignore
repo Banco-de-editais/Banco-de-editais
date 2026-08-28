@@ -58,3 +58,4 @@ supabase/snippets/
 .DS_Store
 Thumbs.db
 .directory
+.vercel

@@ -27,7 +27,8 @@ jobs:
             cache: 'npm'
 
       - name: Install Vercel CLI
-        run: npm install --global vercel@latest
+        # Keep CI on the CLI version validated against this project.
+        run: npm install --global vercel@54.10.3
 
       - name: Pull Vercel configuration
         run: |
