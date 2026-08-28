@@ -2,6 +2,10 @@
 
 This template should help get you started developing with Vue 3 in Vite.
 
+## Importação CSV
+
+Administradores podem importar instituições, revistas, indexadores e editais juntos pela tela **Editais → Importar CSV**. O fluxo analisa e mostra um preview antes de qualquer escrita; a confirmação executa uma RPC transacional protegida por RLS e pela role administrativa. Consulte [a especificação do CSV](docs/importacao-csv.md) para as colunas, exemplos e regras de duplicação.
+
 ## Recommended IDE Setup
 
 [VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).

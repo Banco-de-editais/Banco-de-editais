@@ -1,0 +1,5 @@
+entity_type,name,issn,qualis,institution_name,published_at,application_deadline,source_url,active,indexers
+institution,Instituto Nacional de Telecomunicações,,,,,,,,
+indexer,Scopus,,,,,,,,
+journal,Revista de Exemplo,1234-5679,A1,,,,,Scopus
+edict,Edital de Residência 2026,,,Instituto Nacional de Telecomunicações,2026-08-01,2026-09-01,https://example.org/edital,true,Scopus

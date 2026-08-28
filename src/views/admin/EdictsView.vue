@@ -2,7 +2,10 @@
   <div>
     <PageHeader title="Editais" description="Gerencie editais, instituições e critérios de compatibilidade." icon="edict" eyebrow="Administração">
       <template #actions>
-        <button type="button" class="flex h-11 items-center justify-center gap-2 rounded-xl bg-navy-600 px-4 text-sm font-bold text-white shadow-sm transition hover:bg-navy-700 focus:outline-none focus:ring-2 focus:ring-navy-500 focus:ring-offset-2" @click="openCreate"><AppIcon name="plus" class="h-5 w-5" />Novo edital</button>
+        <div class="flex flex-wrap gap-2">
+          <button type="button" class="flex h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold text-navy-700 shadow-sm transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-navy-500 focus:ring-offset-2 dark:border-slate-700 dark:bg-slate-900 dark:text-navy-300 dark:hover:bg-slate-800" @click="importOpen = true"><AppIcon name="plus" class="h-5 w-5" />Importar CSV</button>
+          <button type="button" class="flex h-11 items-center justify-center gap-2 rounded-xl bg-navy-600 px-4 text-sm font-bold text-white shadow-sm transition hover:bg-navy-700 focus:outline-none focus:ring-2 focus:ring-navy-500 focus:ring-offset-2" @click="openCreate"><AppIcon name="plus" class="h-5 w-5" />Novo edital</button>
+        </div>
       </template>
     </PageHeader>
 
@@ -150,12 +153,14 @@
     </BaseModal>
 
     <ConfirmDialog :open="Boolean(deleting)" title="Excluir edital?" description="O edital e suas associações com indexadores serão removidos permanentemente." resource-label="Edital" :resource-name="deleting?.name ?? ''" confirm-label="Excluir edital" :busy="isDeleting" :error="deleteError" @close="closeDelete" @confirm="confirmDelete" />
+    <CsvImportModal :open="importOpen" @close="importOpen = false" @completed="handleImportCompleted" />
   </div>
 </template>
 
 <script setup>
 import { computed, nextTick, onMounted, reactive, ref } from 'vue'
 import AppIcon from '@/components/ui/AppIcon.vue'
+import CsvImportModal from '@/components/admin/CsvImportModal.vue'
 import BaseModal from '@/components/ui/BaseModal.vue'
 import ConfirmDialog from '@/components/ui/ConfirmDialog.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
@@ -186,6 +191,7 @@ const institutionNameInput = ref(null)
 const deleting = ref(null)
 const isDeleting = ref(false)
 const deleteError = ref('')
+const importOpen = ref(false)
 const filters = reactive({ search: '', institutionId: '', active: '', publishedFrom: '', publishedTo: '', deadlineFrom: '', deadlineTo: '', sort: 'deadline-asc' })
 const form = reactive({ institution_id: '', name: '', published_at: '', application_deadline: '', source_url: '', active: true, minimum_qualis: '', indexerIds: [] })
 const qualisOptions = QUALIS_LEVELS
@@ -299,6 +305,10 @@ async function confirmDelete() {
   deleteError.value = ''
   try { await deleteEdict(deleting.value.id); deleting.value = null; message.value = 'Edital excluído com sucesso.'; await load() }
   catch (error) { deleteError.value = error.message } finally { isDeleting.value = false }
+}
+async function handleImportCompleted(result) {
+  message.value = `Importação concluída: ${result.institutions_created + result.indexers_created + result.journals_created + result.edicts_created} registro(s) criado(s).`
+  await load()
 }
 onMounted(load)
 </script>

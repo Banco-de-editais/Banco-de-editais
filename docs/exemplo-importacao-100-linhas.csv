@@ -1,0 +1,101 @@
+entity_type,name,issn,qualis,institution_name,published_at,application_deadline,source_url,active,indexers
+edict,Edital de Pesquisa Aplicada 2026,,,Universidade Federal de Minas Gerais,2026-01-10,2026-02-20,https://editais.exemplo.br/pesquisa-aplicada-2026,true,Scopus;SciELO
+indexer,Scopus,,,,,,,,
+journal,Revista Brasileira de Tecnologia,1000-0003,A1,,,,,Scopus;Web of Science
+institution,Universidade Federal de Minas Gerais,,,,,,,,
+edict,Programa de Bolsas em Saúde,,,Universidade de São Paulo,2026-02-01,2026-03-15,https://editais.exemplo.br/bolsas-saude-2026,true,PubMed;SciELO
+indexer,SciELO,,,,,,,,
+journal,Cadernos de Inovação,1000-0011,A2,,,,,SciELO
+institution,Universidade de São Paulo,,,,,,,,
+edict,Chamada de Mobilidade Internacional,,,Universidade Estadual de Campinas,2026-01-22,2026-04-10,https://editais.exemplo.br/mobilidade-2026,true,Web of Science
+indexer,Web of Science,,,,,,,,
+journal,Journal of Digital Education,1000-002X,A3,,,,,ERIC;DOAJ
+institution,Universidade Estadual de Campinas,,,,,,,,
+edict,Residência Multiprofissional 2026,,,Universidade Federal do Rio de Janeiro,2026-03-01,2026-04-30,https://editais.exemplo.br/residencia-2026,true,PubMed;LILACS
+indexer,PubMed,,,,,,,,
+journal,Estudos em Saúde Coletiva,1000-0038,A1,,,,,PubMed;LILACS
+institution,Universidade Federal do Rio de Janeiro,,,,,,,,
+edict,Edital de Extensão Comunitária,,,Universidade Federal do Paraná,2026-02-15,2026-05-05,https://editais.exemplo.br/extensao-2026,true,SciELO;Redalyc
+indexer,LILACS,,,,,,,,
+journal,Revista de Engenharia e Sociedade,1000-0046,B1,,,,,Scopus;DOAJ
+institution,Universidade Federal do Paraná,,,,,,,,
+edict,Iniciação Científica 2026,,,Universidade Federal de Santa Catarina,2026-01-05,2026-03-01,https://editais.exemplo.br/iniciacao-cientifica-2026,true,Scopus
+indexer,DOAJ,,,,,,,,
+journal,Perspectivas em Computação,1000-0054,A2,,,,,Scopus;DBLP
+institution,Universidade Federal de Santa Catarina,,,,,,,,
+edict,Edital de Inovação Tecnológica,,,Universidade Federal do Rio Grande do Sul,2026-03-10,2026-06-01,https://editais.exemplo.br/inovacao-tecnologica-2026,true,Scopus;IEEE Xplore
+indexer,Redalyc,,,,,,,,
+journal,Arquivos de Gestão Pública,1000-0062,B1,,,,,Redalyc;SciELO
+institution,Universidade Federal do Rio Grande do Sul,,,,,,,,
+edict,Seleção para Mestrado Profissional,,,Universidade de Brasília,2026-02-18,2026-04-18,https://editais.exemplo.br/mestrado-profissional-2026,true,Scopus;Web of Science
+indexer,ERIC,,,,,,,,
+journal,Revista de Políticas Educacionais,1000-0070,A3,,,,,ERIC;SciELO
+institution,Universidade de Brasília,,,,,,,,
+edict,Programa de Apoio à Cultura,,,Universidade Federal da Bahia,2026-01-28,2026-03-28,https://editais.exemplo.br/apoio-cultura-2026,false,Redalyc;Latindex
+indexer,DBLP,,,,,,,,
+journal,Computação Aplicada e Dados,1000-0089,A2,,,,,DBLP;IEEE Xplore
+institution,Universidade Federal da Bahia,,,,,,,,
+edict,Chamada para Laboratórios Abertos,,,Universidade Federal de Pernambuco,2026-04-01,2026-05-20,https://editais.exemplo.br/laboratorios-abertos-2026,true,Scopus;DOAJ
+indexer,IEEE Xplore,,,,,,,,
+journal,Revista de Ciências Ambientais,1000-0097,B2,,,,,Scopus;GreenFILE
+institution,Universidade Federal de Pernambuco,,,,,,,,
+edict,Edital de Pesquisa em Sustentabilidade,,,Universidade Federal do Ceará,2026-03-05,2026-05-30,https://editais.exemplo.br/sustentabilidade-2026,true,GreenFILE;Scopus
+indexer,Latindex,,,,,,,,
+journal,Saúde e Território,1000-0100,A3,,,,,LILACS;SciELO
+institution,Universidade Federal do Ceará,,,,,,,,
+edict,Programa de Tutoria Acadêmica,,,Universidade Federal de Goiás,2026-02-08,2026-03-31,https://editais.exemplo.br/tutoria-academica-2026,true,ERIC
+indexer,GreenFILE,,,,,,,,
+journal,Revista de Administração Contemporânea,1000-0119,A2,,,,,Scopus;Redalyc
+institution,Universidade Federal de Goiás,,,,,,,,
+edict,Seleção de Projetos Interdisciplinares,,,Universidade Federal do Pará,2026-04-12,2026-06-12,https://editais.exemplo.br/projetos-interdisciplinares-2026,true,Scopus;Crossref
+indexer,Crossref,,,,,,,,
+journal,Estudos Amazônicos Integrados,1000-0127,B1,,,,,SciELO;Redalyc
+institution,Universidade Federal do Pará,,,,,,,,
+edict,Edital de Desenvolvimento Regional,,,Universidade Federal do Amazonas,2026-03-18,2026-05-18,https://editais.exemplo.br/desenvolvimento-regional-2026,true,Redalyc;Latindex
+indexer,Dimensions,,,,,,,,
+journal,Inovação e Desenvolvimento,1000-0135,A3,,,,,Dimensions;Crossref
+institution,Universidade Federal do Amazonas,,,,,,,,
+edict,Chamada de Pesquisa em Biotecnologia,,,Universidade Federal de Viçosa,2026-02-25,2026-05-25,https://editais.exemplo.br/biotecnologia-2026,true,PubMed;Scopus
+indexer,OpenAlex,,,,,,,,
+journal,Biotecnologia em Foco,1000-0143,A2,,,,,PubMed;Dimensions
+institution,Universidade Federal de Viçosa,,,,,,,,
+edict,Edital de Formação Docente,,,Universidade Estadual Paulista,2026-01-30,2026-04-01,https://editais.exemplo.br/formacao-docente-2026,true,ERIC;DOAJ
+indexer,Google Scholar,,,,,,,,
+journal,Diálogos em Formação Docente,1000-0151,B1,,,,,ERIC;Google Scholar
+institution,Universidade Estadual Paulista,,,,,,,,
+edict,Programa de Pesquisa Clínica,,,Universidade Federal de São Paulo,2026-04-05,2026-06-05,https://editais.exemplo.br/pesquisa-clinica-2026,true,PubMed;LILACS
+indexer,BASE,,,,,,,,
+journal,Pesquisa Clínica Brasileira,1000-016X,A1,,,,,PubMed;Scopus
+institution,Universidade Federal de São Paulo,,,,,,,,
+edict,Chamada de Projetos em Design,,,Universidade do Estado de Santa Catarina,2026-03-22,2026-05-22,https://editais.exemplo.br/projetos-design-2026,true,DOAJ;Google Scholar
+indexer,WorldCat,,,,,,,,
+journal,Design, Cultura e Sociedade,1000-0178,B2,,,,,DOAJ;Latindex
+institution,Universidade do Estado de Santa Catarina,,,,,,,,
+edict,Edital de Tecnologia Assistiva,,,Instituto Federal de Minas Gerais,2026-02-14,2026-04-14,https://editais.exemplo.br/tecnologia-assistiva-2026,true,Scopus;OpenAlex
+indexer,Zenodo,,,,,,,,
+journal,Tecnologia Assistiva e Inclusão,1000-0186,A3,,,,,Scopus;ERIC
+institution,Instituto Federal de Minas Gerais,,,,,,,,
+edict,Programa de Empreendedorismo Social,,,Instituto Federal de São Paulo,2026-01-18,2026-03-20,https://editais.exemplo.br/empreendedorismo-social-2026,true,Scopus;Google Scholar
+indexer,ResearchGate,,,,,,,,
+journal,Empreendedorismo e Impacto,1000-0194,B1,,,,,Scopus;Dimensions
+institution,Instituto Federal de São Paulo,,,,,,,,
+edict,Edital de Ciência de Dados,,,Instituto Nacional de Telecomunicações,2026-04-15,2026-06-15,https://editais.exemplo.br/ciencia-dados-2026,true,DBLP;IEEE Xplore
+journal,Revista de Ciência de Dados Aplicada,1000-0208,A1,,,,,DBLP;Scopus
+institution,Instituto Nacional de Telecomunicações,,,,,,,,
+edict,Chamada de Pesquisa em Comunicação,,,Fundação Oswaldo Cruz,2026-03-12,2026-05-12,https://editais.exemplo.br/comunicacao-cientifica-2026,true,PubMed;Crossref
+journal,Comunicação Científica em Saúde,1000-0216,A2,,,,,PubMed;SciELO
+institution,Fundação Oswaldo Cruz,,,,,,,,
+edict,Edital de Humanidades Digitais,,,Empresa Brasileira de Pesquisa Agropecuária,2026-02-20,2026-04-20,https://editais.exemplo.br/humanidades-digitais-2026,true,DOAJ;OpenAlex
+journal,Humanidades Digitais Latino-Americanas,1000-0224,A3,,,,,DOAJ;Redalyc
+institution,Empresa Brasileira de Pesquisa Agropecuária,,,,,,,,
+edict,Programa de Pesquisa Agroecológica,,,Instituto Brasileiro de Informação em Ciência e Tecnologia,2026-04-08,2026-06-08,https://editais.exemplo.br/agroecologia-2026,true,GreenFILE;Scopus
+journal,Agroecologia e Sistemas Alimentares,1000-0232,B1,,,,,GreenFILE;SciELO
+institution,Instituto Brasileiro de Informação em Ciência e Tecnologia,,,,,,,,
+edict,Edital de Informação e Memória,,,Centro Federal de Educação Tecnológica de Minas Gerais,2026-03-25,2026-05-25,https://editais.exemplo.br/informacao-memoria-2026,false,BASE;WorldCat
+journal,Informação, Memória e Sociedade,1000-0240,A2,,,,,BASE;WorldCat
+institution,Centro Federal de Educação Tecnológica de Minas Gerais,,,,,,,,
+journal,Revista de Estudos Interdisciplinares,1000-0259,B2,,,,,Google Scholar;Crossref
+edict,Chamada de Redes de Pesquisa,,,Universidade Federal de Minas Gerais,2026-05-01,2026-07-01,https://editais.exemplo.br/redes-pesquisa-2026,true,Dimensions;OpenAlex
+journal,Caderno de Pesquisa e Extensão,1000-0267,B3,,,,,DOAJ;Zenodo
+edict,Edital de Dados Abertos,,,Universidade de São Paulo,2026-05-10,2026-07-10,https://editais.exemplo.br/dados-abertos-2026,true,OpenAlex;Zenodo
+journal,Revista Brasileira de Economia Criativa,1000-0275,B4,,,,,Latindex;Google Scholar
