@@ -1,11 +1,11 @@
 import { requireSupabase } from '@/lib/supabase'
 import { throwIfError, toAppError } from './errors'
 
-export function createSimpleEntityService(table, singularLabel) {
+export function createSimpleEntityService(table, singularLabel, selectFields = 'id,name') {
   return {
     async list() {
       try {
-        const { data, error } = await requireSupabase().from(table).select('id,name').order('name')
+        const { data, error } = await requireSupabase().from(table).select(selectFields).order('name')
         throwIfError(error, `Não foi possível carregar ${singularLabel}.`)
         return data ?? []
       } catch (error) {
@@ -18,7 +18,7 @@ export function createSimpleEntityService(table, singularLabel) {
         const { data, error } = await requireSupabase()
           .from(table)
           .insert({ name })
-          .select('id,name')
+          .select(selectFields)
           .single()
         throwIfError(error, `Não foi possível cadastrar ${singularLabel}.`)
         return data
@@ -33,7 +33,7 @@ export function createSimpleEntityService(table, singularLabel) {
           .from(table)
           .update({ name })
           .eq('id', id)
-          .select('id,name')
+          .select(selectFields)
           .single()
         throwIfError(error, `Não foi possível atualizar ${singularLabel}.`)
         return data
@@ -54,4 +54,8 @@ export function createSimpleEntityService(table, singularLabel) {
 }
 
 export const institutionsService = createSimpleEntityService('institutions', 'a instituição')
-export const indexersService = createSimpleEntityService('indexers', 'o indexador')
+export const indexersService = createSimpleEntityService(
+  'indexers',
+  'o indexador',
+  'id,name,code,description,exact_match_allowed',
+)

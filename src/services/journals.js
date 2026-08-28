@@ -8,7 +8,7 @@ const JOURNAL_SELECT = `
   qualis,
   journal_indexers (
     indexer_id,
-    indexer:indexers ( id, name )
+    indexer:indexers ( id, name, code, exact_match_allowed )
   )
 `
 

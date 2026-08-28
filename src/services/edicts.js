@@ -10,11 +10,64 @@ const EDICT_SELECT = `
   source_url,
   active,
   minimum_qualis,
+  source_process_id,
+  entry_year,
+  publication_year,
+  geographic_scope,
+  state_reference,
+  region,
+  exam_board,
+  access_type,
+  specialties_text,
+  curriculum_analysis_status,
+  curriculum_weight_percent,
+  curriculum_max_score,
+  phase_nature,
+  validity_status,
+  document_status,
+  validation_status,
+  confirmation_level,
+  consulted_at,
+  coverage_status,
+  source_notes,
   created_at,
   institution:institutions ( id, name ),
   edict_indexers (
     indexer_id,
-    indexer:indexers ( id, name )
+    indexer:indexers ( id, name, code, exact_match_allowed )
+  ),
+  scientific_rules (
+    id,
+    source_rule_id,
+    source_process_id,
+    release_code,
+    family,
+    production_type,
+    accepted_production_types,
+    initial_eligibility,
+    mapping_status,
+    published_for_engine,
+    mapping_confidence,
+    matrix_row,
+    scope,
+    condition_groups,
+    score_formula,
+    indexing_requirements,
+    qualis_requirement,
+    authorship_requirement,
+    document_requirements,
+    date_window,
+    presentation_formats,
+    event_scopes,
+    publication_scopes,
+    event_organizer,
+    subject_area_requirement,
+    evidence,
+    unknown_data,
+    warnings,
+    review,
+    source_metadata,
+    mapping_hash
   )
 `
 
@@ -25,11 +78,17 @@ function normalizeEdict(edict) {
     .filter(Boolean)
     .sort((left, right) => left.name.localeCompare(right.name, 'pt-BR'))
 
-  const { edict_indexers: _associations, ...fields } = edict
+  const scientificRules = [...(edict.scientific_rules ?? [])]
+    .sort((left, right) => Number(right.published_for_engine) - Number(left.published_for_engine)
+      || left.family.localeCompare(right.family)
+      || left.source_rule_id.localeCompare(right.source_rule_id))
+
+  const { edict_indexers: _associations, scientific_rules: _scientificRules, ...fields } = edict
   return {
     ...fields,
     indexerIds: associations.map((item) => item.indexer_id),
     indexers,
+    scientificRules,
   }
 }
 

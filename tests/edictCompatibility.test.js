@@ -54,3 +54,100 @@ test('permite apenas links externos HTTP e HTTPS', () => {
   assert.equal(safeExternalUrl('not a url'), '')
   assert.equal(safeExternalUrl('https://example.com/edital'), 'https://example.com/edital')
 })
+
+const importedEdict = (rules) => ({
+  source_process_id: '2026-TESTE',
+  scientificRules: rules,
+})
+
+const scientificRule = (overrides = {}) => ({
+  source_rule_id: 'R-001',
+  family: 'ARTIGO_PUBLICACAO',
+  production_type: 'ARTICLE_PUBLICATION',
+  accepted_production_types: ['ARTICLE_PUBLICATION'],
+  published_for_engine: true,
+  condition_groups: [{
+    code: 'ROOT',
+    parent: null,
+    operator: 'ALL',
+    conditions: [{
+      field: 'production.type',
+      operator: 'EQ',
+      value: 'ARTICLE_PUBLICATION',
+      required: true,
+      negated: false,
+    }],
+  }],
+  indexing_requirements: [],
+  authorship_requirement: null,
+  qualis_requirement: null,
+  date_window: null,
+  subject_area_requirement: null,
+  ...overrides,
+})
+
+test('não conclui compatibilidade quando o edital importado não tem regra publicada', () => {
+  const result = evaluateEdictCompatibility(importedEdict([]), {})
+
+  assert.equal(result.compatible, false)
+  assert.equal(result.evaluable, false)
+  assert.equal(result.status, 'no_normalized_rule')
+})
+
+test('aceita regra científica completamente atendida', () => {
+  const result = evaluateEdictCompatibility(importedEdict([scientificRule()]), {})
+
+  assert.equal(result.compatible, true)
+  assert.equal(result.status, 'compatible')
+  assert.deepEqual(result.matchingRules.map((rule) => rule.source_rule_id), ['R-001'])
+})
+
+test('preserva como indeterminada uma condição científica sem dado informado', () => {
+  const rule = scientificRule({
+    condition_groups: [{
+      code: 'ROOT',
+      parent: null,
+      operator: 'ALL',
+      conditions: [
+        { field: 'production.type', operator: 'EQ', value: 'ARTICLE_PUBLICATION', required: true, negated: false },
+        { field: 'production.publication_status', operator: 'EQ', value: 'PUBLISHED', required: true, negated: false },
+      ],
+    }],
+  })
+
+  const result = evaluateEdictCompatibility(importedEdict([rule]), {})
+  assert.equal(result.compatible, false)
+  assert.equal(result.evaluable, false)
+  assert.equal(result.status, 'review_required')
+})
+
+test('compara indexação científica por código sem equiparar bases distintas', () => {
+  const rule = scientificRule({
+    condition_groups: [{
+      code: 'ROOT',
+      parent: null,
+      operator: 'ALL',
+      conditions: [
+        { field: 'production.type', operator: 'EQ', value: 'ARTICLE_PUBLICATION', required: true, negated: false },
+        { field: 'production.indexings', operator: 'IN', value: ['PUBMED', 'SCIELO'], required: true, negated: false },
+      ],
+    }],
+  })
+
+  assert.equal(evaluateEdictCompatibility(importedEdict([rule]), { indexerCodes: ['PUBMED'] }).compatible, true)
+  assert.equal(evaluateEdictCompatibility(importedEdict([rule]), { indexerCodes: ['MEDLINE'] }).status, 'incompatible')
+  assert.equal(evaluateEdictCompatibility(importedEdict([rule]), {}).status, 'review_required')
+})
+
+test('não aprova janela temporal sem comparador estruturado', () => {
+  const rule = scientificRule({
+    date_window: { raw_text: 'publicado nos últimos cinco anos' },
+  })
+
+  const result = evaluateEdictCompatibility(importedEdict([rule]), {
+    publicationDate: '2026-01-15',
+  })
+
+  assert.equal(result.compatible, false)
+  assert.equal(result.status, 'review_required')
+})

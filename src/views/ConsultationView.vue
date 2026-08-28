@@ -22,6 +22,18 @@
 
           <div class="space-y-5 p-5">
             <label class="block">
+              <span class="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">Tipo de produção</span>
+              <select v-model="article.productionType" :class="controlClasses">
+                <option value="ARTICLE_PUBLICATION">Artigo / publicação</option>
+                <option value="EVENT_PRESENTATION">Apresentação em evento</option>
+                <option value="ABSTRACT_PROCEEDINGS">Resumo em anais</option>
+                <option value="BOOK">Livro</option>
+                <option value="CHAPTER">Capítulo de livro</option>
+                <option value="SCIENTIFIC_PRODUCTION">Produção científica ampla</option>
+              </select>
+            </label>
+
+            <label class="block">
               <span class="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">Revista / periódico</span>
               <select v-model="article.journalId" :class="controlClasses">
                 <option value="">Selecionar revista (opcional)</option>
@@ -37,7 +49,24 @@
               </select>
             </label>
 
-            <MultiSelect v-model="article.indexerIds" :options="indexers" label="Indexadores" placeholder="Qualquer indexador" :disabled="Boolean(selectedJournal)" />
+            <MultiSelect v-model="article.indexerIds" :options="selectableIndexers" label="Indexadores" placeholder="Qualquer indexador" :disabled="Boolean(selectedJournal)" />
+
+            <details class="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800/60">
+              <summary class="cursor-pointer text-sm font-bold text-navy-800 dark:text-navy-200">Adicionar informações para reduzir incertezas</summary>
+              <div class="mt-4 space-y-4">
+                <label class="block"><span :class="dateLabelClasses">Situação da publicação</span><select v-model="article.publicationStatus" :class="controlClasses"><option value="">Não informado</option><option value="PUBLISHED">Publicado</option><option value="ACCEPTED">Aceito para publicação</option></select></label>
+                <label class="block"><span :class="dateLabelClasses">Papel de autoria</span><select v-model="article.authorshipRole" :class="controlClasses"><option value="">Não informado</option><option value="AUTHOR">Autor</option><option value="COAUTHOR">Coautor</option><option value="FIRST_AUTHOR">Primeiro autor</option><option value="PRESENTER">Apresentador</option></select></label>
+                <div class="grid grid-cols-2 gap-3">
+                  <label><span :class="dateLabelClasses">Número de autores</span><input v-model="article.authorCount" type="number" min="1" step="1" :class="controlClasses" /></label>
+                  <label><span :class="dateLabelClasses">Primeiro autor?</span><select v-model="article.isFirstAuthor" :class="controlClasses"><option value="">Não informado</option><option value="true">Sim</option><option value="false">Não</option></select></label>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                  <label><span :class="dateLabelClasses">Possui DOI?</span><select v-model="article.hasDoi" :class="controlClasses"><option value="">Não informado</option><option value="true">Sim</option><option value="false">Não</option></select></label>
+                  <label><span :class="dateLabelClasses">Data da publicação</span><input v-model="article.publicationDate" type="date" :class="controlClasses" /></label>
+                </div>
+                <label class="block"><span :class="dateLabelClasses">Abrangência da publicação</span><select v-model="article.publicationScope" :class="controlClasses"><option value="">Não informada</option><option value="LOCAL">Local</option><option value="REGIONAL">Regional</option><option value="STATE">Estadual</option><option value="NATIONAL">Nacional</option><option value="INTERNATIONAL">Internacional</option></select></label>
+              </div>
+            </details>
 
             <div v-if="selectedJournal" class="rounded-xl border border-navy-200 bg-navy-50 p-4 dark:border-navy-900 dark:bg-navy-950/45">
               <div class="flex items-start justify-between gap-3">
@@ -80,19 +109,34 @@
 
           <section aria-labelledby="results-title">
             <div class="mb-4 flex flex-wrap items-end justify-between gap-3">
-              <div><h2 id="results-title" class="text-xl font-black text-slate-950 dark:text-white">Editais compatíveis</h2><p class="mt-1 text-sm text-slate-500">{{ resultSummary }}</p></div>
-              <span v-if="hasSearched" class="rounded-full bg-navy-100 px-3 py-1.5 text-xs font-bold text-navy-800 dark:bg-navy-950 dark:text-navy-200">{{ compatibleEdicts.length }} resultado(s)</span>
+              <div><h2 id="results-title" class="text-xl font-black text-slate-950 dark:text-white">Resultados da consulta</h2><p class="mt-1 text-sm text-slate-500">{{ resultSummary }}</p></div>
+              <span v-if="hasSearched" class="rounded-full bg-navy-100 px-3 py-1.5 text-xs font-bold text-navy-800 dark:bg-navy-950 dark:text-navy-200">{{ visibleEdicts.length }} resultado(s)</span>
             </div>
 
             <EmptyState v-if="!hasSearched" icon="consultation" title="Consulte os editais" description="Informe os critérios desejados ou consulte sem parâmetros para visualizar todos os editais disponíveis." />
-            <EmptyState v-else-if="!compatibleEdicts.length" icon="search" title="Nenhum edital compatível encontrado" description="Revise os dados do trabalho, amplie os intervalos de data ou remova alguns filtros." />
+            <EmptyState v-else-if="!visibleEdicts.length" icon="search" title="Nenhum resultado seguro ou potencial" description="Os dados informados não atenderam às regras publicadas, ou os editais filtrados ainda não possuem regra científica normalizada." />
             <div v-else class="grid grid-cols-1 gap-4 lg:grid-cols-2">
-              <article v-for="edict in compatibleEdicts" :key="edict.id" class="relative flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg dark:border-slate-800 dark:bg-slate-900">
-                <div class="absolute inset-x-0 top-0 h-1 bg-linear-to-r from-emerald-400 to-navy-600"></div>
-                <p class="text-xs font-bold uppercase tracking-wide text-navy-600 dark:text-navy-300">{{ edict.institution?.name }}</p>
+              <article v-for="edict in visibleEdicts" :key="edict.id" class="relative flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg dark:border-slate-800 dark:bg-slate-900">
+                <div class="absolute inset-x-0 top-0 h-1" :class="edict.compatibility.status === 'compatible' ? 'bg-linear-to-r from-emerald-400 to-navy-600' : 'bg-linear-to-r from-amber-400 to-orange-500'"></div>
+                <div class="flex items-start justify-between gap-3">
+                  <p class="text-xs font-bold uppercase tracking-wide text-navy-600 dark:text-navy-300">{{ edict.institution?.name }}</p>
+                  <span class="shrink-0 rounded-full px-2.5 py-1 text-[0.68rem] font-bold" :class="compatibilityBadgeClass(edict.compatibility.status)">{{ compatibilityLabel(edict.compatibility.status) }}</span>
+                </div>
                 <h3 class="mt-2 text-lg font-black leading-6 text-slate-950 dark:text-white">{{ edict.name }}</h3>
                 <dl class="mt-5 grid grid-cols-2 gap-3 rounded-xl bg-slate-50 p-4 dark:bg-slate-800/60"><div><dt class="text-[0.68rem] font-bold uppercase tracking-wide text-slate-400">Publicação</dt><dd class="mt-1 text-sm font-semibold text-slate-700 dark:text-slate-200">{{ formatDate(edict.published_at) }}</dd></div><div><dt class="text-[0.68rem] font-bold uppercase tracking-wide text-slate-400">Deadline</dt><dd class="mt-1 text-sm font-semibold text-slate-700 dark:text-slate-200">{{ formatDate(edict.application_deadline) }}</dd></div></dl>
-                <ul class="mt-4 space-y-2"><li v-for="reason in edict.compatibility.reasons" :key="reason" class="flex items-start gap-2 text-sm text-slate-600 dark:text-slate-300"><span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"><AppIcon name="check" class="h-3 w-3" /></span>{{ reason }}</li></ul>
+                <ul class="mt-4 space-y-2"><li v-for="reason in edict.compatibility.reasons" :key="reason" class="flex items-start gap-2 text-sm text-slate-600 dark:text-slate-300"><span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full" :class="edict.compatibility.status === 'compatible' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300'"><AppIcon :name="edict.compatibility.status === 'compatible' ? 'check' : 'warning'" class="h-3 w-3" /></span>{{ reason }}</li></ul>
+                <details v-if="edict.compatibility.matchingRules.length" class="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800/60">
+                  <summary class="cursor-pointer text-xs font-bold uppercase tracking-wide text-navy-700 dark:text-navy-300">Ver {{ edict.compatibility.matchingRules.length }} regra(s) relacionada(s)</summary>
+                  <div class="mt-3 space-y-3">
+                    <div v-for="rule in edict.compatibility.matchingRules.slice(0, 5)" :key="rule.source_rule_id" class="rounded-lg bg-white p-3 text-xs dark:bg-slate-900">
+                      <div class="flex items-start justify-between gap-2"><p class="font-bold text-slate-900 dark:text-white">{{ scientificFamilyLabel(rule.family) }} · {{ rule.source_rule_id }}</p><span class="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[0.65rem] text-slate-500 dark:bg-slate-800">{{ rule.mapping_confidence }}</span></div>
+                      <p class="mt-1 text-slate-600 dark:text-slate-300">{{ scientificScoreLabel(rule) }}</p>
+                      <p class="mt-1 text-slate-500">{{ scientificRequirementLabel(rule) }}</p>
+                      <a v-if="safeExternalUrl(rule.evidence?.official_url)" :href="safeExternalUrl(rule.evidence.official_url)" target="_blank" rel="noopener noreferrer" class="mt-2 inline-flex font-bold text-navy-700 hover:underline dark:text-navy-300">Fonte oficial<span v-if="rule.evidence?.page"> · pág. {{ rule.evidence.page }}</span></a>
+                    </div>
+                    <p v-if="edict.compatibility.matchingRules.length > 5" class="text-xs font-semibold text-slate-500">Mais {{ edict.compatibility.matchingRules.length - 5 }} regra(s) no banco.</p>
+                  </div>
+                </details>
                 <a v-if="safeExternalUrl(edict.source_url)" :href="safeExternalUrl(edict.source_url)" target="_blank" rel="noopener noreferrer" class="mt-5 flex h-11 items-center justify-center gap-2 rounded-xl border border-navy-200 bg-navy-50 text-sm font-bold text-navy-800 transition hover:bg-navy-100 dark:border-navy-900 dark:bg-navy-950 dark:text-navy-200"><AppIcon name="external" class="h-4 w-4" />Ver edital</a>
               </article>
             </div>
@@ -112,6 +156,7 @@ import MultiSelect from '@/components/ui/MultiSelect.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import { evaluateEdictCompatibility } from '@/domain/edictCompatibility'
 import { QUALIS_LEVELS } from '@/domain/qualis'
+import { scientificFamilyLabel, scientificRequirementLabel, scientificScoreLabel } from '@/domain/scientificRules'
 import { formatDate, safeExternalUrl } from '@/lib/formatters'
 import { loadConsultationData } from '@/services/consultation'
 
@@ -123,13 +168,26 @@ const edicts = ref([])
 const isLoading = ref(true)
 const loadError = ref('')
 const hasSearched = ref(false)
-const article = reactive({ journalId: '', qualis: '', indexerIds: [] })
+const article = reactive({
+  productionType: 'ARTICLE_PUBLICATION',
+  journalId: '',
+  qualis: '',
+  indexerIds: [],
+  publicationStatus: '',
+  authorshipRole: '',
+  authorCount: '',
+  isFirstAuthor: '',
+  hasDoi: '',
+  publicationDate: '',
+  publicationScope: '',
+})
 const filters = reactive({ institutionIds: [], activeOnly: true, deadlineFrom: '', deadlineTo: '', publishedFrom: '', publishedTo: '' })
 const qualisOptions = QUALIS_LEVELS
 const controlClasses = 'h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 outline-none transition focus:border-navy-500 focus:bg-white focus:ring-4 focus:ring-navy-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:bg-slate-800 dark:focus:ring-navy-950'
 const dateLabelClasses = 'mb-1.5 block text-xs font-semibold text-slate-500'
 
 const selectedJournal = computed(() => journals.value.find((item) => String(item.id) === article.journalId) ?? null)
+const selectableIndexers = computed(() => indexers.value.filter((item) => item.exact_match_allowed !== false))
 const activeFilterCount = computed(() => filters.institutionIds.length + Number(filters.activeOnly) + ['deadlineFrom', 'deadlineTo', 'publishedFrom', 'publishedTo'].filter((key) => filters[key]).length)
 
 const dateFilteredEdicts = computed(() => edicts.value.filter((edict) =>
@@ -140,9 +198,29 @@ const dateFilteredEdicts = computed(() => edicts.value.filter((edict) =>
   && (!filters.publishedFrom || (edict.published_at && edict.published_at >= filters.publishedFrom))
   && (!filters.publishedTo || (edict.published_at && edict.published_at <= filters.publishedTo))))
 
-const evaluatedEdicts = computed(() => dateFilteredEdicts.value.map((edict) => ({ ...edict, compatibility: evaluateEdictCompatibility(edict, article) })))
-const compatibleEdicts = computed(() => hasSearched.value ? evaluatedEdicts.value.filter((edict) => edict.compatibility.compatible) : [])
-const resultSummary = computed(() => hasSearched.value ? `${compatibleEdicts.value.length} de ${dateFilteredEdicts.value.length} edital(is) atende(m) aos critérios informados.` : 'Os resultados aparecerão após a consulta.')
+const workInput = computed(() => ({
+  ...article,
+  indexerCodes: article.indexerIds
+    .map((id) => indexers.value.find((item) => item.id === id)?.code)
+    .filter(Boolean),
+  isFirstAuthor: article.isFirstAuthor === '' ? undefined : article.isFirstAuthor === 'true',
+  hasDoi: article.hasDoi === '' ? undefined : article.hasDoi === 'true',
+  hasIssn: selectedJournal.value?.issn ? true : undefined,
+}))
+
+const evaluatedEdicts = computed(() => dateFilteredEdicts.value.map((edict) => ({
+  ...edict,
+  compatibility: evaluateEdictCompatibility(edict, workInput.value),
+})))
+const visibleEdicts = computed(() => hasSearched.value
+  ? evaluatedEdicts.value.filter((edict) => ['compatible', 'review_required'].includes(edict.compatibility.status))
+  : [])
+const compatibleCount = computed(() => evaluatedEdicts.value.filter((edict) => edict.compatibility.status === 'compatible').length)
+const reviewCount = computed(() => evaluatedEdicts.value.filter((edict) => edict.compatibility.status === 'review_required').length)
+const uncoveredCount = computed(() => evaluatedEdicts.value.filter((edict) => edict.compatibility.status === 'no_normalized_rule').length)
+const resultSummary = computed(() => hasSearched.value
+  ? `${compatibleCount.value} compatível(is), ${reviewCount.value} para conferir e ${uncoveredCount.value} sem regra científica normalizada.`
+  : 'Os resultados aparecerão após a consulta.')
 
 const filterChips = computed(() => {
   const chips = []
@@ -160,6 +238,12 @@ const filterChips = computed(() => {
 function clearFilters() { Object.assign(filters, { institutionIds: [], activeOnly: false, deadlineFrom: '', deadlineTo: '', publishedFrom: '', publishedTo: '' }) }
 function runConsultation() { hasSearched.value = true }
 function removeJournal() { article.journalId = '' }
+function compatibilityLabel(status) { return status === 'compatible' ? 'Compatível' : 'Precisa conferir' }
+function compatibilityBadgeClass(status) {
+  return status === 'compatible'
+    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
+    : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
+}
 
 watch(selectedJournal, (journal, previousJournal) => {
   if (journal) {

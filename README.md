@@ -6,6 +6,8 @@ This template should help get you started developing with Vue 3 in Vite.
 
 Administradores podem importar instituições, revistas, indexadores e editais juntos pela tela **Editais → Importar CSV**. O fluxo analisa e mostra um preview antes de qualquer escrita; a confirmação executa uma RPC transacional protegida por RLS e pela role administrativa. Consulte [a especificação do CSV](docs/importacao-csv.md) para as colunas, exemplos e regras de duplicação.
 
+A carga auditada da planilha CORE v2.3 usa uma projeção separada, com vínculos institucionais, regras científicas, incertezas e rastreabilidade. Consulte [a especificação da importação CORE v2.3](docs/importacao-core-v2-3.md). Ela não cria revistas sem nome, ISSN e Qualis comprovados.
+
 ## Recommended IDE Setup
 
 [VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
