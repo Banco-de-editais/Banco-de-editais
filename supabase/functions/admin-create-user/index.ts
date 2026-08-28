@@ -18,7 +18,9 @@ export default {
 
     const role = ctx.jwtClaims?.app_metadata?.role;
 
-    if (role !== "admin") {
+    const accountStatus = ctx.jwtClaims?.app_metadata?.account_status;
+
+    if (role !== "admin" || accountStatus !== "active") {
       return Response.json(
         {
           message: "Administrator access is required.",
@@ -153,7 +155,9 @@ export default {
     const { error: updateError } =
       await ctx.supabaseAdmin.auth.admin.updateUserById(data.user.id, {
         app_metadata: {
+          ...(data.user.app_metadata ?? {}),
           role: newUserRole,
+          account_status: "pending",
         },
       });
 

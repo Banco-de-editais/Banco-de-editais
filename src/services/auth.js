@@ -49,12 +49,38 @@ export async function createUser({ name, email, isAdmin }) {
   }
 }
 
-export async function updatePassword(password) {
+export async function activateInvitedUser(password) {
   try {
-    const { data, error } = await requireSupabase().auth.updateUser({ password })
-    if (error) throw error
+    const client = requireSupabase()
+    const { data, error } = await client.functions.invoke('activate-invited-user', { body: { password } })
+
+    if (error) {
+      const response = error.context
+      const payload = response instanceof Response ? await response.json().catch(() => null) : null
+      throw new AppError(payload?.message ?? 'Não foi possível definir a senha.', String(response?.status ?? error.name), error)
+    }
+
+    const refreshed = await client.auth.refreshSession()
+    if (refreshed.error || !refreshed.data.session) throw refreshed.error ?? new Error('SESSION_REFRESH_FAILED')
+
     return data
   } catch (error) {
     throw toAppError(error, 'Não foi possível definir a senha. Tente novamente.')
+  }
+}
+
+export async function listUsers() {
+  try {
+    const { data, error } = await requireSupabase().functions.invoke('admin-list-users', { method: 'GET' })
+
+    if (error) {
+      const response = error.context
+      const payload = response instanceof Response ? await response.json().catch(() => null) : null
+      throw new AppError(payload?.message ?? 'Não foi possível carregar os usuários.', String(response?.status ?? error.name), error)
+    }
+
+    return Array.isArray(data?.users) ? data.users : []
+  } catch (error) {
+    throw toAppError(error, 'Não foi possível carregar os usuários.')
   }
 }

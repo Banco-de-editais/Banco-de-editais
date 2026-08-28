@@ -43,24 +43,20 @@ npm run build
 
 ## Convites e ativação de conta
 
-Administradores criam contas na tela de usuários. A Edge Function `admin-create-user` envia um convite para o e-mail informado e define a role exclusivamente em `app_metadata.role`. Ao abrir o link, a pessoa é direcionada para `/auth/confirm`, onde a sessão criada pelo Supabase é validada antes de permitir a definição da senha.
+Administradores criam contas na tela de usuários, que também lista todas as contas sem expor dados sensíveis de autenticação. A Edge Function `admin-create-user` envia um convite para o e-mail informado e define a role exclusivamente em `app_metadata.role`.
 
-O cliente Supabase do projeto mantém `detectSessionInUrl` habilitado para processar o hash do fluxo de convite. A rota de ativação também aceita um `code` do fluxo PKCE quando recebido e o troca usando o cliente oficial do Supabase. Nenhum token é validado manualmente e nenhuma role é recebida ou alterada pelo frontend.
+O Supabase cria uma sessão temporária ao abrir um convite. Para que ela não seja confundida com uma sessão de acesso, a conta é criada com `app_metadata.account_status = pending`. Enquanto estiver pendente, ela não pode acessar rotas, dados protegidos por RLS ou operações administrativas. A Edge Function `activate-invited-user` recebe a nova senha, aplica a política de senha e muda o status para `active` na mesma operação administrativa. Só então o cliente renova a sessão e libera o acesso.
+
+O cliente Supabase do projeto mantém `detectSessionInUrl` habilitado para processar o hash do fluxo de convite. A rota de ativação também aceita um `code` do fluxo PKCE quando recebido e o troca usando o cliente oficial do Supabase. Nenhum token é validado manualmente e nenhuma role, status de ativação ou credencial administrativa é recebida ou alterada pelo frontend.
 
 ### Configuração local
 
-O Vite deste projeto usa a porta padrão `5173`. A configuração local do Supabase já permite os redirects abaixo em `supabase/config.toml`:
+O Vite deste projeto usa a porta padrão `5173`. A configuração local do Supabase já define a **Site URL** como a origem da aplicação e permite os redirects abaixo em `supabase/config.toml`:
 
 ```text
 http://localhost:5173
 http://localhost:5173/auth/confirm
 http://127.0.0.1:5173/auth/confirm
-```
-
-Crie `supabase/functions/.env` a partir de `supabase/functions/.env.example` e mantenha o seguinte valor para a Edge Function local:
-
-```dotenv
-FRONTEND_URL=http://localhost:5173
 ```
 
 Após alterar `supabase/config.toml`, reinicie a stack local do Supabase para aplicar as URLs.
@@ -70,18 +66,31 @@ Após alterar `supabase/config.toml`, reinicie a stack local do Supabase para ap
 O domínio de produção não está configurado neste repositório. Substitua `<DOMINIO-DA-APLICACAO>` pelo domínio real, sempre com `https`.
 
 1. Em **Authentication → URL Configuration** do Supabase, defina **Site URL** como `https://<DOMINIO-DA-APLICACAO>`.
-2. Em **Redirect URLs**, inclua os valores exatos `https://<DOMINIO-DA-APLICACAO>/auth/confirm` e, se for testar a aplicação local contra o projeto hospedado, `http://localhost:5173/auth/confirm`.
-3. Em **Edge Functions → Secrets**, configure `FRONTEND_URL=https://<DOMINIO-DA-APLICACAO>`. Alternativamente, use `npx supabase secrets set FRONTEND_URL=https://<DOMINIO-DA-APLICACAO>` no projeto vinculado.
-4. Faça o deploy da Edge Function após publicar o código. `FRONTEND_URL` é uma configuração da função, não uma variável `VITE_*` e não é enviada ao navegador.
+2. Em **Redirect URLs**, inclua `https://<DOMINIO-DA-APLICACAO>/auth/confirm` e, se for testar a aplicação local contra o projeto hospedado, `http://localhost:5173/auth/confirm`.
+3. Faça o deploy das Edge Functions após publicar o código. Nenhuma variável ou secret adicional é necessária para os convites.
 
-O `redirectTo` do convite é montado pela função com `FRONTEND_URL + /auth/confirm`. A URL precisa estar na lista de **Redirect URLs**; caso contrário, o Supabase ignora o `redirectTo` e usa a Site URL. Se o projeto tiver um template de e-mail de convite personalizado, mantenha `{{ .ConfirmationURL }}` para preservar esse redirecionamento.
+Também configure em **Authentication → Providers → Email**:
+
+1. Desative novos cadastros públicos por e-mail; as contas devem ser criadas somente por administradores.
+2. Defina o tamanho mínimo da senha como `12` e exija letras maiúsculas, minúsculas e números.
+
+Por fim, publique a migração e as três funções: `admin-create-user`, `activate-invited-user` e `admin-list-users`. A migração marca contas existentes com senha como ativas e restringe as políticas de leitura a contas ativas. Após a publicação, usuários já logados devem entrar novamente uma vez para receber o novo claim de ativação no JWT.
+
+```sh
+npx supabase db push
+npx supabase functions deploy admin-create-user
+npx supabase functions deploy activate-invited-user
+npx supabase functions deploy admin-list-users
+```
+
+O convite usa a **Site URL** configurada no Supabase, sem `redirectTo` ou variável de ambiente na Edge Function. Ao chegar à origem da aplicação, uma conta pendente é encaminhada automaticamente para `/auth/confirm`. Se o projeto tiver um template de e-mail de convite personalizado, mantenha `{{ .ConfirmationURL }}` para preservar esse redirecionamento.
 
 ### Como testar
 
-1. Inicie o Vite com `npm run dev` e confirme que `FRONTEND_URL` aponta para `http://localhost:5173`.
+1. Inicie o Vite com `npm run dev` e confirme que a Site URL local é `http://localhost:5173`.
 2. Autentique-se com uma conta administradora e crie um usuário comum, deixando a opção **Administrador** desmarcada.
-3. Abra o e-mail de convite e confirme que a URL chega em `/auth/confirm`; defina uma senha com pelo menos 6 caracteres e faça login com a nova conta. Ela não deve acessar as rotas administrativas.
+3. Abra o e-mail de convite e confirme que a URL chega em `/auth/confirm`. Antes de definir a senha, tente acessar `/`: a aplicação deve redirecionar para o login e as consultas ao banco devem ser negadas por RLS. Defina uma senha de 12 caracteres ou mais, com maiúsculas, minúsculas e números, e então faça login com a nova conta. Ela não deve acessar as rotas administrativas.
 4. Crie outro usuário marcando **Administrador**. Após definir a senha e entrar, a conta deve acessar as rotas administrativas.
 5. Para validar erros, abra a rota `/auth/confirm` diretamente ou reutilize um link de convite já consumido. A aplicação deve informar que o link é inválido ou expirou. Para testar expiração, reduza temporariamente **Email OTP Expiration** no projeto de testes, envie um novo convite e aguarde o prazo antes de abri-lo.
 
-Nenhuma secret key, `service_role` key ou credencial administrativa é adicionada ao frontend ou ao Git. As operações administrativas permanecem na Edge Function, que exige um JWT válido com `app_metadata.role === "admin"` e aceita somente as roles `user` e `admin`.
+Nenhuma secret key, `service_role` key ou credencial administrativa é adicionada ao frontend ou ao Git. As operações administrativas permanecem nas Edge Functions, que exigem um JWT válido com `app_metadata.role === "admin"` e `account_status === "active"`; somente as roles `user` e `admin` são aceitas.

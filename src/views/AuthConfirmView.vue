@@ -25,17 +25,17 @@
       <template v-else>
         <p class="mt-6 text-xs font-bold uppercase tracking-[0.18em] text-navy-600 dark:text-navy-300">Ativação de conta</p>
         <h1 class="mt-2 text-2xl font-black tracking-tight text-slate-950 dark:text-white">Defina sua senha</h1>
-        <p class="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">Use pelo menos 6 caracteres para concluir o acesso à sua conta.</p>
+        <p class="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">Use no mínimo 12 caracteres, com letras maiúsculas, minúsculas e números.</p>
 
         <form class="mt-6 space-y-5" @submit.prevent="submit">
           <p v-if="formError" class="rounded-xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300" role="alert">{{ formError }}</p>
           <label class="block">
             <span class="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">Nova senha</span>
-            <input v-model="password" type="password" required minlength="6" autocomplete="new-password" class="h-12 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-900 outline-none transition focus:border-navy-500 focus:bg-white focus:ring-4 focus:ring-navy-100 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:bg-slate-800 dark:focus:ring-navy-950" :disabled="isSubmitting" />
+            <input v-model="password" type="password" required minlength="12" autocomplete="new-password" class="h-12 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-900 outline-none transition focus:border-navy-500 focus:bg-white focus:ring-4 focus:ring-navy-100 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:bg-slate-800 dark:focus:ring-navy-950" :disabled="isSubmitting" />
           </label>
           <label class="block">
             <span class="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">Confirmar nova senha</span>
-            <input v-model="passwordConfirmation" type="password" required minlength="6" autocomplete="new-password" class="h-12 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-900 outline-none transition focus:border-navy-500 focus:bg-white focus:ring-4 focus:ring-navy-100 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:bg-slate-800 dark:focus:ring-navy-950" :disabled="isSubmitting" />
+            <input v-model="passwordConfirmation" type="password" required minlength="12" autocomplete="new-password" class="h-12 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-900 outline-none transition focus:border-navy-500 focus:bg-white focus:ring-4 focus:ring-navy-100 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:bg-slate-800 dark:focus:ring-navy-950" :disabled="isSubmitting" />
           </label>
           <button type="submit" class="flex h-12 w-full items-center justify-center rounded-xl bg-navy-600 px-5 text-sm font-bold text-white transition hover:bg-navy-700 disabled:cursor-not-allowed disabled:opacity-60" :disabled="isSubmitting || !isPasswordValid">{{ isSubmitting ? 'Definindo senha...' : 'Ativar conta' }}</button>
         </form>
@@ -50,7 +50,7 @@ import { useRouter } from 'vue-router'
 import AppIcon from '@/components/ui/AppIcon.vue'
 import { initializeAuth } from '@/composables/useAuth'
 import { isSupabaseConfigured, requireSupabase } from '@/lib/supabase'
-import { updatePassword } from '@/services/auth'
+import { activateInvitedUser } from '@/services/auth'
 
 const router = useRouter()
 const isValidating = ref(true)
@@ -60,7 +60,7 @@ const isComplete = ref(false)
 const password = ref('')
 const passwordConfirmation = ref('')
 const formError = ref('')
-const isPasswordValid = computed(() => password.value.length >= 6 && password.value === passwordConfirmation.value)
+const isPasswordValid = computed(() => /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{12,128}$/.test(password.value) && password.value === passwordConfirmation.value)
 let redirectTimeout = null
 
 function clearCallbackParameters() {
@@ -118,8 +118,8 @@ async function submit() {
   if (isSubmitting.value) return
   formError.value = ''
 
-  if (password.value.length < 6) {
-    formError.value = 'A senha deve ter pelo menos 6 caracteres.'
+  if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{12,128}$/.test(password.value)) {
+    formError.value = 'Use de 12 a 128 caracteres, incluindo letras maiúsculas, minúsculas e números.'
     return
   }
 
@@ -130,7 +130,7 @@ async function submit() {
 
   isSubmitting.value = true
   try {
-    await updatePassword(password.value)
+    await activateInvitedUser(password.value)
     password.value = ''
     passwordConfirmation.value = ''
     isComplete.value = true

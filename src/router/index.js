@@ -54,6 +54,13 @@ router.beforeEach(async (to) => {
   await initializeAuth()
   const auth = useAuth()
 
+  // Supabase invitations use the configured Site URL. A pending invitation
+  // receives a temporary session, so take it to password activation rather
+  // than allowing it into the application or back to the login screen.
+  if (to.name !== 'auth-confirm' && auth.user.value && !auth.isAccountActive.value) {
+    return { name: 'auth-confirm', query: to.query, hash: to.hash }
+  }
+
   if (to.meta.requiresAuth && !auth.isAuthenticated.value) {
     return { name: 'login', query: { redirect: to.fullPath } }
   }

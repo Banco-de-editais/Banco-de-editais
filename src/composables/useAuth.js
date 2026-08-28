@@ -9,8 +9,11 @@ let initializationPromise = null
 let authSubscription = null
 
 const user = computed(() => session.value?.user ?? null)
-const isAuthenticated = computed(() => Boolean(user.value))
-const isAdmin = computed(() => user.value?.app_metadata?.role === 'admin')
+// Invitation links create a short-lived Supabase session so the recipient can
+// choose a password. That session must not be treated as application access.
+const isAccountActive = computed(() => user.value?.app_metadata?.account_status === 'active')
+const isAuthenticated = computed(() => Boolean(user.value) && isAccountActive.value)
+const isAdmin = computed(() => isAuthenticated.value && user.value?.app_metadata?.role === 'admin')
 
 export function initializeAuth() {
   if (initializationPromise) return initializationPromise
@@ -58,6 +61,7 @@ export function useAuth() {
     session: readonly(session),
     user,
     isReady: readonly(isReady),
+    isAccountActive,
     isAuthenticated,
     isAdmin,
     configError: readonly(configError),
