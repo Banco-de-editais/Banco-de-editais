@@ -55,14 +55,21 @@ const searchId = `${labelId}-search`
 const selectedNames = computed(() => props.options.filter((item) => props.modelValue.includes(item.id)).map((item) => item.name))
 const buttonLabel = computed(() => selectedNames.value.length ? selectedNames.value.join(', ') : props.placeholder)
 const normalizedSearch = computed(() => normalizeSearchText(searchQuery.value))
-const filteredOptions = computed(() => normalizedSearch.value
-  ? props.options.filter((option) => normalizeSearchText(option.name).includes(normalizedSearch.value))
-  : props.options)
+const filteredOptions = computed(() => {
+  const terms = normalizedSearch.value.split(' ').filter(Boolean)
+  if (!terms.length) return props.options
+  return props.options.filter((option) => {
+    const normalizedOption = normalizeSearchText(option.name)
+    return terms.every((term) => normalizedOption.includes(term))
+  })
+})
 
 function normalizeSearchText(value) {
   return String(value ?? '')
     .normalize('NFD')
     .replace(/\p{Diacritic}/gu, '')
+    .replace(/[^\p{Letter}\p{Number}]+/gu, ' ')
+    .trim()
     .toLocaleLowerCase('pt-BR')
 }
 
