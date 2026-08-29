@@ -54,16 +54,12 @@
             <details class="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800/60">
               <summary class="cursor-pointer text-sm font-bold text-navy-800 dark:text-navy-200">Adicionar informações para reduzir incertezas</summary>
               <div class="mt-4 space-y-4">
-                <label class="block"><span :class="dateLabelClasses">Situação da publicação</span><select v-model="article.publicationStatus" :class="controlClasses"><option value="">Não informado</option><option value="PUBLISHED">Publicado</option><option value="ACCEPTED">Aceito para publicação</option></select></label>
                 <label class="block"><span :class="dateLabelClasses">Papel de autoria</span><select v-model="article.authorshipRole" :class="controlClasses"><option value="">Não informado</option><option value="AUTHOR">Autor</option><option value="COAUTHOR">Coautor</option><option value="FIRST_AUTHOR">Primeiro autor</option><option value="PRESENTER">Apresentador</option></select></label>
                 <div class="grid grid-cols-2 gap-3">
                   <label><span :class="dateLabelClasses">Número de autores</span><input v-model="article.authorCount" type="number" min="1" step="1" :class="controlClasses" /></label>
                   <label><span :class="dateLabelClasses">Primeiro autor?</span><select v-model="article.isFirstAuthor" :class="controlClasses"><option value="">Não informado</option><option value="true">Sim</option><option value="false">Não</option></select></label>
                 </div>
-                <div class="grid grid-cols-2 gap-3">
-                  <label><span :class="dateLabelClasses">Possui DOI?</span><select v-model="article.hasDoi" :class="controlClasses"><option value="">Não informado</option><option value="true">Sim</option><option value="false">Não</option></select></label>
-                  <label><span :class="dateLabelClasses">Possui ISSN?</span><select v-model="article.hasIssn" :class="controlClasses"><option value="">Não informado</option><option value="true">Sim</option><option value="false">Não</option></select></label>
-                </div>
+                <label class="block"><span :class="dateLabelClasses">Possui ISSN?</span><select v-model="article.hasIssn" :class="controlClasses"><option value="">Não informado</option><option value="true">Sim</option><option value="false">Não</option></select></label>
                 <label class="block"><span :class="dateLabelClasses">Data da publicação</span><input v-model="article.publicationDate" type="date" :class="controlClasses" /></label>
                 <label class="block"><span :class="dateLabelClasses">Abrangência da publicação</span><select v-model="article.publicationScope" :class="controlClasses"><option value="">Não informada</option><option value="LOCAL">Local</option><option value="REGIONAL">Regional</option><option value="STATE">Estadual</option><option value="NATIONAL">Nacional</option><option value="INTERNATIONAL">Internacional</option></select></label>
               </div>
@@ -184,11 +180,9 @@ const article = reactive({
   journalId: '',
   qualis: '',
   indexerIds: [],
-  publicationStatus: '',
   authorshipRole: '',
   authorCount: '',
   isFirstAuthor: '',
-  hasDoi: '',
   hasIssn: '',
   publicationDate: '',
   publicationScope: '',
@@ -216,7 +210,6 @@ const workInput = computed(() => ({
     .filter(Boolean),
   indexerCodesKnown: Boolean(selectedJournal.value) || article.indexerIds.length > 0,
   isFirstAuthor: article.isFirstAuthor === '' ? undefined : article.isFirstAuthor === 'true',
-  hasDoi: article.hasDoi === '' ? undefined : article.hasDoi === 'true',
   hasIssn: selectedJournal.value?.issn
     ? true
     : article.hasIssn === '' ? undefined : article.hasIssn === 'true',
@@ -233,6 +226,7 @@ const compatibleCount = computed(() => evaluatedEdicts.value.filter((edict) => e
 const insufficientCount = computed(() => evaluatedEdicts.value.filter((edict) => edict.compatibility.status === 'insufficient_data').length)
 const reviewCount = computed(() => evaluatedEdicts.value.filter((edict) => edict.compatibility.status === 'review_required').length)
 const noScientificScoringCount = computed(() => evaluatedEdicts.value.filter((edict) => edict.compatibility.status === 'no_scientific_scoring').length)
+const noArticleScoringCount = computed(() => evaluatedEdicts.value.filter((edict) => edict.coverage_status === 'NO_ARTICLE_SCORING').length)
 const coveragePendingCount = computed(() => evaluatedEdicts.value.filter((edict) => edict.compatibility.status === 'coverage_pending').length)
 const coverageStatusLabels = {
   NOT_LOCATED: 'fonte/regra não localizada',
@@ -261,7 +255,7 @@ const coveragePendingBreakdown = computed(() => {
     .join(', ')
 })
 const resultSummary = computed(() => hasSearched.value
-  ? `${compatibleCount.value} compatível(is), ${insufficientCount.value} precisam de dados, ${reviewCount.value} para conferir, ${noScientificScoringCount.value} sem pontuação científica e ${coveragePendingCount.value} com cobertura pendente.`
+  ? `${compatibleCount.value} compatível(is), ${insufficientCount.value} precisam de dados, ${reviewCount.value} para conferir, ${noScientificScoringCount.value - noArticleScoringCount.value} sem pontuação científica, ${noArticleScoringCount.value} sem pontuação para artigo e ${coveragePendingCount.value} com cobertura pendente.`
   : 'Os resultados aparecerão após a consulta.')
 
 const filterChips = computed(() => {

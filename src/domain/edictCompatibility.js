@@ -9,13 +9,20 @@ const USER_INPUT_FIELD_LABELS = new Map([
   ['production.authorship.is_first_author', 'se você é o primeiro autor'],
   ['production.authorship.is_presenter', 'se você é o apresentador'],
   ['production.authorship.role', 'a posição de autoria'],
-  ['production.identifiers.doi', 'se o artigo possui DOI'],
   ['production.identifiers.issn', 'se o periódico possui ISSN'],
   ['production.indexings', 'a revista ou os indexadores'],
   ['production.publication.scope', 'a abrangência da publicação'],
   ['production.publication_date', 'a data de publicação'],
-  ['production.publication_status', 'a situação da publicação'],
   ['production.qualis', 'o Qualis da revista'],
+])
+
+// Premissas operacionais definidas para o produto: os artigos cadastrados
+// possuem DOI e a situação da publicação não deve filtrar a consulta. As
+// condições permanecem preservadas nas regras como evidência do edital, mas
+// não geram incompatibilidade, dado ausente ou conferência manual.
+const SATISFIED_BY_ARTICLE_POLICY = new Set([
+  'production.identifiers.doi',
+  'production.publication_status',
 ])
 
 const PRIMARY_SCIENTIFIC_INPUT_FIELDS = new Set([
@@ -64,6 +71,8 @@ function compareKnownValue(operator, observed, expected) {
     }
     case 'HAS_ANY':
       return Array.isArray(observed) && observed.length > 0 ? TRUE : FALSE
+    case 'COUNT_GTE':
+      return Array.isArray(observed) && observed.length >= Number(expected) ? TRUE : FALSE
     case 'IS_TRUE':
       return observed === true ? TRUE : FALSE
     case 'IS_FALSE':
@@ -104,6 +113,8 @@ function compareKnownValue(operator, observed, expected) {
 }
 
 function evaluateCondition(condition, facts) {
+  if (facts['production.type'] === 'ARTICLE_PUBLICATION'
+    && SATISFIED_BY_ARTICLE_POLICY.has(condition.field)) return TRUE
   if (condition.operator === 'MANUAL') return UNKNOWN
   if (!(condition.field in facts)) {
     if (condition.required === false) return TRUE
@@ -246,7 +257,6 @@ function evaluatePositiveScorePotential(rule) {
 
 function scientificFacts(work) {
   const facts = { 'production.type': work.productionType || 'ARTICLE_PUBLICATION' }
-  if (work.publicationStatus) facts['production.publication_status'] = work.publicationStatus
   if (work.indexerCodesKnown || work.indexerCodes?.length) facts['production.indexings'] = [...new Set(work.indexerCodes ?? [])]
   if (work.qualis) facts['production.qualis'] = work.qualis
   if (work.authorshipRole) facts['production.authorship.role'] = work.authorshipRole
@@ -254,7 +264,6 @@ function scientificFacts(work) {
     facts['production.authorship.author_count'] = Number(work.authorCount)
   }
   if (typeof work.isFirstAuthor === 'boolean') facts['production.authorship.is_first_author'] = work.isFirstAuthor
-  if (typeof work.hasDoi === 'boolean') facts['production.identifiers.doi'] = work.hasDoi
   if (typeof work.hasIssn === 'boolean') facts['production.identifiers.issn'] = work.hasIssn
   if (work.publicationScope) facts['production.publication.scope'] = work.publicationScope
   if (work.publicationDate) facts['production.publication_date'] = work.publicationDate
@@ -267,11 +276,9 @@ function hasMeaningfulWorkInput(work) {
     || work.qualis
     || work.indexerCodesKnown
     || work.indexerCodes?.length
-    || work.publicationStatus
     || work.authorshipRole
     || (work.authorCount !== '' && work.authorCount !== null && work.authorCount !== undefined)
     || typeof work.isFirstAuthor === 'boolean'
-    || typeof work.hasDoi === 'boolean'
     || typeof work.hasIssn === 'boolean'
     || work.publicationDate
     || work.publicationScope,
@@ -302,6 +309,8 @@ function missingUserInputFields(rule, facts) {
 
   for (const condition of (rule.condition_groups ?? []).flatMap((group) => group.conditions ?? [])) {
     conditionFields.add(condition.field)
+    if (facts['production.type'] === 'ARTICLE_PUBLICATION'
+      && SATISFIED_BY_ARTICLE_POLICY.has(condition.field)) continue
     if (condition.required !== false
       && condition.operator !== 'MANUAL'
       && USER_INPUT_FIELD_LABELS.has(condition.field)
@@ -344,12 +353,15 @@ function missingUserInputFields(rule, facts) {
 function evaluateImportedEdict(edict, work) {
   const publishedRules = (edict.scientificRules ?? []).filter((rule) => rule.published_for_engine)
   if (!publishedRules.length) {
-    if (['NO_CURRICULUM', 'NO_SCIENTIFIC_SCORING'].includes(edict.coverage_status)) {
+    if (['NO_CURRICULUM', 'NO_SCIENTIFIC_SCORING', 'NO_ARTICLE_SCORING'].includes(edict.coverage_status)) {
+      const articleSpecificReason = edict.coverage_status === 'NO_ARTICLE_SCORING'
+        ? 'O processo possui avaliação curricular, mas artigos e publicações não recebem pontuação.'
+        : 'O processo foi registrado sem etapa curricular que pontue produção científica.'
       return {
         compatible: false,
         evaluable: true,
         status: 'no_scientific_scoring',
-        reasons: ['O processo foi registrado sem etapa de análise curricular; produção científica não gera pontuação.'],
+        reasons: [articleSpecificReason],
         matchingRules: [],
       }
     }

@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { coordinatingInstitutionOptions, filterEdicts } from '../src/domain/consultationFilters.js'
+import { coordinatingInstitutionOptions, currentPeriodEdicts, filterEdicts } from '../src/domain/consultationFilters.js'
 import { evaluateEdictCompatibility } from '../src/domain/edictCompatibility.js'
 import { journalMetadataLabel, journalOptionLabel, normalizeOptionalIssn } from '../src/domain/journals.js'
 import { compareQualis, QUALIS_LEVELS } from '../src/domain/qualis.js'
@@ -78,6 +78,18 @@ test('filtra edital e instituição coordenadora em campos independentes', () =>
   assert.deepEqual(filterEdicts(edicts, { edictIds: [10], institutionIds: [200] }), [])
 })
 
+test('mantém na consulta somente editais de 2025 em diante', () => {
+  const edicts = [
+    { id: 1, entry_year: 2024 },
+    { id: 2, entry_year: 2025 },
+    { id: 3, entry_year: 2027 },
+    { id: 4, entry_year: null },
+  ]
+
+  assert.deepEqual(currentPeriodEdicts(edicts).map((item) => item.id), [2, 3, 4])
+  assert.deepEqual(filterEdicts(edicts, {}).map((item) => item.id), [2, 3, 4])
+})
+
 test('oferece no filtro apenas instituições que coordenam algum edital', () => {
   const edicts = [
     { id: 10, institution: { id: 100, name: 'AREMG' } },
@@ -153,6 +165,36 @@ test('distingue edital comprovadamente sem análise curricular', () => {
     coverage_status: 'NO_SCIENTIFIC_SCORING',
   }, {})
   assert.equal(normalized.status, 'no_scientific_scoring')
+
+  const noArticleScoring = evaluateEdictCompatibility({
+    ...importedEdict([]),
+    coverage_status: 'NO_ARTICLE_SCORING',
+  }, {})
+  assert.equal(noArticleScoring.status, 'no_scientific_scoring')
+  assert.match(noArticleScoring.reasons.join(' '), /artigos e publicações não recebem pontuação/i)
+})
+
+test('compara requisito de quantidade mínima de indexadores', () => {
+  const rule = scientificRule({
+    condition_groups: [{
+      code: 'ROOT',
+      parent: null,
+      operator: 'ALL',
+      conditions: [
+        { field: 'production.type', operator: 'EQ', value: 'ARTICLE_PUBLICATION', required: true, negated: false },
+        { field: 'production.indexings', operator: 'COUNT_GTE', value: 2, required: true, negated: false },
+      ],
+    }],
+  })
+
+  assert.equal(evaluateEdictCompatibility(importedEdict([rule]), {
+    indexerCodes: ['LILACS'], indexerCodesKnown: true,
+  }).status, 'incompatible')
+  assert.equal(evaluateEdictCompatibility(importedEdict([rule]), {
+    indexerCodes: ['LILACS', 'SCIELO'], indexerCodesKnown: true,
+  }).status, 'compatible')
+  assert.equal(evaluateEdictCompatibility(importedEdict([rule]), {}).status, 'insufficient_data')
+  assert.match(scientificRequirementLabel(rule), /pelo menos 2 bases/i)
 })
 
 test('aceita regra científica completamente atendida', () => {
@@ -163,7 +205,7 @@ test('aceita regra científica completamente atendida', () => {
   assert.deepEqual(result.matchingRules.map((rule) => rule.source_rule_id), ['R-001'])
 })
 
-test('não confirma regra quando falta um dado obrigatório que o usuário pode informar', () => {
+test('ignora situação da publicação como filtro para artigos', () => {
   const rule = scientificRule({
     condition_groups: [{
       code: 'ROOT',
@@ -176,11 +218,9 @@ test('não confirma regra quando falta um dado obrigatório que o usuário pode 
     }],
   })
 
-  const result = evaluateEdictCompatibility(importedEdict([rule]), {})
-  assert.equal(result.compatible, false)
-  assert.equal(result.evaluable, false)
-  assert.equal(result.status, 'insufficient_data')
-  assert.ok(result.reasons.includes('Informe a situação da publicação.'))
+  const result = evaluateEdictCompatibility(importedEdict([rule]), { journalId: 'journal-1' })
+  assert.equal(result.compatible, true)
+  assert.equal(result.status, 'compatible')
 })
 
 test('compara indexação científica por código sem equiparar bases distintas', () => {
@@ -273,7 +313,7 @@ test('aceita requisito de qualquer indexação sem inventar uma base específica
   assert.match(scientificRequirementLabel(rule), /qualquer base científica/)
 })
 
-test('Sírio-Libanês exige indexação positiva antes de confirmar compatibilidade', () => {
+test('Sírio-Libanês ignora DOI e situação da publicação, mas exige indexação positiva', () => {
   const rule = scientificRule({
     source_rule_id: 'R01-001',
     condition_groups: [{
@@ -292,14 +332,10 @@ test('Sírio-Libanês exige indexação positiva antes de confirmar compatibilid
 
   assert.equal(evaluateEdictCompatibility(importedEdict([rule]), {}).status, 'insufficient_data')
   assert.equal(evaluateEdictCompatibility(importedEdict([rule]), {
-    hasDoi: true,
-    publicationStatus: 'PUBLISHED',
     indexerCodes: ['SCIELO'],
     indexerCodesKnown: true,
   }).status, 'compatible')
   assert.equal(evaluateEdictCompatibility(importedEdict([rule]), {
-    hasDoi: true,
-    publicationStatus: 'PUBLISHED',
     indexerCodes: ['LILACS'],
     indexerCodesKnown: true,
   }).status, 'incompatible')
@@ -371,7 +407,7 @@ test('leva ao conferir quando critérios científicos batem e só faltam detalhe
     qualis: 'B2',
   })
   assert.equal(matched.status, 'review_required')
-  assert.ok(matched.reasons.includes('Confirmar a situação da publicação.'))
+  assert.ok(!matched.reasons.includes('Confirmar a situação da publicação.'))
   assert.ok(matched.reasons.includes('Confirmar orientador com RQE.'))
 
   const missingPrimaryCriterion = evaluateEdictCompatibility(importedEdict([rule]), {

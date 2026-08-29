@@ -22,7 +22,12 @@ export function scientificScoreLabel(rule) {
 }
 
 export function scientificRequirementLabel(rule) {
+  if (rule?.source_metadata?.requirement_label) return rule.source_metadata.requirement_label
   const parts = []
+  const conditions = (rule?.condition_groups ?? []).flatMap((group) => group.conditions ?? [])
+  const minimumIndexerCount = conditions.find((condition) =>
+    condition.field === 'production.indexings' && condition.operator === 'COUNT_GTE')
+  if (minimumIndexerCount) parts.push(`Indexação: pelo menos ${minimumIndexerCount.value} bases cadastradas`)
   if ((rule?.indexing_requirements ?? []).some((item) => item.operator === 'HAS_ANY')) {
     parts.push('Indexação: qualquer base científica cadastrada')
   }
