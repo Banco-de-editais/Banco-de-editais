@@ -328,7 +328,7 @@ test('usa o tipo não-artigo como dado real quando a regra exige apenas a catego
   assert.equal(result.status, 'compatible')
 })
 
-test('capítulo publicado com ISBN atende a regra e dado ausente não vira compatibilidade', () => {
+test('assume que todos os capítulos possuem ISBN e já foram publicados', () => {
   const rule = scientificRule({
     family: 'LIVRO_CAPITULO',
     production_type: 'BOOK_CHAPTER',
@@ -340,15 +340,13 @@ test('capítulo publicado com ISBN atende a regra e dado ausente não vira compa
     ] }],
   })
 
-  const missing = evaluateEdictCompatibility(importedEdict([rule]), { productionType: 'CHAPTER' })
-  assert.equal(missing.status, 'insufficient_data')
-  assert.match(missing.reasons.join(' '), /ISBN/i)
-  assert.match(missing.reasons.join(' '), /situação da publicação/i)
+  const chapterOnly = evaluateEdictCompatibility(importedEdict([rule]), { productionType: 'CHAPTER' })
+  assert.equal(chapterOnly.status, 'compatible')
 
-  const acceptedOnly = evaluateEdictCompatibility(importedEdict([rule]), {
-    productionType: 'CHAPTER', hasIsbn: true, publicationStatus: 'ACCEPTED',
+  const contradictoryInputIsIgnored = evaluateEdictCompatibility(importedEdict([rule]), {
+    productionType: 'CHAPTER', hasIsbn: false, publicationStatus: 'ACCEPTED',
   })
-  assert.equal(acceptedOnly.status, 'incompatible')
+  assert.equal(contradictoryInputIsIgnored.status, 'compatible')
 
   const published = evaluateEdictCompatibility(importedEdict([rule]), {
     productionType: 'CHAPTER', hasIsbn: true, publicationStatus: 'PUBLISHED',

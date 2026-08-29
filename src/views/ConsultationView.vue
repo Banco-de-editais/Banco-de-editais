@@ -54,9 +54,12 @@
             </template>
 
             <div v-if="isBookProduction" class="space-y-4 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800/60">
-              <p class="text-sm font-bold text-navy-800 dark:text-navy-200">Dados da obra</p>
-              <label class="block"><span :class="dateLabelClasses">Possui ISBN?</span><select v-model="article.hasIsbn" :class="controlClasses"><option value="">Não informado</option><option value="true">Sim</option><option value="false">Não</option></select></label>
-              <label class="block"><span :class="dateLabelClasses">Situação da obra</span><select v-model="article.publicationStatus" :class="controlClasses"><option value="">Não informada</option><option value="PUBLISHED">Publicada</option><option value="ACCEPTED">Aceita, ainda não publicada</option></select></label>
+              <p class="text-sm font-bold text-navy-800 dark:text-navy-200">{{ isChapterProduction ? 'Premissas do capítulo' : 'Dados da obra' }}</p>
+              <p v-if="isChapterProduction" class="rounded-lg bg-navy-50 px-3 py-2.5 text-xs font-semibold leading-5 text-navy-800 dark:bg-navy-950/60 dark:text-navy-200">Todos os capítulos consultados são considerados publicados e com ISBN.</p>
+              <template v-else>
+                <label class="block"><span :class="dateLabelClasses">Possui ISBN?</span><select v-model="article.hasIsbn" :class="controlClasses"><option value="">Não informado</option><option value="true">Sim</option><option value="false">Não</option></select></label>
+                <label class="block"><span :class="dateLabelClasses">Situação da obra</span><select v-model="article.publicationStatus" :class="controlClasses"><option value="">Não informada</option><option value="PUBLISHED">Publicada</option><option value="ACCEPTED">Aceita, ainda não publicada</option></select></label>
+              </template>
             </div>
 
             <div v-if="isEventProduction" class="space-y-4 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800/60">
@@ -221,6 +224,7 @@ const selectedJournal = computed(() => journals.value.find((item) => String(item
 const selectableIndexers = computed(() => indexers.value.filter((item) => item.exact_match_allowed !== false))
 const isArticleProduction = computed(() => article.productionType === 'ARTICLE_PUBLICATION')
 const isBookProduction = computed(() => ['BOOK', 'CHAPTER'].includes(article.productionType))
+const isChapterProduction = computed(() => article.productionType === 'CHAPTER')
 const isEventProduction = computed(() => ['EVENT_PRESENTATION', 'ABSTRACT_PROCEEDINGS'].includes(article.productionType))
 const edictOptions = computed(() => edicts.value
   .map((edict) => ({ id: edict.id, name: edict.name }))
@@ -241,7 +245,10 @@ const workInput = computed(() => ({
   indexerCodesKnown: Boolean(selectedJournal.value) || article.indexerIds.length > 0,
   isFirstAuthor: article.isFirstAuthor === '' ? undefined : article.isFirstAuthor === 'true',
   isPresenter: article.isPresenter === '' ? undefined : article.isPresenter === 'true',
-  hasIsbn: article.hasIsbn === '' ? undefined : article.hasIsbn === 'true',
+  hasIsbn: isChapterProduction.value
+    ? true
+    : article.hasIsbn === '' ? undefined : article.hasIsbn === 'true',
+  publicationStatus: isChapterProduction.value ? 'PUBLISHED' : article.publicationStatus,
   eventProceedings: article.productionType === 'ABSTRACT_PROCEEDINGS'
     ? true
     : article.eventProceedings === '' ? undefined : article.eventProceedings === 'true',

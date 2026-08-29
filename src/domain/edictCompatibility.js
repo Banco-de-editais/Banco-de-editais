@@ -325,7 +325,8 @@ function evaluatePositiveScorePotential(rule) {
 }
 
 function scientificFacts(work) {
-  const facts = { 'production.type': work.productionType || 'ARTICLE_PUBLICATION' }
+  const productionType = work.productionType || 'ARTICLE_PUBLICATION'
+  const facts = { 'production.type': productionType }
   if (work.indexerCodesKnown || work.indexerCodes?.length) facts['production.indexings'] = [...new Set(work.indexerCodes ?? [])]
   if (work.qualis) facts['production.qualis'] = work.qualis
   if (work.authorshipRole) facts['production.authorship.role'] = work.authorshipRole
@@ -334,13 +335,21 @@ function scientificFacts(work) {
   }
   if (typeof work.isFirstAuthor === 'boolean') facts['production.authorship.is_first_author'] = work.isFirstAuthor
   if (typeof work.isPresenter === 'boolean') facts['production.authorship.is_presenter'] = work.isPresenter
-  if (typeof work.hasIsbn === 'boolean') facts['production.identifiers.isbn'] = work.hasIsbn
+  // Premissa operacional do produto: todos os capítulos consultados possuem
+  // ISBN e já foram publicados. As condições continuam preservadas nas regras
+  // dos editais como evidência, mas não exigem preenchimento do usuário.
+  if (productionType === 'CHAPTER') {
+    facts['production.identifiers.isbn'] = true
+    facts['production.publication_status'] = 'PUBLISHED'
+  } else {
+    if (typeof work.hasIsbn === 'boolean') facts['production.identifiers.isbn'] = work.hasIsbn
+    if (work.publicationStatus) facts['production.publication_status'] = work.publicationStatus
+  }
   if (typeof work.hasIssn === 'boolean') facts['production.identifiers.issn'] = work.hasIssn
   if (work.eventScope) facts['production.event.scope'] = work.eventScope
   if (work.presentationFormat) facts['production.event.presentation_format'] = work.presentationFormat
   if (typeof work.eventProceedings === 'boolean') facts['production.event.proceedings'] = work.eventProceedings
   if (typeof work.eventPresented === 'boolean') facts['production.event.presented'] = work.eventPresented
-  if (work.publicationStatus) facts['production.publication_status'] = work.publicationStatus
   if (work.publicationScope) facts['production.publication.scope'] = work.publicationScope
   if (work.publicationDate) facts['production.publication_date'] = work.publicationDate
   return facts

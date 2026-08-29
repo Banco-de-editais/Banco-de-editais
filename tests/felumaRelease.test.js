@@ -42,11 +42,11 @@ test('release FELUMA possui oito regras íntegras, auditáveis e sem IDs duplica
   }
 })
 
-test('FELUMA aceita capítulo somente quando publicado e com ISBN', () => {
-  assert.equal(evaluateEdictCompatibility(edict, { productionType: 'CHAPTER' }).status, 'insufficient_data')
+test('FELUMA considera automaticamente que o capítulo foi publicado e possui ISBN', () => {
+  assert.equal(evaluateEdictCompatibility(edict, { productionType: 'CHAPTER' }).status, 'compatible')
   assert.equal(evaluateEdictCompatibility(edict, {
-    productionType: 'CHAPTER', hasIsbn: true, publicationStatus: 'ACCEPTED',
-  }).status, 'incompatible')
+    productionType: 'CHAPTER', hasIsbn: false, publicationStatus: 'ACCEPTED',
+  }).status, 'compatible')
   assert.equal(evaluateEdictCompatibility(edict, {
     productionType: 'CHAPTER', hasIsbn: true, publicationStatus: 'PUBLISHED',
   }).status, 'compatible')
