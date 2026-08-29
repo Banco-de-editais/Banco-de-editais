@@ -33,12 +33,21 @@ test('considera compatível quando existe ao menos um indexador aceito', () => {
   assert.equal(evaluateEdictCompatibility(edict, { indexerIds: [3] }).compatible, false)
 })
 
-test('ignora critérios do trabalho que não foram informados', () => {
+test('não trata critérios legados ausentes como compatibilidade', () => {
   const result = evaluateEdictCompatibility({ minimum_qualis: 'A1', indexerIds: [10] }, {})
 
-  assert.equal(result.evaluable, true)
-  assert.equal(result.compatible, true)
-  assert.deepEqual(result.reasons, ['Nenhum critério de classificação aplicado'])
+  assert.equal(result.evaluable, false)
+  assert.equal(result.compatible, false)
+  assert.equal(result.status, 'insufficient_data')
+  assert.ok(result.reasons.includes('Informe o Qualis da revista.'))
+  assert.ok(result.reasons.includes('Informe a revista ou os indexadores.'))
+})
+
+test('não trata edital legado sem critério estruturado como aceitação universal', () => {
+  const result = evaluateEdictCompatibility({}, {})
+
+  assert.equal(result.compatible, false)
+  assert.equal(result.status, 'coverage_pending')
 })
 
 test('rejeita uma classificação Qualis inválida', () => {
@@ -115,6 +124,7 @@ const scientificRule = (overrides = {}) => ({
   indexing_requirements: [],
   authorship_requirement: null,
   qualis_requirement: null,
+  score_formula: { points_per_item: 1, maximum_points: 1 },
   date_window: null,
   subject_area_requirement: null,
   ...overrides,
@@ -125,18 +135,35 @@ test('não conclui compatibilidade quando o edital importado não tem regra publ
 
   assert.equal(result.compatible, false)
   assert.equal(result.evaluable, false)
-  assert.equal(result.status, 'no_normalized_rule')
+  assert.equal(result.status, 'coverage_pending')
+})
+
+test('distingue edital comprovadamente sem análise curricular', () => {
+  const result = evaluateEdictCompatibility({
+    ...importedEdict([]),
+    coverage_status: 'NO_CURRICULUM',
+  }, {})
+
+  assert.equal(result.compatible, false)
+  assert.equal(result.evaluable, true)
+  assert.equal(result.status, 'no_scientific_scoring')
+
+  const normalized = evaluateEdictCompatibility({
+    ...importedEdict([]),
+    coverage_status: 'NO_SCIENTIFIC_SCORING',
+  }, {})
+  assert.equal(normalized.status, 'no_scientific_scoring')
 })
 
 test('aceita regra científica completamente atendida', () => {
-  const result = evaluateEdictCompatibility(importedEdict([scientificRule()]), {})
+  const result = evaluateEdictCompatibility(importedEdict([scientificRule()]), { journalId: 'journal-1' })
 
   assert.equal(result.compatible, true)
   assert.equal(result.status, 'compatible')
   assert.deepEqual(result.matchingRules.map((rule) => rule.source_rule_id), ['R-001'])
 })
 
-test('não rebaixa a regra quando um refinamento opcional não foi informado', () => {
+test('não confirma regra quando falta um dado obrigatório que o usuário pode informar', () => {
   const rule = scientificRule({
     condition_groups: [{
       code: 'ROOT',
@@ -150,9 +177,10 @@ test('não rebaixa a regra quando um refinamento opcional não foi informado', (
   })
 
   const result = evaluateEdictCompatibility(importedEdict([rule]), {})
-  assert.equal(result.compatible, true)
-  assert.equal(result.evaluable, true)
-  assert.equal(result.status, 'compatible')
+  assert.equal(result.compatible, false)
+  assert.equal(result.evaluable, false)
+  assert.equal(result.status, 'insufficient_data')
+  assert.ok(result.reasons.includes('Informe a situação da publicação.'))
 })
 
 test('compara indexação científica por código sem equiparar bases distintas', () => {
@@ -170,7 +198,7 @@ test('compara indexação científica por código sem equiparar bases distintas'
 
   assert.equal(evaluateEdictCompatibility(importedEdict([rule]), { indexerCodes: ['PUBMED'] }).compatible, true)
   assert.equal(evaluateEdictCompatibility(importedEdict([rule]), { indexerCodes: ['MEDLINE'] }).status, 'incompatible')
-  assert.equal(evaluateEdictCompatibility(importedEdict([rule]), {}).status, 'compatible')
+  assert.equal(evaluateEdictCompatibility(importedEdict([rule]), {}).status, 'insufficient_data')
   assert.equal(evaluateEdictCompatibility(importedEdict([rule]), { indexerCodes: [], indexerCodesKnown: true }).status, 'incompatible')
 })
 
@@ -186,7 +214,95 @@ test('compara requisito estruturado de Qualis mínimo', () => {
   assert.equal(evaluateEdictCompatibility(importedEdict([rule]), { qualis: 'B2' }).status, 'compatible')
   assert.equal(evaluateEdictCompatibility(importedEdict([rule]), { qualis: 'A4' }).status, 'compatible')
   assert.equal(evaluateEdictCompatibility(importedEdict([rule]), { qualis: 'B3' }).status, 'incompatible')
+  assert.equal(evaluateEdictCompatibility(importedEdict([rule]), {}).status, 'insufficient_data')
   assert.match(scientificRequirementLabel(rule), /Qualis mínimo: B2/)
+})
+
+test('não trata regra de zero ponto como oportunidade compatível', () => {
+  const rule = scientificRule({
+    score_formula: { points_per_item: 0, maximum_points: 0 },
+  })
+
+  const result = evaluateEdictCompatibility(importedEdict([rule]), {})
+  assert.equal(result.compatible, false)
+  assert.equal(result.status, 'incompatible')
+})
+
+test('não confirma regra positiva genérica quando só o tipo padrão foi informado', () => {
+  const rule = scientificRule({
+    score_formula: { type: 'PER_ITEM', points_per_item: 1, maximum_points: 1 },
+  })
+
+  const result = evaluateEdictCompatibility(importedEdict([rule]), {
+    productionType: 'ARTICLE_PUBLICATION',
+  })
+
+  assert.equal(result.compatible, false)
+  assert.equal(result.status, 'insufficient_data')
+  assert.match(result.reasons.join(' '), /Selecionar apenas o tipo de produção/i)
+})
+
+test('aceita pontuação positiva confirmada quando a fórmula permanece manual', () => {
+  const rule = scientificRule({
+    score_formula: {
+      type: 'MANUAL',
+      positive_score_confirmed: true,
+      literal_formula: 'Pontuação varia conforme autoria.',
+    },
+  })
+
+  assert.equal(evaluateEdictCompatibility(importedEdict([rule]), { journalId: 'journal-1' }).status, 'compatible')
+})
+
+test('aceita requisito de qualquer indexação sem inventar uma base específica', () => {
+  const rule = scientificRule({
+    indexing_requirements: [{
+      base: 'ANY_SCIENTIFIC_DATABASE',
+      operator: 'HAS_ANY',
+      exact_match_allowed: true,
+    }],
+  })
+
+  assert.equal(evaluateEdictCompatibility(importedEdict([rule]), {}).status, 'insufficient_data')
+  assert.equal(evaluateEdictCompatibility(importedEdict([rule]), {
+    indexerCodes: ['LILACS'], indexerCodesKnown: true,
+  }).status, 'compatible')
+  assert.equal(evaluateEdictCompatibility(importedEdict([rule]), {
+    indexerCodes: [], indexerCodesKnown: true,
+  }).status, 'incompatible')
+  assert.match(scientificRequirementLabel(rule), /qualquer base científica/)
+})
+
+test('Sírio-Libanês exige indexação positiva antes de confirmar compatibilidade', () => {
+  const rule = scientificRule({
+    source_rule_id: 'R01-001',
+    condition_groups: [{
+      code: 'ROOT',
+      parent: null,
+      operator: 'ALL',
+      conditions: [
+        { field: 'production.type', operator: 'EQ', value: 'ARTICLE_PUBLICATION', required: true, negated: false },
+        { field: 'production.identifiers.doi', operator: 'IS_TRUE', value: true, required: true, negated: false },
+        { field: 'production.publication_status', operator: 'EQ', value: 'PUBLISHED', required: true, negated: false },
+        { field: 'production.indexings', operator: 'IN', value: ['SCIELO'], required: true, negated: false },
+      ],
+    }],
+    score_formula: { points_per_item: 20, maximum_points: 40 },
+  })
+
+  assert.equal(evaluateEdictCompatibility(importedEdict([rule]), {}).status, 'insufficient_data')
+  assert.equal(evaluateEdictCompatibility(importedEdict([rule]), {
+    hasDoi: true,
+    publicationStatus: 'PUBLISHED',
+    indexerCodes: ['SCIELO'],
+    indexerCodesKnown: true,
+  }).status, 'compatible')
+  assert.equal(evaluateEdictCompatibility(importedEdict([rule]), {
+    hasDoi: true,
+    publicationStatus: 'PUBLISHED',
+    indexerCodes: ['LILACS'],
+    indexerCodesKnown: true,
+  }).status, 'incompatible')
 })
 
 test('mantém requisito de Qualis incompleto para conferência manual', () => {

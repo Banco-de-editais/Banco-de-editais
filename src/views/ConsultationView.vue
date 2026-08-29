@@ -62,8 +62,9 @@
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                   <label><span :class="dateLabelClasses">Possui DOI?</span><select v-model="article.hasDoi" :class="controlClasses"><option value="">Não informado</option><option value="true">Sim</option><option value="false">Não</option></select></label>
-                  <label><span :class="dateLabelClasses">Data da publicação</span><input v-model="article.publicationDate" type="date" :class="controlClasses" /></label>
+                  <label><span :class="dateLabelClasses">Possui ISSN?</span><select v-model="article.hasIssn" :class="controlClasses"><option value="">Não informado</option><option value="true">Sim</option><option value="false">Não</option></select></label>
                 </div>
+                <label class="block"><span :class="dateLabelClasses">Data da publicação</span><input v-model="article.publicationDate" type="date" :class="controlClasses" /></label>
                 <label class="block"><span :class="dateLabelClasses">Abrangência da publicação</span><select v-model="article.publicationScope" :class="controlClasses"><option value="">Não informada</option><option value="LOCAL">Local</option><option value="REGIONAL">Regional</option><option value="STATE">Estadual</option><option value="NATIONAL">Nacional</option><option value="INTERNATIONAL">Internacional</option></select></label>
               </div>
             </details>
@@ -116,7 +117,7 @@
 
           <section aria-labelledby="results-title">
             <div class="mb-4 flex flex-wrap items-end justify-between gap-3">
-              <div><h2 id="results-title" class="text-xl font-black text-slate-950 dark:text-white">Resultados da consulta</h2><p class="mt-1 text-sm text-slate-500">{{ resultSummary }}</p></div>
+              <div><h2 id="results-title" class="text-xl font-black text-slate-950 dark:text-white">Resultados da consulta</h2><p class="mt-1 text-sm text-slate-500">{{ resultSummary }}</p><p v-if="hasSearched && coveragePendingCount" class="mt-1 text-xs text-slate-400">Cobertura pendente: {{ coveragePendingBreakdown }}. Isso não significa que o trabalho é aceito.</p></div>
               <span v-if="hasSearched" class="rounded-full bg-navy-100 px-3 py-1.5 text-xs font-bold text-navy-800 dark:bg-navy-950 dark:text-navy-200">{{ visibleEdicts.length }} resultado(s)</span>
             </div>
 
@@ -124,14 +125,14 @@
             <EmptyState v-else-if="!visibleEdicts.length" icon="search" title="Nenhum resultado seguro ou potencial" description="Os dados informados não atenderam às regras publicadas, ou os editais filtrados ainda não possuem regra científica normalizada." />
             <div v-else class="grid grid-cols-1 gap-4 lg:grid-cols-2">
               <article v-for="edict in visibleEdicts" :key="edict.id" class="relative flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg dark:border-slate-800 dark:bg-slate-900">
-                <div class="absolute inset-x-0 top-0 h-1" :class="edict.compatibility.status === 'compatible' ? 'bg-linear-to-r from-emerald-400 to-navy-600' : 'bg-linear-to-r from-amber-400 to-orange-500'"></div>
+                <div class="absolute inset-x-0 top-0 h-1" :class="compatibilityAccentClass(edict.compatibility.status)"></div>
                 <div class="flex items-start justify-between gap-3">
                   <p class="text-xs font-bold uppercase tracking-wide text-navy-600 dark:text-navy-300">{{ edict.institution?.name }}</p>
                   <span class="shrink-0 rounded-full px-2.5 py-1 text-[0.68rem] font-bold" :class="compatibilityBadgeClass(edict.compatibility.status)">{{ compatibilityLabel(edict.compatibility.status) }}</span>
                 </div>
                 <h3 class="mt-2 text-lg font-black leading-6 text-slate-950 dark:text-white">{{ edict.name }}</h3>
                 <dl class="mt-5 grid grid-cols-2 gap-3 rounded-xl bg-slate-50 p-4 dark:bg-slate-800/60"><div><dt class="text-[0.68rem] font-bold uppercase tracking-wide text-slate-400">Publicação</dt><dd class="mt-1 text-sm font-semibold text-slate-700 dark:text-slate-200">{{ formatDate(edict.published_at) }}</dd></div><div><dt class="text-[0.68rem] font-bold uppercase tracking-wide text-slate-400">Deadline</dt><dd class="mt-1 text-sm font-semibold text-slate-700 dark:text-slate-200">{{ formatDate(edict.application_deadline) }}</dd></div></dl>
-                <ul class="mt-4 space-y-2"><li v-for="reason in edict.compatibility.reasons" :key="reason" class="flex items-start gap-2 text-sm text-slate-600 dark:text-slate-300"><span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full" :class="edict.compatibility.status === 'compatible' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300'"><AppIcon :name="edict.compatibility.status === 'compatible' ? 'check' : 'warning'" class="h-3 w-3" /></span>{{ reason }}</li></ul>
+                <ul class="mt-4 space-y-2"><li v-for="reason in edict.compatibility.reasons" :key="reason" class="flex items-start gap-2 text-sm text-slate-600 dark:text-slate-300"><span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full" :class="compatibilityReasonClass(edict.compatibility.status)"><AppIcon :name="edict.compatibility.status === 'compatible' ? 'check' : 'warning'" class="h-3 w-3" /></span>{{ reason }}</li></ul>
                 <details v-if="edict.compatibility.matchingRules.length" class="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800/60">
                   <summary class="cursor-pointer text-xs font-bold uppercase tracking-wide text-navy-700 dark:text-navy-300">Ver {{ edict.compatibility.matchingRules.length }} regra(s) relacionada(s)</summary>
                   <div class="mt-3 space-y-3">
@@ -139,6 +140,7 @@
                       <div class="flex items-start justify-between gap-2"><p class="font-bold text-slate-900 dark:text-white">{{ scientificFamilyLabel(rule.family) }} · {{ rule.source_rule_id }}</p><span class="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[0.65rem] text-slate-500 dark:bg-slate-800">{{ rule.mapping_confidence }}</span></div>
                       <p class="mt-1 text-slate-600 dark:text-slate-300">{{ scientificScoreLabel(rule) }}</p>
                       <p class="mt-1 text-slate-500">{{ scientificRequirementLabel(rule) }}</p>
+                      <p class="mt-1 font-semibold text-slate-500">{{ scientificScopeLabel(rule) }}</p>
                       <a v-if="safeExternalUrl(rule.evidence?.official_url)" :href="safeExternalUrl(rule.evidence.official_url)" target="_blank" rel="noopener noreferrer" class="mt-2 inline-flex font-bold text-navy-700 hover:underline dark:text-navy-300">Fonte oficial<span v-if="rule.evidence?.page"> · pág. {{ rule.evidence.page }}</span></a>
                     </div>
                     <p v-if="edict.compatibility.matchingRules.length > 5" class="text-xs font-semibold text-slate-500">Mais {{ edict.compatibility.matchingRules.length - 5 }} regra(s) no banco.</p>
@@ -165,7 +167,7 @@ import { coordinatingInstitutionOptions, filterEdicts } from '@/domain/consultat
 import { evaluateEdictCompatibility } from '@/domain/edictCompatibility'
 import { journalMetadataLabel, journalOptionLabel } from '@/domain/journals'
 import { QUALIS_LEVELS } from '@/domain/qualis'
-import { scientificFamilyLabel, scientificRequirementLabel, scientificScoreLabel } from '@/domain/scientificRules'
+import { scientificFamilyLabel, scientificRequirementLabel, scientificScopeLabel, scientificScoreLabel } from '@/domain/scientificRules'
 import { formatDate, safeExternalUrl } from '@/lib/formatters'
 import { loadConsultationData } from '@/services/consultation'
 
@@ -187,6 +189,7 @@ const article = reactive({
   authorCount: '',
   isFirstAuthor: '',
   hasDoi: '',
+  hasIssn: '',
   publicationDate: '',
   publicationScope: '',
 })
@@ -214,7 +217,9 @@ const workInput = computed(() => ({
   indexerCodesKnown: Boolean(selectedJournal.value) || article.indexerIds.length > 0,
   isFirstAuthor: article.isFirstAuthor === '' ? undefined : article.isFirstAuthor === 'true',
   hasDoi: article.hasDoi === '' ? undefined : article.hasDoi === 'true',
-  hasIssn: selectedJournal.value ? Boolean(selectedJournal.value.issn) : undefined,
+  hasIssn: selectedJournal.value?.issn
+    ? true
+    : article.hasIssn === '' ? undefined : article.hasIssn === 'true',
 }))
 
 const evaluatedEdicts = computed(() => dateFilteredEdicts.value.map((edict) => ({
@@ -222,13 +227,41 @@ const evaluatedEdicts = computed(() => dateFilteredEdicts.value.map((edict) => (
   compatibility: evaluateEdictCompatibility(edict, workInput.value),
 })))
 const visibleEdicts = computed(() => hasSearched.value
-  ? evaluatedEdicts.value.filter((edict) => ['compatible', 'review_required'].includes(edict.compatibility.status))
+  ? evaluatedEdicts.value.filter((edict) => ['compatible', 'insufficient_data', 'review_required'].includes(edict.compatibility.status))
   : [])
 const compatibleCount = computed(() => evaluatedEdicts.value.filter((edict) => edict.compatibility.status === 'compatible').length)
+const insufficientCount = computed(() => evaluatedEdicts.value.filter((edict) => edict.compatibility.status === 'insufficient_data').length)
 const reviewCount = computed(() => evaluatedEdicts.value.filter((edict) => edict.compatibility.status === 'review_required').length)
-const uncoveredCount = computed(() => evaluatedEdicts.value.filter((edict) => edict.compatibility.status === 'no_normalized_rule').length)
+const noScientificScoringCount = computed(() => evaluatedEdicts.value.filter((edict) => edict.compatibility.status === 'no_scientific_scoring').length)
+const coveragePendingCount = computed(() => evaluatedEdicts.value.filter((edict) => edict.compatibility.status === 'coverage_pending').length)
+const coverageStatusLabels = {
+  NOT_LOCATED: 'fonte/regra não localizada',
+  SOURCE_NOT_LOCATED: 'fonte/regra não localizada',
+  SOURCE_PENDING_PUBLICATION: 'edital ainda não publicado',
+  NOT_EXTRACTED: 'fonte encontrada, extração pendente',
+  EXTRACTION_PENDING: 'fonte encontrada, extração pendente',
+  EXTRACTED_NOT_MAPPED: 'extraído, mapeamento pendente',
+  MAPPING_PENDING: 'extraído, mapeamento pendente',
+  RULES_BLOCKED: 'regra vaga ou conflitante',
+  MANUAL_RULE_ONLY: 'regra somente manual',
+  PARTIAL: 'cobertura parcial',
+  PARTIAL_RULES: 'cobertura parcial',
+}
+const coveragePendingBreakdown = computed(() => {
+  const counts = new Map()
+  evaluatedEdicts.value
+    .filter((edict) => edict.compatibility.status === 'coverage_pending')
+    .forEach((edict) => {
+      const label = coverageStatusLabels[edict.coverage_status] ?? 'revisão de cobertura pendente'
+      counts.set(label, (counts.get(label) ?? 0) + 1)
+    })
+  return [...counts.entries()]
+    .sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0], 'pt-BR'))
+    .map(([label, count]) => `${count} ${label}`)
+    .join(', ')
+})
 const resultSummary = computed(() => hasSearched.value
-  ? `${compatibleCount.value} compatível(is), ${reviewCount.value} para conferir e ${uncoveredCount.value} sem regra científica normalizada.`
+  ? `${compatibleCount.value} compatível(is), ${insufficientCount.value} precisam de dados, ${reviewCount.value} para conferir, ${noScientificScoringCount.value} sem pontuação científica e ${coveragePendingCount.value} com cobertura pendente.`
   : 'Os resultados aparecerão após a consulta.')
 
 const filterChips = computed(() => {
@@ -251,11 +284,25 @@ const filterChips = computed(() => {
 function clearFilters() { Object.assign(filters, { edictIds: [], institutionIds: [], activeOnly: false, deadlineFrom: '', deadlineTo: '', publishedFrom: '', publishedTo: '' }) }
 function runConsultation() { hasSearched.value = true }
 function removeJournal() { article.journalId = '' }
-function compatibilityLabel(status) { return status === 'compatible' ? 'Compatível' : 'Precisa conferir' }
+function compatibilityLabel(status) {
+  if (status === 'compatible') return 'Compatível'
+  if (status === 'insufficient_data') return 'Faltam dados'
+  return 'Precisa conferir'
+}
 function compatibilityBadgeClass(status) {
-  return status === 'compatible'
-    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
-    : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
+  if (status === 'compatible') return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
+  if (status === 'insufficient_data') return 'bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300'
+  return 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
+}
+function compatibilityAccentClass(status) {
+  if (status === 'compatible') return 'bg-linear-to-r from-emerald-400 to-navy-600'
+  if (status === 'insufficient_data') return 'bg-linear-to-r from-sky-400 to-blue-600'
+  return 'bg-linear-to-r from-amber-400 to-orange-500'
+}
+function compatibilityReasonClass(status) {
+  if (status === 'compatible') return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
+  if (status === 'insufficient_data') return 'bg-sky-100 text-sky-700 dark:bg-sky-950 dark:text-sky-300'
+  return 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300'
 }
 
 watch(selectedJournal, (journal, previousJournal) => {

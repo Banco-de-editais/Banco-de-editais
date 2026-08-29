@@ -3,23 +3,19 @@ import { compareQualis, isQualisLevel } from './qualis.js'
 const TRUE = 'TRUE'
 const FALSE = 'FALSE'
 const UNKNOWN = 'UNKNOWN'
-const SKIPPED = 'SKIPPED'
 
-// Estes campos existem na consulta como refinamentos opcionais. Quando o
-// usuário não os informa, eles não podem eliminar nem rebaixar um edital.
-// Uma resposta explícita continua sendo comparada normalmente.
-const OPTIONAL_INPUT_FIELDS = new Set([
-  'production.authorship.author_count',
-  'production.authorship.is_first_author',
-  'production.authorship.is_presenter',
-  'production.authorship.role',
-  'production.identifiers.doi',
-  'production.identifiers.issn',
-  'production.indexings',
-  'production.publication.scope',
-  'production.publication_date',
-  'production.publication_status',
-  'production.qualis',
+const USER_INPUT_FIELD_LABELS = new Map([
+  ['production.authorship.author_count', 'a quantidade de autores'],
+  ['production.authorship.is_first_author', 'se você é o primeiro autor'],
+  ['production.authorship.is_presenter', 'se você é o apresentador'],
+  ['production.authorship.role', 'a posição de autoria'],
+  ['production.identifiers.doi', 'se o artigo possui DOI'],
+  ['production.identifiers.issn', 'se o periódico possui ISSN'],
+  ['production.indexings', 'a revista ou os indexadores'],
+  ['production.publication.scope', 'a abrangência da publicação'],
+  ['production.publication_date', 'a data de publicação'],
+  ['production.publication_status', 'a situação da publicação'],
+  ['production.qualis', 'o Qualis da revista'],
 ])
 
 const PRODUCTION_PARENTS = {
@@ -32,18 +28,14 @@ const PRODUCTION_PARENTS = {
 }
 
 function triAll(values) {
-  const considered = values.filter((value) => value !== SKIPPED)
-  if (!considered.length) return TRUE
-  if (considered.some((value) => value === FALSE)) return FALSE
-  if (considered.some((value) => value === UNKNOWN)) return UNKNOWN
+  if (values.some((value) => value === FALSE)) return FALSE
+  if (values.some((value) => value === UNKNOWN)) return UNKNOWN
   return TRUE
 }
 
 function triAny(values) {
-  const considered = values.filter((value) => value !== SKIPPED)
-  if (!considered.length) return TRUE
-  if (considered.some((value) => value === TRUE)) return TRUE
-  if (considered.some((value) => value === UNKNOWN)) return UNKNOWN
+  if (values.some((value) => value === TRUE)) return TRUE
+  if (values.some((value) => value === UNKNOWN)) return UNKNOWN
   return FALSE
 }
 
@@ -65,6 +57,8 @@ function compareKnownValue(operator, observed, expected) {
       const observedValues = Array.isArray(observed) ? observed : [observed]
       return observedValues.some((value) => expectedValues.includes(value)) ? TRUE : FALSE
     }
+    case 'HAS_ANY':
+      return Array.isArray(observed) && observed.length > 0 ? TRUE : FALSE
     case 'IS_TRUE':
       return observed === true ? TRUE : FALSE
     case 'IS_FALSE':
@@ -108,7 +102,7 @@ function evaluateCondition(condition, facts) {
   if (condition.operator === 'MANUAL') return UNKNOWN
   if (!(condition.field in facts)) {
     if (condition.required === false) return TRUE
-    return OPTIONAL_INPUT_FIELDS.has(condition.field) ? SKIPPED : UNKNOWN
+    return UNKNOWN
   }
 
   let result = compareKnownValue(condition.operator, facts[condition.field], condition.value)
@@ -156,10 +150,12 @@ function evaluateSupplementalRequirements(rule, facts) {
   if ((rule.indexing_requirements ?? []).length && !fields.has('production.indexings')) {
     const manual = rule.indexing_requirements.some((item) => !item.exact_match_allowed || item.operator === 'MANUAL')
     if (!('production.indexings' in facts)) {
-      values.push(manual ? UNKNOWN : SKIPPED)
+      values.push(UNKNOWN)
     } else {
       const exact = rule.indexing_requirements.filter((item) => item.exact_match_allowed && item.operator !== 'MANUAL')
-      const matches = exact.some((item) => facts['production.indexings'].includes(item.base))
+      const matches = exact.some((item) => item.operator === 'HAS_ANY'
+        ? facts['production.indexings'].length > 0
+        : facts['production.indexings'].includes(item.base))
       values.push(matches ? TRUE : manual ? UNKNOWN : FALSE)
     }
   }
@@ -168,7 +164,7 @@ function evaluateSupplementalRequirements(rule, facts) {
   if (authorship?.roles?.length && !fields.has('production.authorship.role')) {
     values.push('production.authorship.role' in facts
       ? compareKnownValue('IN', facts['production.authorship.role'], authorship.roles)
-      : SKIPPED)
+      : UNKNOWN)
   }
 
   if (authorship?.author_limit != null && !fields.has('production.authorship.author_count')) {
@@ -183,14 +179,14 @@ function evaluateSupplementalRequirements(rule, facts) {
         values.push(withinLimit)
       }
     } else {
-      values.push(SKIPPED)
+      values.push(UNKNOWN)
     }
   }
 
   if (authorship?.presenter_required && !fields.has('production.authorship.is_presenter')) {
     values.push('production.authorship.is_presenter' in facts
       ? compareKnownValue('IS_TRUE', facts['production.authorship.is_presenter'], true)
-      : SKIPPED)
+      : UNKNOWN)
   }
 
   if (rule.qualis_requirement && !fields.has('production.qualis')) {
@@ -203,7 +199,7 @@ function evaluateSupplementalRequirements(rule, facts) {
     if (!canCompare) {
       values.push(UNKNOWN)
     } else if (!('production.qualis' in facts)) {
-      values.push(SKIPPED)
+      values.push(UNKNOWN)
     } else {
       values.push(compareKnownValue('AT_LEAST_QUALIS', facts['production.qualis'], minimum))
     }
@@ -221,9 +217,26 @@ function evaluateSupplementalRequirements(rule, facts) {
 
 function evaluateScientificRule(rule, facts) {
   return triAll([
+    evaluatePositiveScorePotential(rule),
     evaluateConditionTree(rule.condition_groups, facts),
     evaluateSupplementalRequirements(rule, facts),
   ])
+}
+
+function evaluatePositiveScorePotential(rule) {
+  const score = rule.score_formula
+  if (!score) return UNKNOWN
+  if (score.positive_score_confirmed === true) return TRUE
+  if (score.positive_score_confirmed === false) return FALSE
+
+  const numericValues = [score.points_per_item, score.maximum_points]
+    .filter((value) => value !== null && value !== undefined && value !== '')
+    .map(Number)
+    .filter(Number.isFinite)
+
+  if (numericValues.some((value) => value > 0)) return TRUE
+  if (numericValues.length) return FALSE
+  return UNKNOWN
 }
 
 function scientificFacts(work) {
@@ -243,6 +256,23 @@ function scientificFacts(work) {
   return facts
 }
 
+function hasMeaningfulWorkInput(work) {
+  return Boolean(
+    work.journalId
+    || work.qualis
+    || work.indexerCodesKnown
+    || work.indexerCodes?.length
+    || work.publicationStatus
+    || work.authorshipRole
+    || (work.authorCount !== '' && work.authorCount !== null && work.authorCount !== undefined)
+    || typeof work.isFirstAuthor === 'boolean'
+    || typeof work.hasDoi === 'boolean'
+    || typeof work.hasIssn === 'boolean'
+    || work.publicationDate
+    || work.publicationScope,
+  )
+}
+
 function ruleReviewMessages(rule) {
   const conditionMessages = (rule.condition_groups ?? [])
     .flatMap((group) => group.conditions ?? [])
@@ -255,14 +285,68 @@ function ruleReviewMessages(rule) {
   return [...new Set([...conditionMessages, ...metadataMessages])]
 }
 
+function missingUserInputFields(rule, facts) {
+  const missing = new Set()
+  const conditionFields = new Set()
+
+  for (const condition of (rule.condition_groups ?? []).flatMap((group) => group.conditions ?? [])) {
+    conditionFields.add(condition.field)
+    if (condition.required !== false
+      && condition.operator !== 'MANUAL'
+      && USER_INPUT_FIELD_LABELS.has(condition.field)
+      && !(condition.field in facts)) missing.add(condition.field)
+  }
+
+  if ((rule.indexing_requirements ?? []).length
+    && !conditionFields.has('production.indexings')
+    && !('production.indexings' in facts)
+    && rule.indexing_requirements.some((item) => item.exact_match_allowed && item.operator !== 'MANUAL')) {
+    missing.add('production.indexings')
+  }
+
+  if (rule.qualis_requirement
+    && !conditionFields.has('production.qualis')
+    && !('production.qualis' in facts)) {
+    const minimum = rule.qualis_requirement.minimum_stratum
+      ?? rule.qualis_requirement.minimum
+      ?? rule.qualis_requirement.stratum
+    const canCompare = rule.qualis_requirement.exact_match_allowed !== false
+      && rule.qualis_requirement.operator !== 'MANUAL'
+      && isQualisLevel(minimum)
+    if (canCompare) missing.add('production.qualis')
+  }
+
+  const authorship = rule.authorship_requirement
+  if (authorship?.roles?.length
+    && !conditionFields.has('production.authorship.role')
+    && !('production.authorship.role' in facts)) missing.add('production.authorship.role')
+  if (authorship?.author_limit != null
+    && !conditionFields.has('production.authorship.author_count')
+    && !('production.authorship.author_count' in facts)) missing.add('production.authorship.author_count')
+  if (authorship?.presenter_required
+    && !conditionFields.has('production.authorship.is_presenter')
+    && !('production.authorship.is_presenter' in facts)) missing.add('production.authorship.is_presenter')
+
+  return [...missing]
+}
+
 function evaluateImportedEdict(edict, work) {
   const publishedRules = (edict.scientificRules ?? []).filter((rule) => rule.published_for_engine)
   if (!publishedRules.length) {
+    if (['NO_CURRICULUM', 'NO_SCIENTIFIC_SCORING'].includes(edict.coverage_status)) {
+      return {
+        compatible: false,
+        evaluable: true,
+        status: 'no_scientific_scoring',
+        reasons: ['O processo foi registrado sem etapa de análise curricular; produção científica não gera pontuação.'],
+        matchingRules: [],
+      }
+    }
     return {
       compatible: false,
       evaluable: false,
-      status: 'no_normalized_rule',
-      reasons: ['Sem regra científica normalizada e publicada; não é seguro concluir compatibilidade.'],
+      status: 'coverage_pending',
+      reasons: ['A cobertura científica deste edital ainda não é conclusiva; não é seguro afirmar compatibilidade.'],
       matchingRules: [],
     }
   }
@@ -283,10 +367,39 @@ function evaluateImportedEdict(edict, work) {
     }
   }
 
+  const potentiallyPositiveRules = applicableRules.filter((rule) => evaluatePositiveScorePotential(rule) !== FALSE)
+  if (!potentiallyPositiveRules.length) {
+    return {
+      compatible: false,
+      evaluable: true,
+      status: 'incompatible',
+      reasons: ['As regras aplicáveis registradas não atribuem pontuação positiva ao trabalho.'],
+      matchingRules: [],
+    }
+  }
+
   const facts = scientificFacts(work)
-  const evaluated = applicableRules.map((rule) => ({ rule, truth: evaluateScientificRule(rule, facts) }))
+  const evaluated = applicableRules.map((rule) => ({
+    rule,
+    truth: evaluateScientificRule(rule, facts),
+    missingFields: missingUserInputFields(rule, facts),
+  }))
   const compatibleRules = evaluated.filter((item) => item.truth === TRUE).map((item) => item.rule)
-  const possibleRules = evaluated.filter((item) => item.truth === UNKNOWN).map((item) => item.rule)
+  const incompleteRules = evaluated.filter((item) => item.truth === UNKNOWN && item.missingFields.length)
+  const possibleRules = evaluated.filter((item) => item.truth === UNKNOWN && !item.missingFields.length).map((item) => item.rule)
+
+  if (!hasMeaningfulWorkInput(work) && !incompleteRules.length) {
+    return {
+      compatible: false,
+      evaluable: false,
+      status: 'insufficient_data',
+      reasons: [
+        'Informe ao menos a revista ou um critério do trabalho para testar as regras deste edital.',
+        'Selecionar apenas o tipo de produção não confirma compatibilidade nem pontuação.',
+      ],
+      matchingRules: potentiallyPositiveRules,
+    }
+  }
 
   if (compatibleRules.length) {
     return {
@@ -295,9 +408,27 @@ function evaluateImportedEdict(edict, work) {
       status: 'compatible',
       reasons: [
         `${compatibleRules.length} regra(s) compatível(is) com os dados informados.`,
-        'Campos opcionais não informados não excluíram o resultado; confira os comprovantes exigidos no edital.',
+        'A compatibilidade indica possibilidade de pontuação positiva na regra exibida; confira os comprovantes exigidos.',
       ],
       matchingRules: compatibleRules,
+    }
+  }
+
+  if (incompleteRules.length) {
+    const missingLabels = [...new Set(incompleteRules
+      .flatMap((item) => item.missingFields)
+      .map((field) => USER_INPUT_FIELD_LABELS.get(field))
+      .filter(Boolean))]
+    return {
+      compatible: false,
+      evaluable: false,
+      status: 'insufficient_data',
+      reasons: [
+        `${incompleteRules.length} regra(s) pode(m) gerar pontuação, mas faltam dados decisivos para confirmar.`,
+        ...missingLabels.slice(0, 3).map((label) => `Informe ${label}.`),
+        'Dado ausente não foi tratado como compatibilidade.',
+      ],
+      matchingRules: incompleteRules.map((item) => item.rule),
     }
   }
 
@@ -330,6 +461,33 @@ function evaluateLegacyEdict(edict, work) {
   const workQualis = work.qualis || null
   const workIndexerIds = [...new Set(work.indexerIds ?? [])]
   const edictIndexerIds = edict.indexerIds ?? []
+  const requiredFields = []
+
+  if (edict.minimum_qualis && !workQualis) requiredFields.push('o Qualis da revista')
+  if (edictIndexerIds.length && !workIndexerIds.length) requiredFields.push('a revista ou os indexadores')
+  if (requiredFields.length) {
+    return {
+      compatible: false,
+      evaluable: false,
+      status: 'insufficient_data',
+      reasons: [
+        'Faltam dados decisivos para aplicar os critérios cadastrados deste edital.',
+        ...requiredFields.map((label) => `Informe ${label}.`),
+        'Dado ausente não foi tratado como compatibilidade.',
+      ],
+      matchingRules: [],
+    }
+  }
+
+  if (!edict.minimum_qualis && !edictIndexerIds.length) {
+    return {
+      compatible: false,
+      evaluable: false,
+      status: 'coverage_pending',
+      reasons: ['Este edital não possui critério científico estruturado; não é seguro afirmar compatibilidade.'],
+      matchingRules: [],
+    }
+  }
 
   if (workQualis) {
     if (!isQualisLevel(workQualis)) {
@@ -341,8 +499,6 @@ function evaluateLegacyEdict(edict, work) {
       if (comparison === null) return { compatible: false, evaluable: false, status: 'invalid', reasons: [], matchingRules: [] }
       if (comparison < 0) return { compatible: false, evaluable: true, status: 'incompatible', reasons: [], matchingRules: [] }
       reasons.push(`Qualis ${workQualis} atende ao mínimo ${edict.minimum_qualis}`)
-    } else {
-      reasons.push('Sem exigência mínima de Qualis')
     }
   }
 
@@ -352,12 +508,9 @@ function evaluateLegacyEdict(edict, work) {
       const hasMatch = matchingIndexer || edictIndexerIds.some((id) => workIndexerIds.includes(id))
       if (!hasMatch) return { compatible: false, evaluable: true, status: 'incompatible', reasons: [], matchingRules: [] }
       reasons.push(matchingIndexer ? `Indexador aceito: ${matchingIndexer.name}` : 'Indexador aceito pelo edital')
-    } else {
-      reasons.push('Sem exigência de indexador')
     }
   }
 
-  if (!reasons.length) reasons.push('Nenhum critério de classificação aplicado')
   return { compatible: true, evaluable: true, status: 'compatible', reasons, matchingRules: [] }
 }
 
