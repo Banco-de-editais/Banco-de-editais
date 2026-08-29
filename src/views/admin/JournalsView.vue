@@ -47,7 +47,7 @@
               <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-navy-100 text-navy-700 dark:bg-navy-950 dark:text-navy-300"><AppIcon name="journal" class="h-5 w-5" /></div>
               <div class="min-w-0">
                 <h2 class="font-bold leading-5 text-slate-950 dark:text-white">{{ journal.name }}</h2>
-                <p class="mt-1 text-xs text-slate-500">ISSN {{ journal.issn }}</p>
+                <p class="mt-1 text-xs text-slate-500">{{ journal.issn ? `ISSN ${journal.issn}` : 'ISSN não informado' }}</p>
               </div>
             </div>
             <span class="shrink-0 rounded-full bg-navy-100 px-2.5 py-1 text-xs font-bold text-navy-800 dark:bg-navy-950 dark:text-navy-200">{{ journal.qualis }}</span>
@@ -67,7 +67,7 @@
       </div>
     </div>
 
-    <BaseModal :open="formOpen" :title="editing ? 'Editar revista' : 'Nova revista'" description="Informe os dados do periódico e selecione os indexadores associados." :busy="isSaving" size="lg" @close="closeForm">
+    <BaseModal :open="formOpen" :title="editing ? 'Editar revista' : 'Nova revista'" description="Informe os dados do periódico. O ISSN e os indexadores são opcionais." :busy="isSaving" size="lg" @close="closeForm">
       <form class="space-y-5 p-5 sm:p-6" @submit.prevent="save">
         <p v-if="formError" class="rounded-xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300" role="alert">{{ formError }}</p>
         <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
@@ -76,8 +76,8 @@
             <input v-model.trim="form.name" type="text" required autofocus class="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-900 outline-none transition focus:border-navy-500 focus:bg-white focus:ring-4 focus:ring-navy-100 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:bg-slate-800 dark:focus:ring-navy-950" :disabled="isSaving" />
           </label>
           <label class="block">
-            <span class="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">ISSN</span>
-            <input v-model.trim="form.issn" type="text" required class="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-900 outline-none transition focus:border-navy-500 focus:bg-white focus:ring-4 focus:ring-navy-100 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:bg-slate-800 dark:focus:ring-navy-950" :disabled="isSaving" />
+            <span class="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">ISSN <span class="font-normal text-slate-400">(opcional)</span></span>
+            <input v-model.trim="form.issn" type="text" placeholder="0000-0000" class="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-900 outline-none transition focus:border-navy-500 focus:bg-white focus:ring-4 focus:ring-navy-100 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:bg-slate-800 dark:focus:ring-navy-950" :disabled="isSaving" />
           </label>
           <label class="block">
             <span class="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">Qualis</span>
@@ -143,13 +143,13 @@ const form = reactive({ name: '', issn: '', qualis: '', indexerIds: [] })
 
 const qualisOptions = QUALIS_LEVELS
 const activeFilters = computed(() => Number(Boolean(search.value)) + Number(Boolean(qualisFilter.value)) + indexerFilter.value.length)
-const isFormValid = computed(() => form.name.trim() && form.issn.trim() && isQualisLevel(form.qualis))
+const isFormValid = computed(() => form.name.trim() && isQualisLevel(form.qualis))
 const filteredJournals = computed(() => {
   const term = normalizeText(search.value)
   const [field, direction] = sort.value.split('-')
   const multiplier = direction === 'asc' ? 1 : -1
   return journals.value
-    .filter((item) => (!term || normalizeText(`${item.name} ${item.issn}`).includes(term))
+    .filter((item) => (!term || normalizeText(`${item.name} ${item.issn ?? ''}`).includes(term))
       && (!qualisFilter.value || item.qualis === qualisFilter.value)
       && (!indexerFilter.value.length || indexerFilter.value.every((id) => item.indexerIds.includes(id))))
     .sort((a, b) => (field === 'qualis'

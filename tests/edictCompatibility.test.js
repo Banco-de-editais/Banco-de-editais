@@ -1,6 +1,8 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import { filterEdicts } from '../src/domain/consultationFilters.js'
 import { evaluateEdictCompatibility } from '../src/domain/edictCompatibility.js'
+import { journalMetadataLabel, journalOptionLabel, normalizeOptionalIssn } from '../src/domain/journals.js'
 import { compareQualis, QUALIS_LEVELS } from '../src/domain/qualis.js'
 import { formatDate, safeExternalUrl } from '../src/lib/formatters.js'
 
@@ -53,6 +55,24 @@ test('permite apenas links externos HTTP e HTTPS', () => {
   assert.equal(safeExternalUrl('javascript:alert(1)'), '')
   assert.equal(safeExternalUrl('not a url'), '')
   assert.equal(safeExternalUrl('https://example.com/edital'), 'https://example.com/edital')
+})
+
+test('filtra edital e instituição coordenadora em campos independentes', () => {
+  const edicts = [
+    { id: 10, institution_id: 100, active: true, name: 'Processo Seletivo de Minas Gerais' },
+    { id: 20, institution_id: 200, active: true, name: 'Outro processo seletivo' },
+  ]
+
+  assert.deepEqual(filterEdicts(edicts, { edictIds: [10], institutionIds: [] }).map((item) => item.id), [10])
+  assert.deepEqual(filterEdicts(edicts, { edictIds: [], institutionIds: [200] }).map((item) => item.id), [20])
+  assert.deepEqual(filterEdicts(edicts, { edictIds: [10], institutionIds: [200] }), [])
+})
+
+test('mantém ISSN opcional sem exibir separadores vazios', () => {
+  assert.equal(normalizeOptionalIssn('  '), null)
+  assert.equal(normalizeOptionalIssn(' 1518-9740 '), '1518-9740')
+  assert.equal(journalOptionLabel({ name: 'Revista Fisioterapia', issn: null }), 'Revista Fisioterapia')
+  assert.equal(journalMetadataLabel({ issn: null, qualis: 'B2' }), 'Qualis B2')
 })
 
 const importedEdict = (rules) => ({

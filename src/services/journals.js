@@ -1,4 +1,5 @@
 import { requireSupabase } from '@/lib/supabase'
+import { normalizeOptionalIssn } from '@/domain/journals'
 import { throwIfError, toAppError } from './errors'
 
 const JOURNAL_SELECT = `
@@ -31,7 +32,7 @@ function cleanPayload(id, payload) {
   return {
     p_id: id,
     p_name: payload.name.trim(),
-    p_issn: payload.issn.trim(),
+    p_issn: normalizeOptionalIssn(payload.issn),
     p_qualis: payload.qualis,
     p_indexer_ids: [...new Set(payload.indexerIds ?? [])],
   }
