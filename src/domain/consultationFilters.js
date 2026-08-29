@@ -11,3 +11,15 @@ export function filterEdicts(edicts = [], filters = {}) {
     && (!filters.publishedFrom || (edict.published_at && edict.published_at >= filters.publishedFrom))
     && (!filters.publishedTo || (edict.published_at && edict.published_at <= filters.publishedTo)))
 }
+
+export function coordinatingInstitutionOptions(edicts = []) {
+  const byId = new Map()
+
+  edicts.forEach((edict) => {
+    if (edict.institution?.id != null && edict.institution?.name) {
+      byId.set(edict.institution.id, { id: edict.institution.id, name: edict.institution.name })
+    }
+  })
+
+  return [...byId.values()].sort((left, right) => left.name.localeCompare(right.name, 'pt-BR'))
+}

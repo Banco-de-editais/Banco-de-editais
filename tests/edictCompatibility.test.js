@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { filterEdicts } from '../src/domain/consultationFilters.js'
+import { coordinatingInstitutionOptions, filterEdicts } from '../src/domain/consultationFilters.js'
 import { evaluateEdictCompatibility } from '../src/domain/edictCompatibility.js'
 import { journalMetadataLabel, journalOptionLabel, normalizeOptionalIssn } from '../src/domain/journals.js'
 import { compareQualis, QUALIS_LEVELS } from '../src/domain/qualis.js'
@@ -66,6 +66,19 @@ test('filtra edital e instituição coordenadora em campos independentes', () =>
   assert.deepEqual(filterEdicts(edicts, { edictIds: [10], institutionIds: [] }).map((item) => item.id), [10])
   assert.deepEqual(filterEdicts(edicts, { edictIds: [], institutionIds: [200] }).map((item) => item.id), [20])
   assert.deepEqual(filterEdicts(edicts, { edictIds: [10], institutionIds: [200] }), [])
+})
+
+test('oferece no filtro apenas instituições que coordenam algum edital', () => {
+  const edicts = [
+    { id: 10, institution: { id: 100, name: 'AREMG' } },
+    { id: 20, institution: { id: 100, name: 'AREMG' } },
+    { id: 30, institution: { id: 200, name: 'Outra coordenadora' } },
+  ]
+
+  assert.deepEqual(coordinatingInstitutionOptions(edicts), [
+    { id: 100, name: 'AREMG' },
+    { id: 200, name: 'Outra coordenadora' },
+  ])
 })
 
 test('mantém ISSN opcional sem exibir separadores vazios', () => {

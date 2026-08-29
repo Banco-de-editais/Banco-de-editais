@@ -98,7 +98,7 @@
             </div>
             <div class="mt-5 grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
               <MultiSelect v-model="filters.edictIds" :options="edictOptions" label="Edital" placeholder="Todos os editais" />
-              <MultiSelect v-model="filters.institutionIds" :options="institutions" label="Instituição coordenadora" placeholder="Todas as instituições coordenadoras" />
+              <MultiSelect v-model="filters.institutionIds" :options="coordinatorOptions" label="Instituição coordenadora" placeholder="Todas as instituições coordenadoras" />
               <label class="flex min-h-11 items-center gap-3 self-end rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 dark:border-slate-700 dark:bg-slate-800"><input v-model="filters.activeOnly" type="checkbox" class="h-5 w-5 accent-navy-600" /><span class="text-sm font-semibold text-slate-700 dark:text-slate-200">Somente editais ativos</span></label>
               <details class="rounded-xl border border-slate-200 bg-slate-50 p-4 md:col-span-2 xl:col-span-3 dark:border-slate-700 dark:bg-slate-800/60">
                 <summary class="flex cursor-pointer items-center justify-between gap-3 text-sm font-bold text-navy-800 dark:text-navy-200"><span>Filtrar por datas (opcional)</span><span v-if="dateFilterCount" class="rounded-full bg-navy-100 px-2 py-0.5 text-[0.68rem] text-navy-700 dark:bg-navy-950 dark:text-navy-200">{{ dateFilterCount }} selecionado(s)</span></summary>
@@ -161,7 +161,7 @@ import AppIcon from '@/components/ui/AppIcon.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
 import MultiSelect from '@/components/ui/MultiSelect.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
-import { filterEdicts } from '@/domain/consultationFilters'
+import { coordinatingInstitutionOptions, filterEdicts } from '@/domain/consultationFilters'
 import { evaluateEdictCompatibility } from '@/domain/edictCompatibility'
 import { journalMetadataLabel, journalOptionLabel } from '@/domain/journals'
 import { QUALIS_LEVELS } from '@/domain/qualis'
@@ -200,6 +200,7 @@ const selectableIndexers = computed(() => indexers.value.filter((item) => item.e
 const edictOptions = computed(() => edicts.value
   .map((edict) => ({ id: edict.id, name: edict.name }))
   .sort((left, right) => left.name.localeCompare(right.name, 'pt-BR')))
+const coordinatorOptions = computed(() => coordinatingInstitutionOptions(edicts.value))
 const dateFilterCount = computed(() => ['deadlineFrom', 'deadlineTo', 'publishedFrom', 'publishedTo'].filter((key) => filters[key]).length)
 const activeFilterCount = computed(() => filters.edictIds.length + filters.institutionIds.length + Number(filters.activeOnly) + dateFilterCount.value)
 
