@@ -435,7 +435,7 @@ test('compara intervalo anual estruturado quando a data é informada', () => {
   assert.equal(evaluateEdictCompatibility(importedEdict([rule]), { publicationDate: '2026-01-01' }).status, 'incompatible')
 })
 
-test('não aprova janela temporal sem comparador estruturado', () => {
+test('ignora janela móvel de cinco anos para artigos pela política operacional', () => {
   const rule = scientificRule({
     date_window: { raw_text: 'publicado nos últimos cinco anos' },
   })
@@ -444,6 +444,154 @@ test('não aprova janela temporal sem comparador estruturado', () => {
     publicationDate: '2026-01-15',
   })
 
-  assert.equal(result.compatible, false)
+  assert.equal(result.compatible, true)
+  assert.equal(result.status, 'compatible')
+})
+
+test('assume ISSN, revisão por pares, área temática e janela móvel de seis anos para artigos', () => {
+  const rule = scientificRule({
+    condition_groups: [{
+      code: 'ROOT',
+      parent: null,
+      operator: 'ALL',
+      conditions: [
+        { field: 'production.type', operator: 'EQ', value: 'ARTICLE_PUBLICATION', required: true, negated: false },
+        { field: 'production.identifiers.issn', operator: 'IS_TRUE', value: true, required: true, negated: false },
+        { field: 'production.subject_area_relation', operator: 'MANUAL', value: { kind: 'HEALTH_OR_MEDICINE' }, required: true, negated: false, review_message: 'Confirmar área da saúde.' },
+        { field: 'manual.source_condition', operator: 'MANUAL', value: { kind: 'PEER_REVIEW_AND_EDITORIAL_QUALITY' }, required: true, negated: false, review_message: 'Confirmar revisão por pares.' },
+        { field: 'production.publication_age_months', operator: 'LTE', value: 72, required: true, negated: false },
+      ],
+    }],
+    date_window: { kind: 'ROLLING_YEARS', years: 6, source_text: 'últimos seis anos' },
+    subject_area_requirement: { kind: 'HEALTH_OR_MEDICINE' },
+  })
+
+  const result = evaluateEdictCompatibility(importedEdict([rule]), { journalId: 'journal-1' })
+  assert.equal(result.status, 'compatible')
+  assert.ok(!result.reasons.some((reason) => /ISSN|revisão por pares|área da saúde|seis anos/i.test(reason)))
+})
+
+test('assume corpo editorial, mas mantém a posição de autoria para conferência', () => {
+  const originalMessage = 'Confirmar que a revista/periódico possui corpo editorial e conferir a faixa de autoria.'
+  const rule = scientificRule({
+    condition_groups: [{
+      code: 'ROOT',
+      parent: null,
+      operator: 'ALL',
+      conditions: [
+        { field: 'production.type', operator: 'EQ', value: 'ARTICLE_PUBLICATION', required: true, negated: false },
+        { field: 'manual.source_condition', operator: 'MANUAL', value: { kind: 'EDITORIAL_BOARD' }, required: true, negated: false, review_message: originalMessage },
+      ],
+    }],
+    source_metadata: { review_messages: [originalMessage] },
+  })
+
+  const missingAuthorship = evaluateEdictCompatibility(importedEdict([rule]), { journalId: 'journal-1' })
+  assert.equal(missingAuthorship.status, 'review_required')
+  assert.ok(missingAuthorship.reasons.includes('Confirmar a posição de autoria aplicável à pontuação.'))
+  assert.ok(!missingAuthorship.reasons.some((reason) => /corpo editorial/i.test(reason)))
+
+  const informedAuthorship = evaluateEdictCompatibility(importedEdict([rule]), {
+    journalId: 'journal-1',
+    authorshipRole: 'COAUTHOR',
+  })
+  assert.equal(informedAuthorship.status, 'compatible')
+})
+
+test('mantém JCR, relação com pré-requisito e aceite condicional para conferência', () => {
+  const rules = [
+    scientificRule({
+      source_rule_id: 'JCR',
+      condition_groups: [{ code: 'ROOT', parent: null, operator: 'ALL', conditions: [
+        { field: 'production.type', operator: 'EQ', value: 'ARTICLE_PUBLICATION', required: true, negated: false },
+        { field: 'production.metrics.jcr', operator: 'MANUAL', value: '>1', required: true, negated: false },
+      ] }],
+    }),
+    scientificRule({
+      source_rule_id: 'PREREQUISITE',
+      condition_groups: [{ code: 'ROOT', parent: null, operator: 'ALL', conditions: [
+        { field: 'production.type', operator: 'EQ', value: 'ARTICLE_PUBLICATION', required: true, negated: false },
+        { field: 'production.temporal_relation_to_prerequisite', operator: 'EQ', value: 'DURING_PREREQUISITE_RESIDENCY', required: true, negated: false },
+      ] }],
+    }),
+    scientificRule({
+      source_rule_id: 'CONDITIONAL-ACCEPTANCE',
+      condition_groups: [{ code: 'ROOT', parent: null, operator: 'ALL', conditions: [
+        { field: 'production.type', operator: 'EQ', value: 'ARTICLE_PUBLICATION', required: true, negated: false },
+        { field: 'production.publication_status', operator: 'EQ', value: 'ACCEPTED', required: true, negated: false },
+        { field: 'manual.source_condition', operator: 'MANUAL', value: 'Aceite válido se periódico internacionalmente indexado', required: true, negated: false },
+      ] }],
+    }),
+  ]
+
+  for (const rule of rules) {
+    assert.equal(evaluateEdictCompatibility(importedEdict([rule]), { journalId: 'journal-1' }).status, 'review_required')
+  }
+})
+
+test('mantém indexação ambígua e os demais ramos manuais escolhidos para conferência', () => {
+  const unresolvedIndexing = scientificRule({
+    indexing_requirements: [{
+      base: 'INDEXED_UNSPECIFIED',
+      operator: 'MANUAL',
+      exact_match_allowed: false,
+    }],
+  })
+  assert.equal(evaluateEdictCompatibility(importedEdict([unresolvedIndexing]), {
+    journalId: 'journal-1',
+    indexerCodes: ['LILACS'],
+    indexerCodesKnown: true,
+  }).status, 'review_required')
+
+  const keptManualKinds = [
+    'NON_INDEXED_BRANCH',
+    'INSTITUTION_SCOPE',
+    'ARTICLE_NOT_INDEXED_OR_PROCEEDINGS',
+    'SCORING_TABLE_NOT_EXTRACTED',
+    'PROGRAM_SPECIFIC_MANUAL_SCORING',
+    'UNSTRUCTURED_SCIENTIFIC_SECTION',
+  ]
+  for (const kind of keptManualKinds) {
+    const rule = scientificRule({
+      condition_groups: [{ code: 'ROOT', parent: null, operator: 'ALL', conditions: [
+        { field: 'production.type', operator: 'EQ', value: 'ARTICLE_PUBLICATION', required: true, negated: false },
+        { field: 'manual.source_condition', operator: 'MANUAL', value: { kind }, required: true, negated: false },
+      ] }],
+    })
+    assert.equal(evaluateEdictCompatibility(importedEdict([rule]), { journalId: 'journal-1' }).status, 'review_required')
+  }
+})
+
+test('mantém especialidade para conferência sem exibir a ambiguidade numérica removida', () => {
+  const originalMessage = 'Confirmar que a candidatura é para Anestesiologia e conferir a ambiguidade da faixa de três artigos.'
+  const rule = scientificRule({
+    condition_groups: [{ code: 'ROOT', parent: null, operator: 'ALL', conditions: [
+      { field: 'production.type', operator: 'EQ', value: 'ARTICLE_PUBLICATION', required: true, negated: false },
+      { field: 'manual.source_condition', operator: 'MANUAL', value: { kind: 'SPECIALTY_SCOPE' }, required: true, negated: false, review_message: originalMessage },
+    ] }],
+    source_metadata: { review_messages: [originalMessage] },
+  })
+
+  const result = evaluateEdictCompatibility(importedEdict([rule]), { journalId: 'journal-1' })
   assert.equal(result.status, 'review_required')
+  assert.ok(result.reasons.includes('Confirmar que a candidatura corresponde à especialidade indicada pela regra.'))
+  assert.ok(!result.reasons.some((reason) => /ambiguidade|três artigos/i.test(reason)))
+})
+
+test('mantém abrangência e período fechado como critérios verificáveis', () => {
+  const rule = scientificRule({
+    condition_groups: [{ code: 'ROOT', parent: null, operator: 'ALL', conditions: [
+      { field: 'production.type', operator: 'EQ', value: 'ARTICLE_PUBLICATION', required: true, negated: false },
+      { field: 'production.publication.scope', operator: 'IN', value: ['INTERNATIONAL'], required: true, negated: false },
+      { field: 'production.publication_date', operator: 'BETWEEN', value: { start: '2024', end: '2026' }, required: true, negated: false },
+    ] }],
+  })
+
+  assert.equal(evaluateEdictCompatibility(importedEdict([rule]), { journalId: 'journal-1' }).status, 'insufficient_data')
+  assert.equal(evaluateEdictCompatibility(importedEdict([rule]), {
+    journalId: 'journal-1', publicationScope: 'INTERNATIONAL', publicationDate: '2025-06-01',
+  }).status, 'compatible')
+  assert.equal(evaluateEdictCompatibility(importedEdict([rule]), {
+    journalId: 'journal-1', publicationScope: 'NATIONAL', publicationDate: '2025-06-01',
+  }).status, 'incompatible')
 })

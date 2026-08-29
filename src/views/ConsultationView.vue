@@ -59,7 +59,6 @@
                   <label><span :class="dateLabelClasses">Número de autores</span><input v-model="article.authorCount" type="number" min="1" step="1" :class="controlClasses" /></label>
                   <label><span :class="dateLabelClasses">Primeiro autor?</span><select v-model="article.isFirstAuthor" :class="controlClasses"><option value="">Não informado</option><option value="true">Sim</option><option value="false">Não</option></select></label>
                 </div>
-                <label class="block"><span :class="dateLabelClasses">Possui ISSN?</span><select v-model="article.hasIssn" :class="controlClasses"><option value="">Não informado</option><option value="true">Sim</option><option value="false">Não</option></select></label>
                 <label class="block"><span :class="dateLabelClasses">Data da publicação</span><input v-model="article.publicationDate" type="date" :class="controlClasses" /></label>
                 <label class="block"><span :class="dateLabelClasses">Abrangência da publicação</span><select v-model="article.publicationScope" :class="controlClasses"><option value="">Não informada</option><option value="LOCAL">Local</option><option value="REGIONAL">Regional</option><option value="STATE">Estadual</option><option value="NATIONAL">Nacional</option><option value="INTERNATIONAL">Internacional</option></select></label>
               </div>
@@ -183,7 +182,6 @@ const article = reactive({
   authorshipRole: '',
   authorCount: '',
   isFirstAuthor: '',
-  hasIssn: '',
   publicationDate: '',
   publicationScope: '',
 })
@@ -210,9 +208,6 @@ const workInput = computed(() => ({
     .filter(Boolean),
   indexerCodesKnown: Boolean(selectedJournal.value) || article.indexerIds.length > 0,
   isFirstAuthor: article.isFirstAuthor === '' ? undefined : article.isFirstAuthor === 'true',
-  hasIssn: selectedJournal.value?.issn
-    ? true
-    : article.hasIssn === '' ? undefined : article.hasIssn === 'true',
 }))
 
 const evaluatedEdicts = computed(() => dateFilteredEdicts.value.map((edict) => ({

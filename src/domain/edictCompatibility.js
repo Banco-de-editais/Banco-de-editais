@@ -9,7 +9,6 @@ const USER_INPUT_FIELD_LABELS = new Map([
   ['production.authorship.is_first_author', 'se você é o primeiro autor'],
   ['production.authorship.is_presenter', 'se você é o apresentador'],
   ['production.authorship.role', 'a posição de autoria'],
-  ['production.identifiers.issn', 'se o periódico possui ISSN'],
   ['production.indexings', 'a revista ou os indexadores'],
   ['production.publication.scope', 'a abrangência da publicação'],
   ['production.publication_date', 'a data de publicação'],
@@ -17,13 +16,28 @@ const USER_INPUT_FIELD_LABELS = new Map([
 ])
 
 // Premissas operacionais definidas para o produto: os artigos cadastrados
-// possuem DOI e a situação da publicação não deve filtrar a consulta. As
-// condições permanecem preservadas nas regras como evidência do edital, mas
-// não geram incompatibilidade, dado ausente ou conferência manual.
+// possuem DOI e ISSN, pertencem a periódicos com revisão por pares e corpo
+// editorial, e a área temática não deve filtrar a consulta. A situação da
+// publicação e janelas móveis de cinco ou seis anos também não devem filtrar.
+// As condições permanecem preservadas nas regras como evidência do edital.
 const SATISFIED_BY_ARTICLE_POLICY = new Set([
   'production.identifiers.doi',
+  'production.identifiers.issn',
   'production.publication_status',
+  'production.subject_area_relation',
 ])
+
+const SATISFIED_MANUAL_KINDS_BY_ARTICLE_POLICY = new Set([
+  'PEER_REVIEW_AND_EDITORIAL_QUALITY',
+  'ROLLING_FIVE_YEARS',
+])
+
+const ARTICLE_POLICY_REVIEW_MESSAGE_OVERRIDES = new Map([
+  ['EDITORIAL_BOARD', 'Confirmar a posição de autoria aplicável à pontuação.'],
+  ['SPECIALTY_SCOPE', 'Confirmar que a candidatura corresponde à especialidade indicada pela regra.'],
+])
+
+const SATISFIED_ROLLING_AGE_MONTHS = new Set([60, 72])
 
 const PRIMARY_SCIENTIFIC_INPUT_FIELDS = new Set([
   'production.indexings',
@@ -37,6 +51,52 @@ const PRODUCTION_PARENTS = {
   CHAPTER: 'BOOK_CHAPTER',
   ABSTRACT_PROCEEDINGS: 'SCIENTIFIC_PRODUCTION',
   EVENT_PRESENTATION: 'SCIENTIFIC_PRODUCTION',
+}
+
+function manualConditionKind(condition) {
+  return condition?.value && typeof condition.value === 'object'
+    ? condition.value.kind
+    : null
+}
+
+function rawConditionReviewMessage(condition) {
+  return condition.review_message ?? condition.value?.review_message ?? null
+}
+
+function articlePolicyReviewMessage(condition, facts) {
+  if (facts['production.type'] !== 'ARTICLE_PUBLICATION') return rawConditionReviewMessage(condition)
+  return ARTICLE_POLICY_REVIEW_MESSAGE_OVERRIDES.get(manualConditionKind(condition))
+    ?? rawConditionReviewMessage(condition)
+}
+
+function articlePolicyConditionResult(condition, facts) {
+  if (facts['production.type'] !== 'ARTICLE_PUBLICATION') return null
+  if (SATISFIED_BY_ARTICLE_POLICY.has(condition.field)) return TRUE
+
+  if (condition.field === 'production.publication_age_months'
+    && condition.operator === 'LTE'
+    && SATISFIED_ROLLING_AGE_MONTHS.has(Number(condition.value))) return TRUE
+
+  if (condition.operator !== 'MANUAL') return null
+  const kind = manualConditionKind(condition)
+  if (SATISFIED_MANUAL_KINDS_BY_ARTICLE_POLICY.has(kind)) return TRUE
+
+  // Nos editais CONSESP, a mesma condição agregava corpo editorial e faixa de
+  // autoria. Corpo editorial é premissa; a autoria continua sendo conferida.
+  if (kind === 'EDITORIAL_BOARD') {
+    return 'production.authorship.role' in facts ? TRUE : UNKNOWN
+  }
+
+  return null
+}
+
+function isSatisfiedRollingWindowByArticlePolicy(dateWindow, facts) {
+  if (facts['production.type'] !== 'ARTICLE_PUBLICATION' || !dateWindow) return false
+  const years = Number(dateWindow.years)
+  if (dateWindow.kind === 'ROLLING_YEARS' && [5, 6].includes(years)) return true
+
+  const sourceText = String(dateWindow.source_text ?? dateWindow.raw_text ?? '').toLocaleLowerCase('pt-BR')
+  return /últim(?:o|a)s?\s+(?:0?5|cinco|0?6|seis)\s+anos?/.test(sourceText)
 }
 
 function triAll(values) {
@@ -113,8 +173,8 @@ function compareKnownValue(operator, observed, expected) {
 }
 
 function evaluateCondition(condition, facts) {
-  if (facts['production.type'] === 'ARTICLE_PUBLICATION'
-    && SATISFIED_BY_ARTICLE_POLICY.has(condition.field)) return TRUE
+  const policyResult = articlePolicyConditionResult(condition, facts)
+  if (policyResult !== null) return policyResult
   if (condition.operator === 'MANUAL') return UNKNOWN
   if (!(condition.field in facts)) {
     if (condition.required === false) return TRUE
@@ -225,8 +285,11 @@ function evaluateSupplementalRequirements(rule, facts) {
   // trouxe um comparador equivalente na árvore de condições.
   if (rule.date_window
     && !fields.has('production.publication_date')
-    && !fields.has('production.publication_age_months')) values.push(UNKNOWN)
-  if (rule.subject_area_requirement && !fields.has('production.subject_area_relation')) values.push(UNKNOWN)
+    && !fields.has('production.publication_age_months')
+    && !isSatisfiedRollingWindowByArticlePolicy(rule.date_window, facts)) values.push(UNKNOWN)
+  if (rule.subject_area_requirement
+    && !fields.has('production.subject_area_relation')
+    && facts['production.type'] !== 'ARTICLE_PUBLICATION') values.push(UNKNOWN)
 
   return values.length ? triAll(values) : TRUE
 }
@@ -285,22 +348,36 @@ function hasMeaningfulWorkInput(work) {
   )
 }
 
-function ruleReviewMessages(rule) {
-  const conditionMessages = (rule.condition_groups ?? [])
+function ruleReviewMessages(rule, facts) {
+  const manualConditions = (rule.condition_groups ?? [])
     .flatMap((group) => group.conditions ?? [])
     .filter((condition) => condition.operator === 'MANUAL')
-    .map((condition) => condition.review_message ?? condition.value?.review_message)
+
+  const suppressedMessages = new Set(manualConditions
+    .filter((condition) => articlePolicyConditionResult(condition, facts) === TRUE)
+    .map(rawConditionReviewMessage)
+    .filter(Boolean)
+  )
+  const overriddenMessages = new Map(manualConditions
+    .map((condition) => [rawConditionReviewMessage(condition), articlePolicyReviewMessage(condition, facts)])
+    .filter(([original, replacement]) => original && replacement && original !== replacement))
+  const conditionMessages = manualConditions
+    .filter((condition) => articlePolicyConditionResult(condition, facts) !== TRUE)
+    .map((condition) => articlePolicyReviewMessage(condition, facts))
     .filter(Boolean)
   const metadataMessages = Array.isArray(rule.source_metadata?.review_messages)
     ? rule.source_metadata.review_messages
+      .filter((message) => !suppressedMessages.has(message))
+      .map((message) => overriddenMessages.get(message) ?? message)
     : []
   return [...new Set([...conditionMessages, ...metadataMessages])]
 }
 
-function hasManualCondition(rule) {
+function hasManualCondition(rule, facts) {
   return (rule.condition_groups ?? [])
     .flatMap((group) => group.conditions ?? [])
-    .some((condition) => condition.operator === 'MANUAL')
+    .some((condition) => condition.operator === 'MANUAL'
+      && articlePolicyConditionResult(condition, facts) !== TRUE)
 }
 
 function missingUserInputFields(rule, facts) {
@@ -309,8 +386,7 @@ function missingUserInputFields(rule, facts) {
 
   for (const condition of (rule.condition_groups ?? []).flatMap((group) => group.conditions ?? [])) {
     conditionFields.add(condition.field)
-    if (facts['production.type'] === 'ARTICLE_PUBLICATION'
-      && SATISFIED_BY_ARTICLE_POLICY.has(condition.field)) continue
+    if (articlePolicyConditionResult(condition, facts) === TRUE) continue
     if (condition.required !== false
       && condition.operator !== 'MANUAL'
       && USER_INPUT_FIELD_LABELS.has(condition.field)
@@ -411,7 +487,7 @@ function evaluateImportedEdict(edict, work) {
   const incompleteRules = evaluated.filter((item) => item.truth === UNKNOWN && item.missingFields.length)
   const possibleRules = evaluated.filter((item) => item.truth === UNKNOWN && !item.missingFields.length).map((item) => item.rule)
   const reviewableIncompleteRules = incompleteRules.filter((item) =>
-    hasManualCondition(item.rule)
+    hasManualCondition(item.rule, facts)
     && !item.missingFields.some((field) => PRIMARY_SCIENTIFIC_INPUT_FIELDS.has(field)))
   const blockingIncompleteRules = incompleteRules.filter((item) => !reviewableIncompleteRules.includes(item))
 
@@ -461,7 +537,7 @@ function evaluateImportedEdict(edict, work) {
 
   const reviewRules = [...possibleRules, ...reviewableIncompleteRules.map((item) => item.rule)]
   if (reviewRules.length) {
-    const reviewMessages = [...new Set(reviewRules.flatMap(ruleReviewMessages))]
+    const reviewMessages = [...new Set(reviewRules.flatMap((rule) => ruleReviewMessages(rule, facts)))]
     const documentaryLabels = [...new Set(reviewableIncompleteRules
       .flatMap((item) => item.missingFields)
       .map((field) => USER_INPUT_FIELD_LABELS.get(field))
