@@ -27,7 +27,15 @@ export function scientificRequirementLabel(rule) {
     .filter((item) => item.exact_match_allowed && item.operator !== 'MANUAL')
     .map((item) => item.base)
   if (exactIndexers.length) parts.push(`Indexação: ${[...new Set(exactIndexers)].join(', ')}`)
-  if (rule?.qualis_requirement) parts.push('Qualis: conferência manual de área/período')
+  if (rule?.qualis_requirement) {
+    const minimum = rule.qualis_requirement.minimum_stratum
+      ?? rule.qualis_requirement.minimum
+      ?? rule.qualis_requirement.stratum
+    const exact = rule.qualis_requirement.exact_match_allowed !== false
+      && rule.qualis_requirement.operator !== 'MANUAL'
+      && minimum
+    parts.push(exact ? `Qualis mínimo: ${minimum}` : 'Qualis: conferência manual de área/período')
+  }
   if (rule?.authorship_requirement?.roles?.length) parts.push(`Autoria: ${rule.authorship_requirement.roles.join(', ')}`)
   if ((rule?.unknown_data ?? []).length) parts.push(`${rule.unknown_data.length} dado(s) desconhecido(s)`)
   return parts.length ? parts.join(' · ') : 'Sem requisito adicional estruturado'

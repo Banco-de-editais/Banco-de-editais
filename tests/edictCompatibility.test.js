@@ -4,6 +4,7 @@ import { coordinatingInstitutionOptions, filterEdicts } from '../src/domain/cons
 import { evaluateEdictCompatibility } from '../src/domain/edictCompatibility.js'
 import { journalMetadataLabel, journalOptionLabel, normalizeOptionalIssn } from '../src/domain/journals.js'
 import { compareQualis, QUALIS_LEVELS } from '../src/domain/qualis.js'
+import { scientificRequirementLabel } from '../src/domain/scientificRules.js'
 import { formatDate, safeExternalUrl } from '../src/lib/formatters.js'
 
 test('mantém a ordem do Qualis da menor para a maior classificação', () => {
@@ -135,7 +136,7 @@ test('aceita regra científica completamente atendida', () => {
   assert.deepEqual(result.matchingRules.map((rule) => rule.source_rule_id), ['R-001'])
 })
 
-test('preserva como indeterminada uma condição científica sem dado informado', () => {
+test('não rebaixa a regra quando um refinamento opcional não foi informado', () => {
   const rule = scientificRule({
     condition_groups: [{
       code: 'ROOT',
@@ -149,9 +150,9 @@ test('preserva como indeterminada uma condição científica sem dado informado'
   })
 
   const result = evaluateEdictCompatibility(importedEdict([rule]), {})
-  assert.equal(result.compatible, false)
-  assert.equal(result.evaluable, false)
-  assert.equal(result.status, 'review_required')
+  assert.equal(result.compatible, true)
+  assert.equal(result.evaluable, true)
+  assert.equal(result.status, 'compatible')
 })
 
 test('compara indexação científica por código sem equiparar bases distintas', () => {
@@ -169,7 +170,84 @@ test('compara indexação científica por código sem equiparar bases distintas'
 
   assert.equal(evaluateEdictCompatibility(importedEdict([rule]), { indexerCodes: ['PUBMED'] }).compatible, true)
   assert.equal(evaluateEdictCompatibility(importedEdict([rule]), { indexerCodes: ['MEDLINE'] }).status, 'incompatible')
-  assert.equal(evaluateEdictCompatibility(importedEdict([rule]), {}).status, 'review_required')
+  assert.equal(evaluateEdictCompatibility(importedEdict([rule]), {}).status, 'compatible')
+  assert.equal(evaluateEdictCompatibility(importedEdict([rule]), { indexerCodes: [], indexerCodesKnown: true }).status, 'incompatible')
+})
+
+test('compara requisito estruturado de Qualis mínimo', () => {
+  const rule = scientificRule({
+    qualis_requirement: {
+      minimum_stratum: 'B2',
+      operator: 'AT_LEAST',
+      exact_match_allowed: true,
+    },
+  })
+
+  assert.equal(evaluateEdictCompatibility(importedEdict([rule]), { qualis: 'B2' }).status, 'compatible')
+  assert.equal(evaluateEdictCompatibility(importedEdict([rule]), { qualis: 'A4' }).status, 'compatible')
+  assert.equal(evaluateEdictCompatibility(importedEdict([rule]), { qualis: 'B3' }).status, 'incompatible')
+  assert.match(scientificRequirementLabel(rule), /Qualis mínimo: B2/)
+})
+
+test('mantém requisito de Qualis incompleto para conferência manual', () => {
+  const rule = scientificRule({
+    qualis_requirement: {
+      stratum: null,
+      operator: 'MANUAL',
+      exact_match_allowed: false,
+    },
+  })
+
+  assert.equal(evaluateEdictCompatibility(importedEdict([rule]), { qualis: 'B2' }).status, 'review_required')
+})
+
+test('condição manual continua exigindo conferência mesmo quando indexação e Qualis atendem', () => {
+  const rule = scientificRule({
+    condition_groups: [{
+      code: 'ROOT',
+      parent: null,
+      operator: 'ALL',
+      conditions: [
+        { field: 'production.type', operator: 'EQ', value: 'ARTICLE_PUBLICATION', required: true, negated: false },
+        { field: 'manual.source_condition', operator: 'MANUAL', value: { kind: 'ADVISOR_RQE' }, required: true, negated: false, review_message: 'Confirmar médico orientador com RQE.' },
+      ],
+    }],
+    indexing_requirements: [{ base: 'LILACS', operator: 'ANY', exact_match_allowed: true }],
+    qualis_requirement: { minimum_stratum: 'B2', operator: 'AT_LEAST', exact_match_allowed: true },
+  })
+
+  const result = evaluateEdictCompatibility(importedEdict([rule]), {
+    qualis: 'B2',
+    indexerCodes: ['LILACS'],
+    indexerCodesKnown: true,
+  })
+
+  assert.equal(result.status, 'review_required')
+  assert.ok(result.reasons.includes('Confirmar médico orientador com RQE.'))
+  assert.equal(evaluateEdictCompatibility(importedEdict([rule]), {
+    qualis: 'B3', indexerCodes: ['LILACS'], indexerCodesKnown: true,
+  }).status, 'incompatible')
+  assert.equal(evaluateEdictCompatibility(importedEdict([rule]), {
+    qualis: 'B2', indexerCodes: ['LATINDEX'], indexerCodesKnown: true,
+  }).status, 'incompatible')
+})
+
+test('compara intervalo anual estruturado quando a data é informada', () => {
+  const rule = scientificRule({
+    condition_groups: [{
+      code: 'ROOT',
+      parent: null,
+      operator: 'ALL',
+      conditions: [
+        { field: 'production.type', operator: 'EQ', value: 'ARTICLE_PUBLICATION', required: true, negated: false },
+        { field: 'production.publication_date', operator: 'BETWEEN', value: { start: '2019', end: '2025' }, required: true, negated: false },
+      ],
+    }],
+    date_window: { kind: 'FIXED_YEAR_RANGE', start: '2019', end: '2025' },
+  })
+
+  assert.equal(evaluateEdictCompatibility(importedEdict([rule]), { publicationDate: '2025-12-31' }).status, 'compatible')
+  assert.equal(evaluateEdictCompatibility(importedEdict([rule]), { publicationDate: '2026-01-01' }).status, 'incompatible')
 })
 
 test('não aprova janela temporal sem comparador estruturado', () => {

@@ -3,6 +3,24 @@ import { compareQualis, isQualisLevel } from './qualis.js'
 const TRUE = 'TRUE'
 const FALSE = 'FALSE'
 const UNKNOWN = 'UNKNOWN'
+const SKIPPED = 'SKIPPED'
+
+// Estes campos existem na consulta como refinamentos opcionais. Quando o
+// usuário não os informa, eles não podem eliminar nem rebaixar um edital.
+// Uma resposta explícita continua sendo comparada normalmente.
+const OPTIONAL_INPUT_FIELDS = new Set([
+  'production.authorship.author_count',
+  'production.authorship.is_first_author',
+  'production.authorship.is_presenter',
+  'production.authorship.role',
+  'production.identifiers.doi',
+  'production.identifiers.issn',
+  'production.indexings',
+  'production.publication.scope',
+  'production.publication_date',
+  'production.publication_status',
+  'production.qualis',
+])
 
 const PRODUCTION_PARENTS = {
   ARTICLE_PUBLICATION: 'SCIENTIFIC_PRODUCTION',
@@ -14,14 +32,18 @@ const PRODUCTION_PARENTS = {
 }
 
 function triAll(values) {
-  if (values.some((value) => value === FALSE)) return FALSE
-  if (values.some((value) => value === UNKNOWN)) return UNKNOWN
+  const considered = values.filter((value) => value !== SKIPPED)
+  if (!considered.length) return TRUE
+  if (considered.some((value) => value === FALSE)) return FALSE
+  if (considered.some((value) => value === UNKNOWN)) return UNKNOWN
   return TRUE
 }
 
 function triAny(values) {
-  if (values.some((value) => value === TRUE)) return TRUE
-  if (values.some((value) => value === UNKNOWN)) return UNKNOWN
+  const considered = values.filter((value) => value !== SKIPPED)
+  if (!considered.length) return TRUE
+  if (considered.some((value) => value === TRUE)) return TRUE
+  if (considered.some((value) => value === UNKNOWN)) return UNKNOWN
   return FALSE
 }
 
@@ -52,10 +74,13 @@ function compareKnownValue(operator, observed, expected) {
     case 'BETWEEN': {
       const limits = Array.isArray(expected)
         ? expected
-        : [expected?.minimum ?? expected?.min, expected?.maximum ?? expected?.max]
-      if (typeof observed === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(observed)
-        && limits.every((value) => typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value))) {
-        return observed >= limits[0] && observed <= limits[1] ? TRUE : FALSE
+        : [expected?.minimum ?? expected?.min ?? expected?.start, expected?.maximum ?? expected?.max ?? expected?.end]
+      if (typeof observed === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(observed)) {
+        const start = /^\d{4}$/.test(String(limits[0])) ? `${limits[0]}-01-01` : limits[0]
+        const end = /^\d{4}$/.test(String(limits[1])) ? `${limits[1]}-12-31` : limits[1]
+        if ([start, end].every((value) => typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value))) {
+          return observed >= start && observed <= end ? TRUE : FALSE
+        }
       }
       const number = Number(observed)
       return Number.isFinite(number)
@@ -68,6 +93,10 @@ function compareKnownValue(operator, observed, expected) {
     }
     case 'DESCENDANT_OF':
       return observed === expected || isDescendantOf(observed, expected) ? TRUE : FALSE
+    case 'AT_LEAST_QUALIS': {
+      const comparison = compareQualis(observed, expected)
+      return comparison === null ? UNKNOWN : comparison >= 0 ? TRUE : FALSE
+    }
     case 'MANUAL':
       return UNKNOWN
     default:
@@ -77,7 +106,10 @@ function compareKnownValue(operator, observed, expected) {
 
 function evaluateCondition(condition, facts) {
   if (condition.operator === 'MANUAL') return UNKNOWN
-  if (!(condition.field in facts)) return condition.required === false ? TRUE : UNKNOWN
+  if (!(condition.field in facts)) {
+    if (condition.required === false) return TRUE
+    return OPTIONAL_INPUT_FIELDS.has(condition.field) ? SKIPPED : UNKNOWN
+  }
 
   let result = compareKnownValue(condition.operator, facts[condition.field], condition.value)
   if (condition.negated && result !== UNKNOWN) result = result === TRUE ? FALSE : TRUE
@@ -122,11 +154,11 @@ function evaluateSupplementalRequirements(rule, facts) {
   )
 
   if ((rule.indexing_requirements ?? []).length && !fields.has('production.indexings')) {
+    const manual = rule.indexing_requirements.some((item) => !item.exact_match_allowed || item.operator === 'MANUAL')
     if (!('production.indexings' in facts)) {
-      values.push(UNKNOWN)
+      values.push(manual ? UNKNOWN : SKIPPED)
     } else {
       const exact = rule.indexing_requirements.filter((item) => item.exact_match_allowed && item.operator !== 'MANUAL')
-      const manual = rule.indexing_requirements.some((item) => !item.exact_match_allowed || item.operator === 'MANUAL')
       const matches = exact.some((item) => facts['production.indexings'].includes(item.base))
       values.push(matches ? TRUE : manual ? UNKNOWN : FALSE)
     }
@@ -136,7 +168,7 @@ function evaluateSupplementalRequirements(rule, facts) {
   if (authorship?.roles?.length && !fields.has('production.authorship.role')) {
     values.push('production.authorship.role' in facts
       ? compareKnownValue('IN', facts['production.authorship.role'], authorship.roles)
-      : UNKNOWN)
+      : SKIPPED)
   }
 
   if (authorship?.author_limit != null && !fields.has('production.authorship.author_count')) {
@@ -151,23 +183,38 @@ function evaluateSupplementalRequirements(rule, facts) {
         values.push(withinLimit)
       }
     } else {
-      values.push(UNKNOWN)
+      values.push(SKIPPED)
     }
   }
 
   if (authorship?.presenter_required && !fields.has('production.authorship.is_presenter')) {
     values.push('production.authorship.is_presenter' in facts
       ? compareKnownValue('IS_TRUE', facts['production.authorship.is_presenter'], true)
-      : UNKNOWN)
+      : SKIPPED)
   }
 
-  // Qualis sem área/período explícitos permanece manual no pacote auditado.
-  if (rule.qualis_requirement) values.push(UNKNOWN)
-  // Os formatos auditados dessas exigências ainda não têm comparadores
-  // estruturados. Mesmo que o usuário informe um valor, não o promovemos a
-  // verdadeiro sem uma regra exata e verificável.
-  if (rule.date_window) values.push(UNKNOWN)
-  if (rule.subject_area_requirement) values.push(UNKNOWN)
+  if (rule.qualis_requirement && !fields.has('production.qualis')) {
+    const requirement = rule.qualis_requirement
+    const minimum = requirement.minimum_stratum ?? requirement.minimum ?? requirement.stratum
+    const canCompare = requirement.exact_match_allowed !== false
+      && requirement.operator !== 'MANUAL'
+      && isQualisLevel(minimum)
+
+    if (!canCompare) {
+      values.push(UNKNOWN)
+    } else if (!('production.qualis' in facts)) {
+      values.push(SKIPPED)
+    } else {
+      values.push(compareKnownValue('AT_LEAST_QUALIS', facts['production.qualis'], minimum))
+    }
+  }
+
+  // Só mantemos a exigência suplementar como manual quando o pacote não
+  // trouxe um comparador equivalente na árvore de condições.
+  if (rule.date_window
+    && !fields.has('production.publication_date')
+    && !fields.has('production.publication_age_months')) values.push(UNKNOWN)
+  if (rule.subject_area_requirement && !fields.has('production.subject_area_relation')) values.push(UNKNOWN)
 
   return values.length ? triAll(values) : TRUE
 }
@@ -182,7 +229,8 @@ function evaluateScientificRule(rule, facts) {
 function scientificFacts(work) {
   const facts = { 'production.type': work.productionType || 'ARTICLE_PUBLICATION' }
   if (work.publicationStatus) facts['production.publication_status'] = work.publicationStatus
-  if (work.indexerCodes?.length) facts['production.indexings'] = [...new Set(work.indexerCodes)]
+  if (work.indexerCodesKnown || work.indexerCodes?.length) facts['production.indexings'] = [...new Set(work.indexerCodes ?? [])]
+  if (work.qualis) facts['production.qualis'] = work.qualis
   if (work.authorshipRole) facts['production.authorship.role'] = work.authorshipRole
   if (work.authorCount !== '' && work.authorCount !== null && work.authorCount !== undefined) {
     facts['production.authorship.author_count'] = Number(work.authorCount)
@@ -193,6 +241,18 @@ function scientificFacts(work) {
   if (work.publicationScope) facts['production.publication.scope'] = work.publicationScope
   if (work.publicationDate) facts['production.publication_date'] = work.publicationDate
   return facts
+}
+
+function ruleReviewMessages(rule) {
+  const conditionMessages = (rule.condition_groups ?? [])
+    .flatMap((group) => group.conditions ?? [])
+    .filter((condition) => condition.operator === 'MANUAL')
+    .map((condition) => condition.review_message ?? condition.value?.review_message)
+    .filter(Boolean)
+  const metadataMessages = Array.isArray(rule.source_metadata?.review_messages)
+    ? rule.source_metadata.review_messages
+    : []
+  return [...new Set([...conditionMessages, ...metadataMessages])]
 }
 
 function evaluateImportedEdict(edict, work) {
@@ -234,21 +294,23 @@ function evaluateImportedEdict(edict, work) {
       evaluable: true,
       status: 'compatible',
       reasons: [
-        `${compatibleRules.length} regra(s) científica(s) normalizada(s) atendida(s).`,
-        'Confira o documento comprobatório e a pontuação indicada em cada regra.',
+        `${compatibleRules.length} regra(s) compatível(is) com os dados informados.`,
+        'Campos opcionais não informados não excluíram o resultado; confira os comprovantes exigidos no edital.',
       ],
       matchingRules: compatibleRules,
     }
   }
 
   if (possibleRules.length) {
+    const reviewMessages = [...new Set(possibleRules.flatMap(ruleReviewMessages))]
     return {
       compatible: false,
       evaluable: false,
       status: 'review_required',
       reasons: [
-        `${possibleRules.length} regra(s) pode(m) aceitar o trabalho, mas faltam dados ou há condição manual.`,
-        'Desconhecido não foi tratado como compatível nem incompatível.',
+        `${possibleRules.length} regra(s) atende(m) aos critérios informados, mas possui(em) condição adicional para conferir.`,
+        ...reviewMessages.slice(0, 3),
+        'A condição não verificável não foi tratada como compatível nem incompatível.',
       ],
       matchingRules: possibleRules,
     }

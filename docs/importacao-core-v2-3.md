@@ -59,3 +59,13 @@ npm run build
 ```
 
 Após a carga, a verificação remota deve confirmar exatamente 398 instituições de origem, 220 editais de origem, 462 vínculos, 15 indexadores com código, 197 regras da release e 167 regras publicadas. Registros manuais preexistentes ficam fora dessas contagens e são preservados.
+
+## Complemento oficial PSU-MG 2027
+
+A migração `20260829190000_add_psu_mg_2027_article_rules.sql` acrescenta, sem alterar a release original, quatro alternativas de publicação de artigo extraídas dos anexos curriculares oficiais de entrada direta e pré-requisito do PSU-MG 2027. As alternativas preservam separadamente:
+
+- MEDLINE/PubMed, Embase, Scopus ou Web of Science, sem requisito de Qualis expresso;
+- SciELO ou LILACS com Qualis mínimo B2;
+- as condições de autoria, RQE do orientador, período, área do trabalho e qualidade editorial como conferência manual.
+
+Com esse complemento, a camada operacional passa a ter 201 regras armazenadas e 171 publicadas. Os 197/167 registros da release `APP-SCIENTIFIC-MVP-v2` permanecem imutáveis e reconciliáveis pelos hashes originais.
