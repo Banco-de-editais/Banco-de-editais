@@ -9,9 +9,15 @@ const USER_INPUT_FIELD_LABELS = new Map([
   ['production.authorship.is_first_author', 'se você é o primeiro autor'],
   ['production.authorship.is_presenter', 'se você é o apresentador'],
   ['production.authorship.role', 'a posição de autoria'],
+  ['production.event.presentation_format', 'o formato da apresentação'],
+  ['production.event.presented', 'se o trabalho foi apresentado'],
+  ['production.event.proceedings', 'se o trabalho consta nos anais'],
+  ['production.event.scope', 'a abrangência do evento'],
+  ['production.identifiers.isbn', 'se a obra possui ISBN'],
   ['production.indexings', 'a revista ou os indexadores'],
   ['production.publication.scope', 'a abrangência da publicação'],
   ['production.publication_date', 'a data de publicação'],
+  ['production.publication_status', 'a situação da publicação'],
   ['production.qualis', 'o Qualis da revista'],
 ])
 
@@ -327,7 +333,14 @@ function scientificFacts(work) {
     facts['production.authorship.author_count'] = Number(work.authorCount)
   }
   if (typeof work.isFirstAuthor === 'boolean') facts['production.authorship.is_first_author'] = work.isFirstAuthor
+  if (typeof work.isPresenter === 'boolean') facts['production.authorship.is_presenter'] = work.isPresenter
+  if (typeof work.hasIsbn === 'boolean') facts['production.identifiers.isbn'] = work.hasIsbn
   if (typeof work.hasIssn === 'boolean') facts['production.identifiers.issn'] = work.hasIssn
+  if (work.eventScope) facts['production.event.scope'] = work.eventScope
+  if (work.presentationFormat) facts['production.event.presentation_format'] = work.presentationFormat
+  if (typeof work.eventProceedings === 'boolean') facts['production.event.proceedings'] = work.eventProceedings
+  if (typeof work.eventPresented === 'boolean') facts['production.event.presented'] = work.eventPresented
+  if (work.publicationStatus) facts['production.publication_status'] = work.publicationStatus
   if (work.publicationScope) facts['production.publication.scope'] = work.publicationScope
   if (work.publicationDate) facts['production.publication_date'] = work.publicationDate
   return facts
@@ -335,14 +348,22 @@ function scientificFacts(work) {
 
 function hasMeaningfulWorkInput(work) {
   return Boolean(
-    work.journalId
+    (work.productionType && work.productionType !== 'ARTICLE_PUBLICATION')
+    || work.journalId
     || work.qualis
     || work.indexerCodesKnown
     || work.indexerCodes?.length
     || work.authorshipRole
     || (work.authorCount !== '' && work.authorCount !== null && work.authorCount !== undefined)
     || typeof work.isFirstAuthor === 'boolean'
+    || typeof work.isPresenter === 'boolean'
+    || typeof work.hasIsbn === 'boolean'
     || typeof work.hasIssn === 'boolean'
+    || work.eventScope
+    || work.presentationFormat
+    || typeof work.eventProceedings === 'boolean'
+    || typeof work.eventPresented === 'boolean'
+    || work.publicationStatus
     || work.publicationDate
     || work.publicationScope,
   )

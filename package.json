@@ -8,6 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "node --test",
+    "build:feluma-release": "node scripts/build-feluma-2027-non-article-release.mjs",
     "validate:scientific-release": "node scripts/build-scientific-coverage-release.mjs && node scripts/validate-scientific-coverage-release.mjs"
   },
   "dependencies": {

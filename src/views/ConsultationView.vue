@@ -33,38 +33,56 @@
               </select>
             </label>
 
-            <label class="block">
-              <span class="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">Revista / periódico</span>
-              <select v-model="article.journalId" :class="controlClasses">
-                <option value="">Selecionar revista (opcional)</option>
-                <option v-for="journal in journals" :key="journal.id" :value="String(journal.id)">{{ journalOptionLabel(journal) }}</option>
-              </select>
-            </label>
+            <template v-if="isArticleProduction">
+              <label class="block">
+                <span class="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">Revista / periódico</span>
+                <select v-model="article.journalId" :class="controlClasses">
+                  <option value="">Selecionar revista (opcional)</option>
+                  <option v-for="journal in journals" :key="journal.id" :value="String(journal.id)">{{ journalOptionLabel(journal) }}</option>
+                </select>
+              </label>
 
-            <label class="block">
-              <span class="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">Qualis</span>
-              <select v-model="article.qualis" :disabled="Boolean(selectedJournal)" :class="controlClasses">
-                <option value="">Qualquer Qualis</option>
-                <option v-for="qualis in qualisOptions" :key="qualis" :value="qualis">{{ qualis }}</option>
-              </select>
-            </label>
+              <label class="block">
+                <span class="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">Qualis</span>
+                <select v-model="article.qualis" :disabled="Boolean(selectedJournal)" :class="controlClasses">
+                  <option value="">Qualquer Qualis</option>
+                  <option v-for="qualis in qualisOptions" :key="qualis" :value="qualis">{{ qualis }}</option>
+                </select>
+              </label>
 
-            <MultiSelect v-model="article.indexerIds" :options="selectableIndexers" label="Indexadores" placeholder="Qualquer indexador" :disabled="Boolean(selectedJournal)" />
+              <MultiSelect v-model="article.indexerIds" :options="selectableIndexers" label="Indexadores" placeholder="Qualquer indexador" :disabled="Boolean(selectedJournal)" />
+            </template>
+
+            <div v-if="isBookProduction" class="space-y-4 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800/60">
+              <p class="text-sm font-bold text-navy-800 dark:text-navy-200">Dados da obra</p>
+              <label class="block"><span :class="dateLabelClasses">Possui ISBN?</span><select v-model="article.hasIsbn" :class="controlClasses"><option value="">Não informado</option><option value="true">Sim</option><option value="false">Não</option></select></label>
+              <label class="block"><span :class="dateLabelClasses">Situação da obra</span><select v-model="article.publicationStatus" :class="controlClasses"><option value="">Não informada</option><option value="PUBLISHED">Publicada</option><option value="ACCEPTED">Aceita, ainda não publicada</option></select></label>
+            </div>
+
+            <div v-if="isEventProduction" class="space-y-4 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800/60">
+              <p class="text-sm font-bold text-navy-800 dark:text-navy-200">Dados do evento</p>
+              <label class="block"><span :class="dateLabelClasses">Abrangência do evento</span><select v-model="article.eventScope" :class="controlClasses"><option value="">Não informada</option><option value="LOCAL">Local</option><option value="REGIONAL">Regional</option><option value="STATE">Estadual</option><option value="NATIONAL">Nacional</option><option value="INTERNATIONAL">Internacional</option></select></label>
+              <label v-if="article.productionType === 'EVENT_PRESENTATION'" class="block"><span :class="dateLabelClasses">Formato da apresentação</span><select v-model="article.presentationFormat" :class="controlClasses"><option value="">Não informado</option><option value="ORAL">Apresentação oral</option><option value="POSTER">Pôster</option><option value="PANEL">Painel</option><option value="FREE_THEME">Tema livre</option><option value="UNSPECIFIED">Não especificado no comprovante</option></select></label>
+              <label v-if="article.productionType === 'EVENT_PRESENTATION'" class="block"><span :class="dateLabelClasses">O trabalho consta nos anais?</span><select v-model="article.eventProceedings" :class="controlClasses"><option value="">Não informado</option><option value="true">Sim</option><option value="false">Não</option></select></label>
+              <label v-else class="block"><span :class="dateLabelClasses">O trabalho foi apresentado?</span><select v-model="article.eventPresented" :class="controlClasses"><option value="">Não informado</option><option value="true">Sim</option><option value="false">Não</option></select></label>
+              <label class="block"><span :class="dateLabelClasses">Situação da publicação associada</span><select v-model="article.publicationStatus" :class="controlClasses"><option value="">Não se aplica / não informada</option><option value="PUBLISHED">Publicada</option><option value="ACCEPTED">Aceita, ainda não publicada</option></select></label>
+            </div>
 
             <details class="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800/60">
               <summary class="cursor-pointer text-sm font-bold text-navy-800 dark:text-navy-200">Adicionar informações para reduzir incertezas</summary>
               <div class="mt-4 space-y-4">
-                <label class="block"><span :class="dateLabelClasses">Papel de autoria</span><select v-model="article.authorshipRole" :class="controlClasses"><option value="">Não informado</option><option value="AUTHOR">Autor</option><option value="COAUTHOR">Coautor</option><option value="FIRST_AUTHOR">Primeiro autor</option><option value="PRESENTER">Apresentador</option></select></label>
+                <label class="block"><span :class="dateLabelClasses">Papel no trabalho</span><select v-model="article.authorshipRole" :class="controlClasses"><option value="">Não informado</option><option value="AUTHOR">Autor</option><option value="COAUTHOR">Coautor</option><option value="FIRST_AUTHOR">Primeiro autor</option><option value="PRESENTER">Apresentador</option><option value="ORGANIZER">Organizador do livro</option></select></label>
                 <div class="grid grid-cols-2 gap-3">
                   <label><span :class="dateLabelClasses">Número de autores</span><input v-model="article.authorCount" type="number" min="1" step="1" :class="controlClasses" /></label>
                   <label><span :class="dateLabelClasses">Primeiro autor?</span><select v-model="article.isFirstAuthor" :class="controlClasses"><option value="">Não informado</option><option value="true">Sim</option><option value="false">Não</option></select></label>
                 </div>
+                <label v-if="article.productionType === 'EVENT_PRESENTATION'" class="block"><span :class="dateLabelClasses">Você foi o apresentador?</span><select v-model="article.isPresenter" :class="controlClasses"><option value="">Não informado</option><option value="true">Sim</option><option value="false">Não</option></select></label>
                 <label class="block"><span :class="dateLabelClasses">Data da publicação</span><input v-model="article.publicationDate" type="date" :class="controlClasses" /></label>
                 <label class="block"><span :class="dateLabelClasses">Abrangência da publicação</span><select v-model="article.publicationScope" :class="controlClasses"><option value="">Não informada</option><option value="LOCAL">Local</option><option value="REGIONAL">Regional</option><option value="STATE">Estadual</option><option value="NATIONAL">Nacional</option><option value="INTERNATIONAL">Internacional</option></select></label>
               </div>
             </details>
 
-            <div v-if="selectedJournal" class="rounded-xl border border-navy-200 bg-navy-50 p-4 dark:border-navy-900 dark:bg-navy-950/45">
+            <div v-if="isArticleProduction && selectedJournal" class="rounded-xl border border-navy-200 bg-navy-50 p-4 dark:border-navy-900 dark:bg-navy-950/45">
               <div class="flex items-start justify-between gap-3">
                 <div class="min-w-0">
                   <p class="text-xs font-bold uppercase tracking-wide text-navy-600 dark:text-navy-300">Revista selecionada</p>
@@ -184,6 +202,13 @@ const article = reactive({
   authorshipRole: '',
   authorCount: '',
   isFirstAuthor: '',
+  isPresenter: '',
+  hasIsbn: '',
+  eventScope: '',
+  presentationFormat: '',
+  eventProceedings: '',
+  eventPresented: '',
+  publicationStatus: '',
   publicationDate: '',
   publicationScope: '',
 })
@@ -194,6 +219,9 @@ const dateLabelClasses = 'mb-1.5 block text-xs font-semibold text-slate-500'
 
 const selectedJournal = computed(() => journals.value.find((item) => String(item.id) === article.journalId) ?? null)
 const selectableIndexers = computed(() => indexers.value.filter((item) => item.exact_match_allowed !== false))
+const isArticleProduction = computed(() => article.productionType === 'ARTICLE_PUBLICATION')
+const isBookProduction = computed(() => ['BOOK', 'CHAPTER'].includes(article.productionType))
+const isEventProduction = computed(() => ['EVENT_PRESENTATION', 'ABSTRACT_PROCEEDINGS'].includes(article.productionType))
 const edictOptions = computed(() => edicts.value
   .map((edict) => ({ id: edict.id, name: edict.name }))
   .sort((left, right) => left.name.localeCompare(right.name, 'pt-BR')))
@@ -212,6 +240,14 @@ const workInput = computed(() => ({
     .filter(Boolean),
   indexerCodesKnown: Boolean(selectedJournal.value) || article.indexerIds.length > 0,
   isFirstAuthor: article.isFirstAuthor === '' ? undefined : article.isFirstAuthor === 'true',
+  isPresenter: article.isPresenter === '' ? undefined : article.isPresenter === 'true',
+  hasIsbn: article.hasIsbn === '' ? undefined : article.hasIsbn === 'true',
+  eventProceedings: article.productionType === 'ABSTRACT_PROCEEDINGS'
+    ? true
+    : article.eventProceedings === '' ? undefined : article.eventProceedings === 'true',
+  eventPresented: article.productionType === 'EVENT_PRESENTATION'
+    ? true
+    : article.eventPresented === '' ? undefined : article.eventPresented === 'true',
 }))
 
 const evaluatedEdicts = computed(() => filteredEdicts.value.map((edict) => ({

@@ -314,6 +314,107 @@ test('não confirma regra positiva genérica quando só o tipo padrão foi infor
   assert.match(result.reasons.join(' '), /Selecionar apenas o tipo de produção/i)
 })
 
+test('usa o tipo não-artigo como dado real quando a regra exige apenas a categoria', () => {
+  const rule = scientificRule({
+    family: 'LIVRO_CAPITULO',
+    production_type: 'CHAPTER',
+    accepted_production_types: ['CHAPTER'],
+    condition_groups: [{ code: 'ROOT', parent: null, operator: 'ALL', conditions: [
+      { field: 'production.type', operator: 'EQ', value: 'CHAPTER', required: true, negated: false },
+    ] }],
+  })
+
+  const result = evaluateEdictCompatibility(importedEdict([rule]), { productionType: 'CHAPTER' })
+  assert.equal(result.status, 'compatible')
+})
+
+test('capítulo publicado com ISBN atende a regra e dado ausente não vira compatibilidade', () => {
+  const rule = scientificRule({
+    family: 'LIVRO_CAPITULO',
+    production_type: 'BOOK_CHAPTER',
+    accepted_production_types: ['CHAPTER'],
+    condition_groups: [{ code: 'ROOT', parent: null, operator: 'ALL', conditions: [
+      { field: 'production.type', operator: 'EQ', value: 'CHAPTER', required: true, negated: false },
+      { field: 'production.identifiers.isbn', operator: 'IS_TRUE', value: true, required: true, negated: false },
+      { field: 'production.publication_status', operator: 'EQ', value: 'PUBLISHED', required: true, negated: false },
+    ] }],
+  })
+
+  const missing = evaluateEdictCompatibility(importedEdict([rule]), { productionType: 'CHAPTER' })
+  assert.equal(missing.status, 'insufficient_data')
+  assert.match(missing.reasons.join(' '), /ISBN/i)
+  assert.match(missing.reasons.join(' '), /situação da publicação/i)
+
+  const acceptedOnly = evaluateEdictCompatibility(importedEdict([rule]), {
+    productionType: 'CHAPTER', hasIsbn: true, publicationStatus: 'ACCEPTED',
+  })
+  assert.equal(acceptedOnly.status, 'incompatible')
+
+  const published = evaluateEdictCompatibility(importedEdict([rule]), {
+    productionType: 'CHAPTER', hasIsbn: true, publicationStatus: 'PUBLISHED',
+  })
+  assert.equal(published.status, 'compatible')
+})
+
+test('livro pode exigir candidato como organizador sem confundir com autoria', () => {
+  const rule = scientificRule({
+    family: 'LIVRO_CAPITULO',
+    production_type: 'BOOK',
+    accepted_production_types: ['BOOK'],
+    condition_groups: [{ code: 'ROOT', parent: null, operator: 'ALL', conditions: [
+      { field: 'production.type', operator: 'EQ', value: 'BOOK', required: true, negated: false },
+      { field: 'production.authorship.role', operator: 'EQ', value: 'ORGANIZER', required: true, negated: false },
+    ] }],
+  })
+
+  assert.equal(evaluateEdictCompatibility(importedEdict([rule]), { productionType: 'BOOK' }).status, 'insufficient_data')
+  assert.equal(evaluateEdictCompatibility(importedEdict([rule]), {
+    productionType: 'BOOK', authorshipRole: 'AUTHOR',
+  }).status, 'incompatible')
+  assert.equal(evaluateEdictCompatibility(importedEdict([rule]), {
+    productionType: 'BOOK', authorshipRole: 'ORGANIZER',
+  }).status, 'compatible')
+})
+
+test('apresentação em evento usa abrangência e formato próprios', () => {
+  const rule = scientificRule({
+    family: 'APRESENTACAO_EVENTO',
+    production_type: 'EVENT_PRESENTATION',
+    accepted_production_types: ['EVENT_PRESENTATION'],
+    condition_groups: [{ code: 'ROOT', parent: null, operator: 'ALL', conditions: [
+      { field: 'production.type', operator: 'EQ', value: 'EVENT_PRESENTATION', required: true, negated: false },
+      { field: 'production.event.scope', operator: 'IN', value: ['REGIONAL', 'NATIONAL', 'INTERNATIONAL'], required: true, negated: false },
+      { field: 'production.event.presentation_format', operator: 'IN', value: ['ORAL', 'POSTER'], required: true, negated: false },
+      { field: 'production.event.presented', operator: 'IS_TRUE', value: true, required: true, negated: false },
+    ] }],
+  })
+
+  const missing = evaluateEdictCompatibility(importedEdict([rule]), { productionType: 'EVENT_PRESENTATION' })
+  assert.equal(missing.status, 'insufficient_data')
+  assert.match(missing.reasons.join(' '), /abrangência do evento/i)
+  assert.match(missing.reasons.join(' '), /formato da apresentação/i)
+
+  assert.equal(evaluateEdictCompatibility(importedEdict([rule]), {
+    productionType: 'EVENT_PRESENTATION', eventScope: 'NATIONAL', presentationFormat: 'ORAL', eventPresented: true,
+  }).status, 'compatible')
+})
+
+test('resumo em anais informa a presença nos anais sem depender de Qualis ou indexador', () => {
+  const rule = scientificRule({
+    family: 'RESUMO_ANAIS',
+    production_type: 'ABSTRACT_PROCEEDINGS',
+    accepted_production_types: ['ABSTRACT_PROCEEDINGS'],
+    condition_groups: [{ code: 'ROOT', parent: null, operator: 'ALL', conditions: [
+      { field: 'production.type', operator: 'EQ', value: 'ABSTRACT_PROCEEDINGS', required: true, negated: false },
+      { field: 'production.event.proceedings', operator: 'IS_TRUE', value: true, required: true, negated: false },
+    ] }],
+  })
+
+  assert.equal(evaluateEdictCompatibility(importedEdict([rule]), {
+    productionType: 'ABSTRACT_PROCEEDINGS', eventProceedings: true,
+  }).status, 'compatible')
+})
+
 test('aceita pontuação positiva confirmada quando a fórmula permanece manual', () => {
   const rule = scientificRule({
     score_formula: {
