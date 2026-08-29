@@ -348,6 +348,39 @@ test('condição manual continua exigindo conferência mesmo quando indexação 
   }).status, 'incompatible')
 })
 
+test('leva ao conferir quando critérios científicos batem e só faltam detalhes documentais de regra manual', () => {
+  const rule = scientificRule({
+    condition_groups: [{
+      code: 'ROOT',
+      parent: null,
+      operator: 'ALL',
+      conditions: [
+        { field: 'production.type', operator: 'EQ', value: 'ARTICLE_PUBLICATION', required: true, negated: false },
+        { field: 'production.publication_status', operator: 'EQ', value: 'PUBLISHED', required: true, negated: false },
+        { field: 'manual.source_condition', operator: 'MANUAL', value: { kind: 'ADVISOR_RQE' }, required: true, negated: false, review_message: 'Confirmar orientador com RQE.' },
+      ],
+    }],
+    indexing_requirements: [{ base: 'LILACS', operator: 'ANY', exact_match_allowed: true }],
+    qualis_requirement: { minimum_stratum: 'B2', operator: 'AT_LEAST', exact_match_allowed: true },
+  })
+
+  const matched = evaluateEdictCompatibility(importedEdict([rule]), {
+    journalId: 'journal-1',
+    indexerCodes: ['LILACS'],
+    indexerCodesKnown: true,
+    qualis: 'B2',
+  })
+  assert.equal(matched.status, 'review_required')
+  assert.ok(matched.reasons.includes('Confirmar a situação da publicação.'))
+  assert.ok(matched.reasons.includes('Confirmar orientador com RQE.'))
+
+  const missingPrimaryCriterion = evaluateEdictCompatibility(importedEdict([rule]), {
+    journalId: 'journal-1',
+    qualis: 'B2',
+  })
+  assert.equal(missingPrimaryCriterion.status, 'insufficient_data')
+})
+
 test('compara intervalo anual estruturado quando a data é informada', () => {
   const rule = scientificRule({
     condition_groups: [{

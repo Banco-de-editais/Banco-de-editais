@@ -18,6 +18,11 @@ const USER_INPUT_FIELD_LABELS = new Map([
   ['production.qualis', 'o Qualis da revista'],
 ])
 
+const PRIMARY_SCIENTIFIC_INPUT_FIELDS = new Set([
+  'production.indexings',
+  'production.qualis',
+])
+
 const PRODUCTION_PARENTS = {
   ARTICLE_PUBLICATION: 'SCIENTIFIC_PRODUCTION',
   BOOK_CHAPTER: 'SCIENTIFIC_PRODUCTION',
@@ -285,6 +290,12 @@ function ruleReviewMessages(rule) {
   return [...new Set([...conditionMessages, ...metadataMessages])]
 }
 
+function hasManualCondition(rule) {
+  return (rule.condition_groups ?? [])
+    .flatMap((group) => group.conditions ?? [])
+    .some((condition) => condition.operator === 'MANUAL')
+}
+
 function missingUserInputFields(rule, facts) {
   const missing = new Set()
   const conditionFields = new Set()
@@ -387,6 +398,10 @@ function evaluateImportedEdict(edict, work) {
   const compatibleRules = evaluated.filter((item) => item.truth === TRUE).map((item) => item.rule)
   const incompleteRules = evaluated.filter((item) => item.truth === UNKNOWN && item.missingFields.length)
   const possibleRules = evaluated.filter((item) => item.truth === UNKNOWN && !item.missingFields.length).map((item) => item.rule)
+  const reviewableIncompleteRules = incompleteRules.filter((item) =>
+    hasManualCondition(item.rule)
+    && !item.missingFields.some((field) => PRIMARY_SCIENTIFIC_INPUT_FIELDS.has(field)))
+  const blockingIncompleteRules = incompleteRules.filter((item) => !reviewableIncompleteRules.includes(item))
 
   if (!hasMeaningfulWorkInput(work) && !incompleteRules.length) {
     return {
@@ -414,8 +429,8 @@ function evaluateImportedEdict(edict, work) {
     }
   }
 
-  if (incompleteRules.length) {
-    const missingLabels = [...new Set(incompleteRules
+  if (blockingIncompleteRules.length) {
+    const missingLabels = [...new Set(blockingIncompleteRules
       .flatMap((item) => item.missingFields)
       .map((field) => USER_INPUT_FIELD_LABELS.get(field))
       .filter(Boolean))]
@@ -424,26 +439,32 @@ function evaluateImportedEdict(edict, work) {
       evaluable: false,
       status: 'insufficient_data',
       reasons: [
-        `${incompleteRules.length} regra(s) pode(m) gerar pontuação, mas faltam dados decisivos para confirmar.`,
+        `${blockingIncompleteRules.length} regra(s) pode(m) gerar pontuação, mas faltam dados decisivos para confirmar.`,
         ...missingLabels.slice(0, 3).map((label) => `Informe ${label}.`),
         'Dado ausente não foi tratado como compatibilidade.',
       ],
-      matchingRules: incompleteRules.map((item) => item.rule),
+      matchingRules: blockingIncompleteRules.map((item) => item.rule),
     }
   }
 
-  if (possibleRules.length) {
-    const reviewMessages = [...new Set(possibleRules.flatMap(ruleReviewMessages))]
+  const reviewRules = [...possibleRules, ...reviewableIncompleteRules.map((item) => item.rule)]
+  if (reviewRules.length) {
+    const reviewMessages = [...new Set(reviewRules.flatMap(ruleReviewMessages))]
+    const documentaryLabels = [...new Set(reviewableIncompleteRules
+      .flatMap((item) => item.missingFields)
+      .map((field) => USER_INPUT_FIELD_LABELS.get(field))
+      .filter(Boolean))]
     return {
       compatible: false,
       evaluable: false,
       status: 'review_required',
       reasons: [
-        `${possibleRules.length} regra(s) atende(m) aos critérios informados, mas possui(em) condição adicional para conferir.`,
+        `${reviewRules.length} regra(s) atende(m) aos critérios científicos informados, mas possui(em) condição adicional para conferir.`,
+        ...documentaryLabels.slice(0, 2).map((label) => `Confirmar ${label}.`),
         ...reviewMessages.slice(0, 3),
         'A condição não verificável não foi tratada como compatível nem incompatível.',
       ],
-      matchingRules: possibleRules,
+      matchingRules: reviewRules,
     }
   }
 

@@ -13,10 +13,6 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
-    env:
-      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-
     steps:
       - uses: actions/checkout@v4
 
@@ -29,6 +25,14 @@ jobs:
       - name: Install Vercel CLI
         # Keep CI on the CLI version validated against this project.
         run: npm install --global vercel@54.10.3
+
+      - name: Link Vercel project
+        run: |
+          vercel link \
+            --yes \
+            --team=diogo-s-projects-escopo \
+            --project=banco-de-editais \
+            --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: Pull Vercel configuration
         run: |
