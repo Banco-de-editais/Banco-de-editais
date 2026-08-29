@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { coordinatingInstitutionOptions, currentPeriodEdicts, filterEdicts } from '../src/domain/consultationFilters.js'
+import { coordinatingInstitutionOptions, currentPeriodEdicts, filterEdicts, regionOptionsForEdicts, stateOptionsForEdicts } from '../src/domain/consultationFilters.js'
 import { evaluateEdictCompatibility } from '../src/domain/edictCompatibility.js'
 import { journalMetadataLabel, journalOptionLabel, normalizeOptionalIssn } from '../src/domain/journals.js'
 import { compareQualis, QUALIS_LEVELS } from '../src/domain/qualis.js'
@@ -100,6 +100,38 @@ test('oferece no filtro apenas instituições que coordenam algum edital', () =>
   assert.deepEqual(coordinatingInstitutionOptions(edicts), [
     { id: 100, name: 'AREMG' },
     { id: 200, name: 'Outra coordenadora' },
+  ])
+})
+
+test('filtra editais por estado e região em campos independentes e combináveis', () => {
+  const edicts = [
+    { id: 10, institution_id: 100, state_reference: 'MG', region: 'SUDESTE' },
+    { id: 20, institution_id: 200, state_reference: 'SP', region: 'SUDESTE' },
+    { id: 30, institution_id: 300, state_reference: 'RS', region: 'SUL' },
+  ]
+
+  assert.deepEqual(filterEdicts(edicts, { stateCodes: ['MG'] }).map((item) => item.id), [10])
+  assert.deepEqual(filterEdicts(edicts, { regionCodes: ['SUDESTE'] }).map((item) => item.id), [10, 20])
+  assert.deepEqual(filterEdicts(edicts, { stateCodes: ['MG'], regionCodes: ['SUL'] }), [])
+  assert.deepEqual(filterEdicts(edicts, { institutionIds: [200], stateCodes: ['SP'], regionCodes: ['SUDESTE'] }).map((item) => item.id), [20])
+})
+
+test('oferece somente estados e regiões brasileiras presentes nos editais atuais', () => {
+  const edicts = [
+    { id: 10, entry_year: 2027, state_reference: 'MG', region: 'SUDESTE' },
+    { id: 20, entry_year: 2027, state_reference: ' mg ', region: 'Sudeste' },
+    { id: 30, entry_year: 2026, state_reference: 'RS', region: 'SUL' },
+    { id: 40, entry_year: 2027, state_reference: 'NACIONAL', region: 'NACIONAL' },
+    { id: 50, entry_year: 2024, state_reference: 'SP', region: 'SUDESTE' },
+  ]
+
+  assert.deepEqual(stateOptionsForEdicts(edicts), [
+    { id: 'MG', name: 'Minas Gerais' },
+    { id: 'RS', name: 'Rio Grande do Sul' },
+  ])
+  assert.deepEqual(regionOptionsForEdicts(edicts), [
+    { id: 'SUDESTE', name: 'Sudeste' },
+    { id: 'SUL', name: 'Sul' },
   ])
 })
 
