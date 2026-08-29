@@ -110,7 +110,7 @@
         <div class="min-w-0 space-y-6">
           <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900" aria-labelledby="filters-title">
             <div class="flex flex-wrap items-start justify-between gap-4">
-              <div><h2 id="filters-title" class="flex items-center gap-2 font-bold text-slate-950 dark:text-white"><AppIcon name="filter" class="h-5 w-5 text-navy-600 dark:text-navy-300" />Filtros opcionais</h2><p class="mt-1 text-sm text-slate-500">Combine edital, instituição coordenadora, estado, região e datas para refinar o resultado.</p></div>
+              <div><h2 id="filters-title" class="flex items-center gap-2 font-bold text-slate-950 dark:text-white"><AppIcon name="filter" class="h-5 w-5 text-navy-600 dark:text-navy-300" />Filtros opcionais</h2><p class="mt-1 text-sm text-slate-500">Combine edital, instituição coordenadora, estado, região, situação e datas para refinar o resultado.</p></div>
               <button v-if="activeFilterCount" type="button" class="text-xs font-bold text-navy-700 hover:underline dark:text-navy-300" @click="clearFilters">Limpar todos</button>
             </div>
             <div class="mt-5 grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
@@ -118,6 +118,7 @@
               <MultiSelect v-model="filters.institutionIds" :options="coordinatorOptions" label="Instituição coordenadora" placeholder="Todas as instituições coordenadoras" searchable search-placeholder="Pesquisar instituição coordenadora..." />
               <MultiSelect v-model="filters.stateCodes" :options="stateOptions" label="Estado" placeholder="Todos os estados" searchable search-placeholder="Pesquisar estado..." />
               <MultiSelect v-model="filters.regionCodes" :options="regionOptions" label="Região" placeholder="Todas as regiões" searchable search-placeholder="Pesquisar região..." />
+              <MultiSelect v-model="filters.resultStatuses" :options="resultStatusOptions" label="Situação do resultado" placeholder="Todas as situações" />
               <label class="flex min-h-11 items-center gap-3 self-end rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 dark:border-slate-700 dark:bg-slate-800"><input v-model="filters.activeOnly" type="checkbox" class="h-5 w-5 accent-navy-600" /><span class="text-sm font-semibold text-slate-700 dark:text-slate-200">Somente editais ativos</span></label>
               <details class="rounded-xl border border-slate-200 bg-slate-50 p-4 md:col-span-2 xl:col-span-3 dark:border-slate-700 dark:bg-slate-800/60">
                 <summary class="flex cursor-pointer items-center justify-between gap-3 text-sm font-bold text-navy-800 dark:text-navy-200"><span>Filtrar por datas (opcional)</span><span v-if="dateFilterCount" class="rounded-full bg-navy-100 px-2 py-0.5 text-[0.68rem] text-navy-700 dark:bg-navy-950 dark:text-navy-200">{{ dateFilterCount }} selecionado(s)</span></summary>
@@ -140,7 +141,7 @@
             </div>
 
             <EmptyState v-if="!hasSearched" icon="consultation" title="Consulte os editais" description="Informe os critérios desejados ou consulte sem parâmetros para visualizar todos os editais disponíveis." />
-            <EmptyState v-else-if="!visibleEdicts.length" icon="search" title="Nenhum resultado seguro ou potencial" description="Os dados informados não atenderam às regras publicadas, ou os editais filtrados ainda não possuem regra científica normalizada." />
+            <EmptyState v-else-if="!visibleEdicts.length" icon="search" :title="filters.resultStatuses.length ? 'Nenhum resultado nas situações selecionadas' : 'Nenhum resultado seguro ou potencial'" :description="filters.resultStatuses.length ? 'Altere o filtro de situação ou os demais critérios da consulta.' : 'Os dados informados não atenderam às regras publicadas, ou os editais filtrados ainda não possuem regra científica normalizada.'" />
             <div v-else class="grid grid-cols-1 gap-4 lg:grid-cols-2">
               <article v-for="edict in visibleEdicts" :key="edict.id" class="relative flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg dark:border-slate-800 dark:bg-slate-900">
                 <div class="absolute inset-x-0 top-0 h-1" :class="compatibilityAccentClass(edict.compatibility.status)"></div>
@@ -181,7 +182,7 @@ import AppIcon from '@/components/ui/AppIcon.vue'
 import EmptyState from '@/components/ui/EmptyState.vue'
 import MultiSelect from '@/components/ui/MultiSelect.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
-import { coordinatingInstitutionOptions, filterEdicts, regionOptionsForEdicts, stateOptionsForEdicts } from '@/domain/consultationFilters'
+import { COMPATIBILITY_STATUS_OPTIONS, coordinatingInstitutionOptions, filterCompatibilityResults, filterEdicts, regionOptionsForEdicts, stateOptionsForEdicts } from '@/domain/consultationFilters'
 import { evaluateEdictCompatibility } from '@/domain/edictCompatibility'
 import { journalMetadataLabel, journalOptionLabel } from '@/domain/journals'
 import { QUALIS_LEVELS } from '@/domain/qualis'
@@ -215,8 +216,9 @@ const article = reactive({
   publicationDate: '',
   publicationScope: '',
 })
-const filters = reactive({ edictIds: [], institutionIds: [], stateCodes: [], regionCodes: [], activeOnly: true, deadlineFrom: '', deadlineTo: '', publishedFrom: '', publishedTo: '' })
+const filters = reactive({ edictIds: [], institutionIds: [], stateCodes: [], regionCodes: [], resultStatuses: [], activeOnly: true, deadlineFrom: '', deadlineTo: '', publishedFrom: '', publishedTo: '' })
 const qualisOptions = QUALIS_LEVELS
+const resultStatusOptions = COMPATIBILITY_STATUS_OPTIONS
 const controlClasses = 'h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 outline-none transition focus:border-navy-500 focus:bg-white focus:ring-4 focus:ring-navy-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:bg-slate-800 dark:focus:ring-navy-950'
 const dateLabelClasses = 'mb-1.5 block text-xs font-semibold text-slate-500'
 
@@ -233,7 +235,7 @@ const coordinatorOptions = computed(() => coordinatingInstitutionOptions(edicts.
 const stateOptions = computed(() => stateOptionsForEdicts(edicts.value))
 const regionOptions = computed(() => regionOptionsForEdicts(edicts.value))
 const dateFilterCount = computed(() => ['deadlineFrom', 'deadlineTo', 'publishedFrom', 'publishedTo'].filter((key) => filters[key]).length)
-const activeFilterCount = computed(() => filters.edictIds.length + filters.institutionIds.length + filters.stateCodes.length + filters.regionCodes.length + Number(filters.activeOnly) + dateFilterCount.value)
+const activeFilterCount = computed(() => filters.edictIds.length + filters.institutionIds.length + filters.stateCodes.length + filters.regionCodes.length + filters.resultStatuses.length + Number(filters.activeOnly) + dateFilterCount.value)
 
 const filteredEdicts = computed(() => filterEdicts(edicts.value, filters))
 
@@ -262,7 +264,7 @@ const evaluatedEdicts = computed(() => filteredEdicts.value.map((edict) => ({
   compatibility: evaluateEdictCompatibility(edict, workInput.value),
 })))
 const visibleEdicts = computed(() => hasSearched.value
-  ? evaluatedEdicts.value.filter((edict) => ['compatible', 'insufficient_data', 'review_required'].includes(edict.compatibility.status))
+  ? filterCompatibilityResults(evaluatedEdicts.value, filters.resultStatuses)
   : [])
 const compatibleCount = computed(() => evaluatedEdicts.value.filter((edict) => edict.compatibility.status === 'compatible').length)
 const insufficientCount = computed(() => evaluatedEdicts.value.filter((edict) => edict.compatibility.status === 'insufficient_data').length)
@@ -318,6 +320,10 @@ const filterChips = computed(() => {
     const name = regionOptions.value.find((item) => item.id === code)?.name
     if (name) chips.push({ key: `region-${code}`, label: `Região: ${name}`, remove: () => { filters.regionCodes = filters.regionCodes.filter((value) => value !== code) } })
   })
+  filters.resultStatuses.forEach((status) => {
+    const name = resultStatusOptions.find((item) => item.id === status)?.name
+    if (name) chips.push({ key: `status-${status}`, label: `Situação: ${name}`, remove: () => { filters.resultStatuses = filters.resultStatuses.filter((value) => value !== status) } })
+  })
   if (filters.activeOnly) chips.push({ key: 'active', label: 'Somente ativos', remove: () => { filters.activeOnly = false } })
   ;[['deadlineFrom', 'Deadline a partir de'], ['deadlineTo', 'Deadline até'], ['publishedFrom', 'Publicação a partir de'], ['publishedTo', 'Publicação até']].forEach(([key, label]) => {
     if (filters[key]) chips.push({ key, label: `${label}: ${formatDate(filters[key])}`, remove: () => { filters[key] = '' } })
@@ -325,7 +331,7 @@ const filterChips = computed(() => {
   return chips
 })
 
-function clearFilters() { Object.assign(filters, { edictIds: [], institutionIds: [], stateCodes: [], regionCodes: [], activeOnly: false, deadlineFrom: '', deadlineTo: '', publishedFrom: '', publishedTo: '' }) }
+function clearFilters() { Object.assign(filters, { edictIds: [], institutionIds: [], stateCodes: [], regionCodes: [], resultStatuses: [], activeOnly: false, deadlineFrom: '', deadlineTo: '', publishedFrom: '', publishedTo: '' }) }
 function runConsultation() { hasSearched.value = true }
 function removeJournal() { article.journalId = '' }
 function compatibilityLabel(status) {
@@ -351,7 +357,7 @@ function compatibilityReasonClass(status) {
 
 watch(selectedJournal, (journal, previousJournal) => {
   if (journal) {
-    article.qualis = journal.qualis
+    article.qualis = journal.qualis ?? ''
     article.indexerIds = [...journal.indexerIds]
   } else if (previousJournal) {
     article.qualis = ''

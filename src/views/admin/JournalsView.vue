@@ -50,7 +50,7 @@
                 <p class="mt-1 text-xs text-slate-500">{{ journal.issn ? `ISSN ${journal.issn}` : 'ISSN não informado' }}</p>
               </div>
             </div>
-            <span class="shrink-0 rounded-full bg-navy-100 px-2.5 py-1 text-xs font-bold text-navy-800 dark:bg-navy-950 dark:text-navy-200">{{ journal.qualis }}</span>
+            <span class="shrink-0 rounded-full bg-navy-100 px-2.5 py-1 text-xs font-bold text-navy-800 dark:bg-navy-950 dark:text-navy-200">{{ journal.qualis ?? 'Sem Qualis' }}</span>
           </div>
           <div class="mt-5 min-h-14">
             <p class="text-xs font-bold uppercase tracking-wide text-slate-400">Indexadores</p>
@@ -67,7 +67,7 @@
       </div>
     </div>
 
-    <BaseModal :open="formOpen" :title="editing ? 'Editar revista' : 'Nova revista'" description="Informe os dados do periódico. O ISSN e os indexadores são opcionais." :busy="isSaving" size="lg" @close="closeForm">
+    <BaseModal :open="formOpen" :title="editing ? 'Editar revista' : 'Nova revista'" description="Informe os dados do periódico. O ISSN, o Qualis e os indexadores são opcionais." :busy="isSaving" size="lg" @close="closeForm">
       <form class="space-y-5 p-5 sm:p-6" @submit.prevent="save">
         <p v-if="formError" class="rounded-xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300" role="alert">{{ formError }}</p>
         <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
@@ -80,9 +80,9 @@
             <input v-model.trim="form.issn" type="text" placeholder="0000-0000" class="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-900 outline-none transition focus:border-navy-500 focus:bg-white focus:ring-4 focus:ring-navy-100 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:bg-slate-800 dark:focus:ring-navy-950" :disabled="isSaving" />
           </label>
           <label class="block">
-            <span class="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">Qualis</span>
-            <select v-model="form.qualis" required class="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 outline-none transition focus:border-navy-500 focus:bg-white focus:ring-4 focus:ring-navy-100 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:bg-slate-800 dark:focus:ring-navy-950" :disabled="isSaving">
-              <option value="" disabled>Selecione</option>
+            <span class="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">Qualis <span class="font-normal text-slate-400">(opcional)</span></span>
+            <select v-model="form.qualis" class="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 outline-none transition focus:border-navy-500 focus:bg-white focus:ring-4 focus:ring-navy-100 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:bg-slate-800 dark:focus:ring-navy-950" :disabled="isSaving">
+              <option value="">Sem Qualis</option>
               <option v-for="qualis in qualisOptions" :key="qualis" :value="qualis">{{ qualis }}</option>
             </select>
           </label>
@@ -118,7 +118,7 @@ import LoadingCards from '@/components/ui/LoadingCards.vue'
 import MultiSelect from '@/components/ui/MultiSelect.vue'
 import PageHeader from '@/components/ui/PageHeader.vue'
 import SearchInput from '@/components/ui/SearchInput.vue'
-import { compareQualis, isQualisLevel, QUALIS_LEVELS } from '@/domain/qualis'
+import { compareOptionalQualis, isQualisLevel, QUALIS_LEVELS } from '@/domain/qualis'
 import { normalizeText } from '@/lib/formatters'
 import { indexersService } from '@/services/simpleEntities'
 import { createJournal, deleteJournal, listJournals, updateJournal } from '@/services/journals'
@@ -143,7 +143,7 @@ const form = reactive({ name: '', issn: '', qualis: '', indexerIds: [] })
 
 const qualisOptions = QUALIS_LEVELS
 const activeFilters = computed(() => Number(Boolean(search.value)) + Number(Boolean(qualisFilter.value)) + indexerFilter.value.length)
-const isFormValid = computed(() => form.name.trim() && isQualisLevel(form.qualis))
+const isFormValid = computed(() => form.name.trim() && (!form.qualis || isQualisLevel(form.qualis)))
 const filteredJournals = computed(() => {
   const term = normalizeText(search.value)
   const [field, direction] = sort.value.split('-')
@@ -153,7 +153,7 @@ const filteredJournals = computed(() => {
       && (!qualisFilter.value || item.qualis === qualisFilter.value)
       && (!indexerFilter.value.length || indexerFilter.value.every((id) => item.indexerIds.includes(id))))
     .sort((a, b) => (field === 'qualis'
-      ? compareQualis(a.qualis, b.qualis) * multiplier
+      ? compareOptionalQualis(a.qualis, b.qualis, direction)
       : a.name.localeCompare(b.name, 'pt-BR') * multiplier))
 })
 

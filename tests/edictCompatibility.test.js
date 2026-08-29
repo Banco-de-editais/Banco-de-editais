@@ -1,9 +1,9 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { coordinatingInstitutionOptions, currentPeriodEdicts, filterEdicts, regionOptionsForEdicts, stateOptionsForEdicts } from '../src/domain/consultationFilters.js'
+import { COMPATIBILITY_STATUS_OPTIONS, coordinatingInstitutionOptions, currentPeriodEdicts, filterCompatibilityResults, filterEdicts, regionOptionsForEdicts, stateOptionsForEdicts } from '../src/domain/consultationFilters.js'
 import { evaluateEdictCompatibility } from '../src/domain/edictCompatibility.js'
-import { journalMetadataLabel, journalOptionLabel, normalizeOptionalIssn } from '../src/domain/journals.js'
-import { compareQualis, QUALIS_LEVELS } from '../src/domain/qualis.js'
+import { journalMetadataLabel, journalOptionLabel, normalizeOptionalIssn, normalizeOptionalQualis } from '../src/domain/journals.js'
+import { compareOptionalQualis, compareQualis, QUALIS_LEVELS } from '../src/domain/qualis.js'
 import { scientificRequirementLabel } from '../src/domain/scientificRules.js'
 import { formatDate, safeExternalUrl } from '../src/lib/formatters.js'
 
@@ -41,6 +41,13 @@ test('não trata critérios legados ausentes como compatibilidade', () => {
   assert.equal(result.status, 'insufficient_data')
   assert.ok(result.reasons.includes('Informe o Qualis da revista.'))
   assert.ok(result.reasons.includes('Informe a revista ou os indexadores.'))
+})
+
+test('mantém revistas sem Qualis no fim das duas ordenações', () => {
+  assert.ok(compareOptionalQualis(null, 'B4', 'asc') > 0)
+  assert.ok(compareOptionalQualis(null, 'A1', 'desc') > 0)
+  assert.ok(compareOptionalQualis('B4', null, 'asc') < 0)
+  assert.equal(compareOptionalQualis(null, undefined, 'desc'), 0)
 })
 
 test('não trata edital legado sem critério estruturado como aceitação universal', () => {
@@ -135,11 +142,34 @@ test('oferece somente estados e regiões brasileiras presentes nos editais atuai
   ])
 })
 
-test('mantém ISSN opcional sem exibir separadores vazios', () => {
+test('ordena resultados por confiança e permite filtrar cada situação isolada ou combinada', () => {
+  const edicts = [
+    { id: 10, compatibility: { status: 'review_required' } },
+    { id: 20, compatibility: { status: 'incompatible' } },
+    { id: 30, compatibility: { status: 'insufficient_data' } },
+    { id: 40, compatibility: { status: 'compatible' } },
+    { id: 50, compatibility: { status: 'review_required' } },
+    { id: 60, compatibility: { status: 'compatible' } },
+  ]
+
+  assert.deepEqual(COMPATIBILITY_STATUS_OPTIONS.map((item) => item.id), [
+    'compatible',
+    'insufficient_data',
+    'review_required',
+  ])
+  assert.deepEqual(filterCompatibilityResults(edicts).map((item) => item.id), [40, 60, 30, 10, 50])
+  assert.deepEqual(filterCompatibilityResults(edicts, ['compatible']).map((item) => item.id), [40, 60])
+  assert.deepEqual(filterCompatibilityResults(edicts, ['review_required', 'insufficient_data']).map((item) => item.id), [30, 10, 50])
+})
+
+test('mantém ISSN e Qualis opcionais sem exibir separadores vazios', () => {
   assert.equal(normalizeOptionalIssn('  '), null)
   assert.equal(normalizeOptionalIssn(' 1518-9740 '), '1518-9740')
+  assert.equal(normalizeOptionalQualis('  '), null)
+  assert.equal(normalizeOptionalQualis(' b2 '), 'B2')
   assert.equal(journalOptionLabel({ name: 'Revista Fisioterapia', issn: null }), 'Revista Fisioterapia')
   assert.equal(journalMetadataLabel({ issn: null, qualis: 'B2' }), 'Qualis B2')
+  assert.equal(journalMetadataLabel({ issn: null, qualis: null }), '')
 })
 
 const importedEdict = (rules) => ({

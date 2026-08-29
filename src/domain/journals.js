@@ -3,6 +3,11 @@ export function normalizeOptionalIssn(value) {
   return normalized || null
 }
 
+export function normalizeOptionalQualis(value) {
+  const normalized = String(value ?? '').trim().toUpperCase()
+  return normalized || null
+}
+
 export function journalOptionLabel(journal) {
   return [journal?.name, journal?.issn].filter(Boolean).join(' · ')
 }

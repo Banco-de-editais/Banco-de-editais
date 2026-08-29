@@ -1,5 +1,15 @@
 export const MINIMUM_ENTRY_YEAR = 2025
 
+export const COMPATIBILITY_STATUS_OPTIONS = Object.freeze([
+  { id: 'compatible', name: 'Compatível' },
+  { id: 'insufficient_data', name: 'Faltam dados' },
+  { id: 'review_required', name: 'Precisa conferir' },
+])
+
+const COMPATIBILITY_STATUS_ORDER = new Map(
+  COMPATIBILITY_STATUS_OPTIONS.map((option, index) => [option.id, index]),
+)
+
 const BRAZIL_STATE_NAMES = Object.freeze({
   AC: 'Acre',
   AL: 'Alagoas',
@@ -77,6 +87,26 @@ export function filterEdicts(edicts = [], filters = {}) {
     && (!filters.deadlineTo || (edict.application_deadline && edict.application_deadline <= filters.deadlineTo))
     && (!filters.publishedFrom || (edict.published_at && edict.published_at >= filters.publishedFrom))
     && (!filters.publishedTo || (edict.published_at && edict.published_at <= filters.publishedTo)))
+}
+
+export function filterCompatibilityResults(edicts = [], selectedStatuses = []) {
+  const selected = new Set(
+    (Array.isArray(selectedStatuses) ? selectedStatuses : [])
+      .filter((status) => COMPATIBILITY_STATUS_ORDER.has(status)),
+  )
+
+  return edicts
+    .map((edict, originalIndex) => ({ edict, originalIndex }))
+    .filter(({ edict }) => {
+      const status = edict.compatibility?.status
+      return COMPATIBILITY_STATUS_ORDER.has(status) && (!selected.size || selected.has(status))
+    })
+    .sort((left, right) => {
+      const statusDifference = COMPATIBILITY_STATUS_ORDER.get(left.edict.compatibility.status)
+        - COMPATIBILITY_STATUS_ORDER.get(right.edict.compatibility.status)
+      return statusDifference || left.originalIndex - right.originalIndex
+    })
+    .map(({ edict }) => edict)
 }
 
 export function coordinatingInstitutionOptions(edicts = []) {
