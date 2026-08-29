@@ -97,7 +97,7 @@
               <button v-if="activeFilterCount" type="button" class="text-xs font-bold text-navy-700 hover:underline dark:text-navy-300" @click="clearFilters">Limpar todos</button>
             </div>
             <div class="mt-5 grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
-              <MultiSelect v-model="filters.edictIds" :options="edictOptions" label="Edital" placeholder="Todos os editais" />
+              <MultiSelect v-model="filters.edictIds" :options="edictOptions" label="Nome do edital" placeholder="Todos os editais" />
               <MultiSelect v-model="filters.institutionIds" :options="coordinatorOptions" label="Instituição coordenadora" placeholder="Todas as instituições coordenadoras" />
               <label class="flex min-h-11 items-center gap-3 self-end rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 dark:border-slate-700 dark:bg-slate-800"><input v-model="filters.activeOnly" type="checkbox" class="h-5 w-5 accent-navy-600" /><span class="text-sm font-semibold text-slate-700 dark:text-slate-200">Somente editais ativos</span></label>
               <details class="rounded-xl border border-slate-200 bg-slate-50 p-4 md:col-span-2 xl:col-span-3 dark:border-slate-700 dark:bg-slate-800/60">
