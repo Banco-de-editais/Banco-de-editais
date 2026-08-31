@@ -1,0 +1,409 @@
+[
+  {
+    "source_rule_id": "CURR-FELUMA-2027-DIRECT-TEACHING-ASSISTANT",
+    "source_process_id": "2027-MG-FELUMA-FELUMA",
+    "activity_codes": ["TEACHING_ASSISTANT"],
+    "title": "Monitoria ou Programa de Iniciação à Docência (PID)",
+    "access_type": "DIRECT",
+    "specialties_text": null,
+    "source_item": "Anexo B, aproveitamento extracurricular, item 4",
+    "status": "POINTS_CONFIRMED",
+    "scoring": {
+      "type": "FIXED",
+      "points_per_unit": 0.6,
+      "unit": "atividade",
+      "max_points": 0.6,
+      "max_units": 1,
+      "description": "0,6 ponto pelo item cumprido; não multiplica por meses ou por monitorias."
+    },
+    "shared_caps": [{"code": "FELUMA-2027-DIRECT-EXTRACURRICULAR", "label": "Aproveitamento extracurricular na graduação em Medicina", "max_points": 2, "notes": "Teto conjunto de pesquisa, extensão, estágio, monitoria, ligas e voluntariado da seção."}],
+    "requirements": [
+      "Atividade durante a graduação em Medicina, por pelo menos 3 meses consecutivos.",
+      "Um único certificado ou declaração institucional deve comprovar integralmente o período mínimo, sem somar documentos de períodos diferentes.",
+      "Documento emitido por IES em papel timbrado, com candidato, disciplina, mês/ano de início e término e carga horária total ou semanal.",
+      "Assinatura e identificação da autoridade responsável ou representante oficial; declarações pessoais sem identificação institucional oficial não bastam."
+    ],
+    "caveats": [
+      "A seção pontua o mesmo documento uma só vez, no item válido de maior valor.",
+      "Referência temporal dos documentos: último dia de inscrição. A carga horária deve ser informada, mas o item não fixa mínimo numérico de horas."
+    ],
+    "evidence": [{"url": "https://residencia.cmmg.edu.br/wp-content/uploads/2026/07/Edital-de-Inscricao-019-2026-Residencia-Medica-2027-1a-Retificacao.pdf", "title": "FELUMA 2027 - Edital 019/2026, 1ª retificação", "pages": "45,49,53", "sha256": "5d39cc47707747229d5d62d5bb4e2952bf75506c86b57243cf2db6bf3c255f9f"}],
+    "checked_at": "2026-08-30"
+  },
+  {
+    "source_rule_id": "CURR-FELUMA-2027-DIRECT-RESEARCH-PROJECT",
+    "source_process_id": "2027-MG-FELUMA-FELUMA",
+    "activity_codes": ["RESEARCH"],
+    "title": "Participação em projeto de pesquisa",
+    "access_type": "DIRECT",
+    "specialties_text": null,
+    "source_item": "Anexo B, aproveitamento extracurricular, item 1",
+    "status": "POINTS_CONFIRMED",
+    "scoring": {
+      "type": "FIXED",
+      "points_per_unit": 1,
+      "unit": "projeto",
+      "max_points": 1,
+      "max_units": 1,
+      "description": "1 ponto por cumprir o item de participação em pesquisa; não multiplica por duração ou por projetos."
+    },
+    "shared_caps": [{"code": "FELUMA-2027-DIRECT-EXTRACURRICULAR", "label": "Aproveitamento extracurricular na graduação em Medicina", "max_points": 2, "notes": "Teto conjunto de pesquisa, extensão, estágio, monitoria, ligas e voluntariado da seção."}],
+    "requirements": [
+      "Participação durante a graduação em Medicina em um mesmo projeto, por pelo menos 6 meses contínuos.",
+      "Um único documento deve demonstrar integralmente o vínculo e a duração mínima; não somar períodos de documentos distintos.",
+      "Certificado ou declaração de IES ou instituição de fomento, em papel timbrado, identificando candidato, função, atividade ou projeto e início/término em mês e ano.",
+      "Assinatura e identificação da autoridade institucional ou representante oficial; declarações pessoais de professores, orientadores ou pesquisadores não são aceitas."
+    ],
+    "caveats": [
+      "A categoria da fonte é projeto de pesquisa: chamar uma atividade de iniciação científica não comprova automaticamente esse vínculo.",
+      "O mesmo documento só pontua uma vez na seção, no item válido de maior valor. Prazos dos documentos têm como referência o último dia de inscrição."
+    ],
+    "evidence": [{"url": "https://residencia.cmmg.edu.br/wp-content/uploads/2026/07/Edital-de-Inscricao-019-2026-Residencia-Medica-2027-1a-Retificacao.pdf", "title": "FELUMA 2027 - Edital 019/2026, 1ª retificação", "pages": "45,49-50", "sha256": "5d39cc47707747229d5d62d5bb4e2952bf75506c86b57243cf2db6bf3c255f9f"}],
+    "checked_at": "2026-08-30"
+  },
+  {
+    "source_rule_id": "CURR-FELUMA-2027-DIRECT-EXTENSION-PROJECT",
+    "source_process_id": "2027-MG-FELUMA-FELUMA",
+    "activity_codes": ["EXTENSION_PROJECT"],
+    "title": "Participação em projeto de extensão extracurricular",
+    "access_type": "DIRECT",
+    "specialties_text": null,
+    "source_item": "Anexo B, aproveitamento extracurricular, item 2",
+    "status": "POINTS_CONFIRMED",
+    "scoring": {
+      "type": "FIXED",
+      "points_per_unit": 1,
+      "unit": "projeto",
+      "max_points": 1,
+      "max_units": 1,
+      "description": "1 ponto pelo item de extensão extracurricular cumprido, limitado a um projeto."
+    },
+    "shared_caps": [{"code": "FELUMA-2027-DIRECT-EXTRACURRICULAR", "label": "Aproveitamento extracurricular na graduação em Medicina", "max_points": 2, "notes": "Teto conjunto de pesquisa, extensão, estágio, monitoria, ligas e voluntariado da seção."}],
+    "requirements": [
+      "Projeto extracurricular realizado durante a graduação em Medicina, com carga total mínima de 80 horas.",
+      "Um único certificado ou declaração deve comprovar as 80 horas em um único projeto.",
+      "Documento de IES em papel timbrado, com candidato, atividade ou função, mês/ano de início e término, carga total e assinatura/identificação da autoridade ou representante oficial.",
+      "Não são aceitos certificados de extensão curricular nem declarações pessoais sem identificação institucional válida."
+    ],
+    "caveats": [
+      "Não somar horas entre projetos ou períodos diferentes, ainda que da mesma instituição ou atividade semelhante.",
+      "O mesmo documento só pontua uma vez na seção, no item válido de maior valor. Referência temporal: último dia de inscrição."
+    ],
+    "evidence": [{"url": "https://residencia.cmmg.edu.br/wp-content/uploads/2026/07/Edital-de-Inscricao-019-2026-Residencia-Medica-2027-1a-Retificacao.pdf", "title": "FELUMA 2027 - Edital 019/2026, 1ª retificação", "pages": "45,49,51", "sha256": "5d39cc47707747229d5d62d5bb4e2952bf75506c86b57243cf2db6bf3c255f9f"}],
+    "checked_at": "2026-08-30"
+  },
+  {
+    "source_rule_id": "CURR-FELUMA-2027-DIRECT-EVENT-SPEAKER",
+    "source_process_id": "2027-MG-FELUMA-FELUMA",
+    "activity_codes": ["EVENT_SPEAKER"],
+    "title": "Palestrante em evento científico",
+    "access_type": "DIRECT",
+    "specialties_text": null,
+    "source_item": "Anexo B, eventos científicos e premiações, itens 5 e 6",
+    "status": "POINTS_CONFIRMED",
+    "scoring": {"type": "PER_UNIT", "points_per_unit": 0.5, "unit": "documento", "max_points": 1, "max_units": 2, "description": "0,5 ponto por documento de participação como palestrante, até dois documentos."},
+    "shared_caps": [{"code": "FELUMA-2027-DIRECT-EVENTS", "label": "Eventos científicos e premiações - acesso direto", "max_points": 1, "notes": "Teto conjunto de palestras, organização, apresentação de trabalhos e premiações."}],
+    "requirements": [
+      "Atuação como palestrante em evento científico regional, nacional ou internacional.",
+      "A fonte contempla congressos e outras modalidades científicas, como simpósios, jornadas, seminários, palestras e semanas acadêmicas/científicas.",
+      "Certificado ou declaração em papel timbrado da instituição organizadora/promotora ou do evento, com candidato, evento, entidades, papel desempenhado, data/período e assinatura/identificação dos responsáveis."
+    ],
+    "caveats": [
+      "Colaborador, secretário e coordenador de mesa não equivalem a palestrante; a natureza da participação deve estar identificada no documento.",
+      "Não confundir palestra com apresentação de trabalho: são itens diferentes da mesma seção. Não somar o teto da seção uma vez por atividade."
+    ],
+    "evidence": [{"url": "https://residencia.cmmg.edu.br/wp-content/uploads/2026/07/Edital-de-Inscricao-019-2026-Residencia-Medica-2027-1a-Retificacao.pdf", "title": "FELUMA 2027 - Edital 019/2026, 1ª retificação", "pages": "45,67-68", "sha256": "5d39cc47707747229d5d62d5bb4e2952bf75506c86b57243cf2db6bf3c255f9f"}],
+    "checked_at": "2026-08-30"
+  },
+  {
+    "source_rule_id": "CURR-FELUMA-2027-PREREQUISITE-EVENT-SPEAKER",
+    "source_process_id": "2027-MG-FELUMA-FELUMA",
+    "activity_codes": ["EVENT_SPEAKER"],
+    "title": "Palestrante em evento científico",
+    "access_type": "PREREQUISITE",
+    "specialties_text": null,
+    "source_item": "Anexo B, eventos científicos e premiações, itens 5 e 6",
+    "status": "POINTS_CONFIRMED",
+    "scoring": {"type": "PER_UNIT", "points_per_unit": 0.5, "unit": "documento", "max_points": 1, "max_units": 2, "description": "0,5 ponto por documento de participação como palestrante, até dois documentos."},
+    "shared_caps": [{"code": "FELUMA-2027-PREREQUISITE-EVENTS", "label": "Eventos científicos e premiações - pré-requisito", "max_points": 2, "notes": "Teto conjunto de palestras, organização, apresentação de trabalhos e premiações; palestras isoladas continuam limitadas a 1 ponto."}],
+    "requirements": [
+      "Atuação como palestrante em evento científico regional, nacional ou internacional.",
+      "A fonte contempla congressos e outras modalidades científicas, como simpósios, jornadas, seminários, palestras e semanas acadêmicas/científicas.",
+      "Certificado ou declaração em papel timbrado da instituição organizadora/promotora ou do evento, com candidato, evento, entidades, papel desempenhado, data/período e assinatura/identificação dos responsáveis."
+    ],
+    "caveats": [
+      "Colaborador, secretário e coordenador de mesa não equivalem a palestrante; a natureza da participação deve estar identificada no documento.",
+      "Não confundir palestra com apresentação de trabalho, que é outro item da mesma seção."
+    ],
+    "evidence": [{"url": "https://residencia.cmmg.edu.br/wp-content/uploads/2026/07/Edital-de-Inscricao-019-2026-Residencia-Medica-2027-1a-Retificacao.pdf", "title": "FELUMA 2027 - Edital 019/2026, 1ª retificação", "pages": "45,86-87", "sha256": "5d39cc47707747229d5d62d5bb4e2952bf75506c86b57243cf2db6bf3c255f9f"}],
+    "checked_at": "2026-08-30"
+  },
+  {
+    "source_rule_id": "CURR-FELUMA-2027-DIRECT-EVENT-ORGANIZER",
+    "source_process_id": "2027-MG-FELUMA-FELUMA",
+    "activity_codes": ["EVENT_ORGANIZER"],
+    "title": "Comissão organizadora de evento científico",
+    "access_type": "DIRECT",
+    "specialties_text": null,
+    "source_item": "Anexo B, eventos científicos e premiações, itens 1 e 2",
+    "status": "POINTS_CONFIRMED",
+    "scoring": {"type": "PER_UNIT", "points_per_unit": 0.5, "unit": "documento", "max_points": 1, "max_units": 2, "description": "0,5 ponto por documento de participação na comissão organizadora, até dois documentos."},
+    "shared_caps": [{"code": "FELUMA-2027-DIRECT-EVENTS", "label": "Eventos científicos e premiações - acesso direto", "max_points": 1, "notes": "Teto conjunto de palestras, organização, apresentação de trabalhos e premiações."}],
+    "requirements": [
+      "Participação na comissão organizadora de evento científico regional, nacional ou internacional.",
+      "A fonte contempla congressos e outras modalidades científicas, como simpósios, jornadas, seminários, palestras e semanas acadêmicas/científicas.",
+      "Certificado ou declaração em papel timbrado da instituição organizadora/promotora ou do evento, com candidato, evento, entidades, papel desempenhado, data/período e assinatura/identificação dos responsáveis."
+    ],
+    "caveats": [
+      "Colaborador, secretário e coordenador de mesa não equivalem ao papel de organizador; a natureza da participação deve estar identificada.",
+      "O limite de 1 ponto da seção é compartilhado; não multiplicá-lo pela quantidade de modalidades selecionadas."
+    ],
+    "evidence": [{"url": "https://residencia.cmmg.edu.br/wp-content/uploads/2026/07/Edital-de-Inscricao-019-2026-Residencia-Medica-2027-1a-Retificacao.pdf", "title": "FELUMA 2027 - Edital 019/2026, 1ª retificação", "pages": "45,67-68", "sha256": "5d39cc47707747229d5d62d5bb4e2952bf75506c86b57243cf2db6bf3c255f9f"}],
+    "checked_at": "2026-08-30"
+  },
+  {
+    "source_rule_id": "CURR-FELUMA-2027-PREREQUISITE-EVENT-ORGANIZER",
+    "source_process_id": "2027-MG-FELUMA-FELUMA",
+    "activity_codes": ["EVENT_ORGANIZER"],
+    "title": "Comissão organizadora de evento científico",
+    "access_type": "PREREQUISITE",
+    "specialties_text": null,
+    "source_item": "Anexo B, eventos científicos e premiações, itens 1 e 2",
+    "status": "POINTS_CONFIRMED",
+    "scoring": {"type": "PER_UNIT", "points_per_unit": 0.5, "unit": "documento", "max_points": 1, "max_units": 2, "description": "0,5 ponto por documento de participação na comissão organizadora, até dois documentos."},
+    "shared_caps": [{"code": "FELUMA-2027-PREREQUISITE-EVENTS", "label": "Eventos científicos e premiações - pré-requisito", "max_points": 2, "notes": "Teto conjunto de palestras, organização, apresentação de trabalhos e premiações; organização isolada continua limitada a 1 ponto."}],
+    "requirements": [
+      "Participação na comissão organizadora de evento científico regional, nacional ou internacional.",
+      "A fonte contempla congressos e outras modalidades científicas, como simpósios, jornadas, seminários, palestras e semanas acadêmicas/científicas.",
+      "Certificado ou declaração em papel timbrado da instituição organizadora/promotora ou do evento, com candidato, evento, entidades, papel desempenhado, data/período e assinatura/identificação dos responsáveis."
+    ],
+    "caveats": [
+      "Colaborador, secretário e coordenador de mesa não equivalem ao papel de organizador; a natureza da participação deve estar identificada.",
+      "O limite de 2 pontos da seção não é o limite individual da atividade: organização possui apenas dois documentos de 0,5 ponto."
+    ],
+    "evidence": [{"url": "https://residencia.cmmg.edu.br/wp-content/uploads/2026/07/Edital-de-Inscricao-019-2026-Residencia-Medica-2027-1a-Retificacao.pdf", "title": "FELUMA 2027 - Edital 019/2026, 1ª retificação", "pages": "45,86-87", "sha256": "5d39cc47707747229d5d62d5bb4e2952bf75506c86b57243cf2db6bf3c255f9f"}],
+    "checked_at": "2026-08-30"
+  },
+  {
+    "source_rule_id": "CURR-FELUMA-2027-DIRECT-BOOK-ORGANIZER",
+    "source_process_id": "2027-MG-FELUMA-FELUMA",
+    "activity_codes": ["BOOK_ORGANIZER"],
+    "title": "Organização de livro publicado",
+    "access_type": "DIRECT",
+    "specialties_text": null,
+    "source_item": "Anexo B, publicação de trabalhos científicos, itens 5 e 6",
+    "status": "POINTS_CONFIRMED",
+    "scoring": {"type": "PER_UNIT", "points_per_unit": 1, "unit": "livro", "max_points": 2, "max_units": 2, "description": "1 ponto por livro organizado, até dois livros; sujeito ao teto conjunto das publicações."},
+    "shared_caps": [{"code": "FELUMA-2027-DIRECT-PUBLICATIONS", "label": "Publicação de trabalhos científicos - acesso direto", "max_points": 2, "notes": "Compartilhado com artigos e capítulos; cada publicação só pode pontuar uma vez."}],
+    "requirements": [
+      "Livro efetivamente publicado e com ISBN; o candidato deve constar como organizador.",
+      "Anexar PDF com capa, ficha catalográfica e sumário, identificando candidato como organizador, título, ISBN, edição, data e editora."
+    ],
+    "caveats": [
+      "Autoria, coautoria e outras denominações não substituem a identificação como organizador.",
+      "Certificados, declarações, cartas ou e-mails de aceite não comprovam publicação do livro.",
+      "Organização de livro e autoria de capítulo são categorias distintas na fonte."
+    ],
+    "evidence": [{"url": "https://residencia.cmmg.edu.br/wp-content/uploads/2026/07/Edital-de-Inscricao-019-2026-Residencia-Medica-2027-1a-Retificacao.pdf", "title": "FELUMA 2027 - Edital 019/2026, 1ª retificação", "pages": "45,63,66", "sha256": "5d39cc47707747229d5d62d5bb4e2952bf75506c86b57243cf2db6bf3c255f9f"}],
+    "checked_at": "2026-08-30"
+  },
+  {
+    "source_rule_id": "CURR-FELUMA-2027-PREREQUISITE-BOOK-ORGANIZER",
+    "source_process_id": "2027-MG-FELUMA-FELUMA",
+    "activity_codes": ["BOOK_ORGANIZER"],
+    "title": "Organização de livro publicado",
+    "access_type": "PREREQUISITE",
+    "specialties_text": null,
+    "source_item": "Anexo B, publicação de trabalhos científicos, itens 5 e 6",
+    "status": "POINTS_CONFIRMED",
+    "scoring": {"type": "PER_UNIT", "points_per_unit": 1.5, "unit": "livro", "max_points": 3, "max_units": 2, "description": "1,5 ponto por livro organizado, até dois livros; sujeito ao teto conjunto das publicações."},
+    "shared_caps": [{"code": "FELUMA-2027-PREREQUISITE-PUBLICATIONS", "label": "Publicação de trabalhos científicos - pré-requisito", "max_points": 3, "notes": "Compartilhado com artigos e capítulos; cada publicação só pode pontuar uma vez."}],
+    "requirements": [
+      "Livro efetivamente publicado e com ISBN; o candidato deve constar como organizador.",
+      "Anexar PDF com capa, ficha catalográfica e sumário, identificando candidato como organizador, título, ISBN, edição, data e editora."
+    ],
+    "caveats": [
+      "Autoria, coautoria e outras denominações não substituem a identificação como organizador.",
+      "Certificados, declarações, cartas ou e-mails de aceite não comprovam publicação do livro.",
+      "Organização de livro e autoria de capítulo são categorias distintas na fonte."
+    ],
+    "evidence": [{"url": "https://residencia.cmmg.edu.br/wp-content/uploads/2026/07/Edital-de-Inscricao-019-2026-Residencia-Medica-2027-1a-Retificacao.pdf", "title": "FELUMA 2027 - Edital 019/2026, 1ª retificação", "pages": "45,82,85", "sha256": "5d39cc47707747229d5d62d5bb4e2952bf75506c86b57243cf2db6bf3c255f9f"}],
+    "checked_at": "2026-08-30"
+  },
+  {
+    "source_rule_id": "CURR-PSU-MG-2027-DIRECT-3B-TEACHING-ASSISTANT",
+    "source_process_id": "2027-MG-PSU-MG-AREMG",
+    "activity_codes": ["TEACHING_ASSISTANT"],
+    "title": "Monitoria ou Programa de Iniciação à Docência na instituição de origem",
+    "access_type": "DIRECT",
+    "specialties_text": null,
+    "source_item": "Anexo 1, item 3b",
+    "status": "POINTS_CONFIRMED",
+    "scoring": {"type": "FIXED", "points_per_unit": 1, "unit": "monitoria/PID", "max_points": 1, "max_units": 1, "description": "1 ponto por uma monitoria/PID elegível; não é 1 ponto a cada semestre ou disciplina."},
+    "shared_caps": [{"code": "PSU-MG-2027-DIRECT-ITEM-3", "label": "Estágios extracurriculares/PET-Saúde e monitoria", "max_points": 2, "notes": "Monitoria tem limite individual de 1 ponto; os outros pontos da seção dependem de outra atividade elegível."}],
+    "requirements": [
+      "Realização durante a graduação em Medicina, na instituição de origem, em disciplina constante no histórico escolar.",
+      "Uma monitoria/PID por um semestre letivo de pelo menos 16 semanas; mínimo de 80 horas totais, com referência de 5 horas semanais na fonte.",
+      "Documento da instituição de ensino em papel timbrado, com candidato, disciplina, assinatura/identificação da autoridade ou representante, datas de início/término e carga semanal ou total.",
+      "Os períodos das atividades do item 3 não podem se sobrepor além da tolerância máxima de 30 dias. Consideram-se integralmente todos os períodos e certificados apresentados, sem fracionamento para evitar concomitância."
+    ],
+    "caveats": [
+      "A tabela identifica o item como 3b; o parágrafo documental contém referência divergente a 3c, a conferir no envio.",
+      "Observar autenticação e respectivas exceções, identificação do item, rubrica e destaques das orientações gerais. Documentos provisórios datados há mais de um ano não são aceitos."
+    ],
+    "evidence": [{"url": "https://www.galaxcms.com.br/up_crud_comum/601/Anexo1-AvaliacaoCurricularPadronizadaEntradaDiretaPSUMG2027-20260716100113.pdf", "title": "PSU-MG 2027 - Anexo 1, avaliação curricular de entrada direta", "pages": "2-3,8-11", "sha256": "8218e70f5fa5ce59f599d54a6075908320c053331be32f37ab70ad8eaf3b64bf"}],
+    "checked_at": "2026-08-30"
+  },
+  {
+    "source_rule_id": "CURR-PSU-MG-2027-DIRECT-4A-RESEARCH-SCHOLARSHIP",
+    "source_process_id": "2027-MG-PSU-MG-AREMG",
+    "activity_codes": ["RESEARCH"],
+    "title": "Bolsa de iniciação científica (BIC)",
+    "access_type": "DIRECT",
+    "specialties_text": null,
+    "source_item": "Anexo 1, item 4a",
+    "status": "REVIEW_REQUIRED",
+    "scoring": {"type": "FIXED", "points_per_unit": 0.5, "unit": "bolsa de IC", "max_points": 0.5, "max_units": 1, "description": "A tabela atribui 0,5 ponto a uma BIC. A acumulação com 4b permanece sem interpretação automática."},
+    "shared_caps": [{"code": "PSU-MG-2027-DIRECT-ITEM-4", "label": "Iniciação científica e projeto de pesquisa", "max_points": 1.3, "notes": "Teto literal de 1,30; o OU entre 4a e 4b impede inferir silenciosamente que todos os subitens se acumulam."}],
+    "requirements": [
+      "Atividade exclusivamente durante a graduação em Medicina e na instituição de origem.",
+      "Uma BIC institucional, do CNPq, CAPES ou fundação estadual de apoio à pesquisa, por pelo menos 6 meses consecutivos e 80 horas.",
+      "Certificado ou declaração oficial da instituição de ensino do candidato ou de fomento, em papel timbrado, identificando candidato, função, atividade/projeto, período e autoridade responsável ou representante oficial.",
+      "O documento deve indicar expressamente que o candidato foi bolsista; simples participação não comprova 4a. Declaração pessoal de professor, orientador ou pesquisador não é aceita.",
+      "Tolerância máxima de sobreposição de 30 dias entre as atividades do item 4."
+    ],
+    "caveats": [
+      "A descrição de 4a termina com OU antes de 4b; simultaneamente, o teto de 1,30 corresponde à soma numérica de 4a, 4b e 4c. Preservada a inconsistência: não calcular acumulação automaticamente.",
+      "As exigências gerais de autenticação e respectivas exceções, marcação, rubrica e validade de documentos provisórios continuam aplicáveis."
+    ],
+    "evidence": [{"url": "https://www.galaxcms.com.br/up_crud_comum/601/Anexo1-AvaliacaoCurricularPadronizadaEntradaDiretaPSUMG2027-20260716100113.pdf", "title": "PSU-MG 2027 - Anexo 1, avaliação curricular de entrada direta", "pages": "2-3,11-13", "sha256": "8218e70f5fa5ce59f599d54a6075908320c053331be32f37ab70ad8eaf3b64bf"}],
+    "checked_at": "2026-08-30"
+  },
+  {
+    "source_rule_id": "CURR-PSU-MG-2027-DIRECT-4B-VOLUNTARY-RESEARCH",
+    "source_process_id": "2027-MG-PSU-MG-AREMG",
+    "activity_codes": ["RESEARCH"],
+    "title": "Participação voluntária em iniciação científica, com ou sem bolsa",
+    "access_type": "DIRECT",
+    "specialties_text": null,
+    "source_item": "Anexo 1, item 4b",
+    "status": "REVIEW_REQUIRED",
+    "scoring": {"type": "FIXED", "points_per_unit": 0.3, "unit": "participação em IC", "max_points": 0.3, "max_units": 1, "description": "A tabela atribui 0,3 ponto a uma participação. A expressão temporal e a acumulação com 4a exigem conferência."},
+    "shared_caps": [{"code": "PSU-MG-2027-DIRECT-ITEM-4", "label": "Iniciação científica e projeto de pesquisa", "max_points": 1.3, "notes": "Teto literal de 1,30; o OU entre 4a e 4b impede inferir silenciosamente que todos os subitens se acumulam."}],
+    "requirements": [
+      "Atividade exclusivamente durante a graduação em Medicina e na instituição de origem.",
+      "Uma participação voluntária em IC institucional, CNPq, CAPES ou fundação estadual de apoio à pesquisa, com ou sem bolsa, e carga mínima de 80 horas.",
+      "O texto exige duração mínima de mais 6 meses consecutivos. A expressão mais 6 foi preservada, sem transformá-la em seis meses isolados ou em regra de soma.",
+      "Certificado ou declaração oficial da instituição de ensino do candidato ou de fomento, em papel timbrado, identificando candidato, função, atividade/projeto, datas e assinatura/identificação da autoridade ou representante.",
+      "Para 4b, aceitam-se documentos de participação com ou sem bolsa; não se aceitam declarações pessoais de professores, orientadores ou pesquisadores.",
+      "Tolerância máxima de sobreposição de 30 dias entre as atividades do item 4."
+    ],
+    "caveats": [
+      "O OU ao final de 4a e a expressão mais 6 meses em 4b não permitem resolver automaticamente exclusividade, acumulação ou requisito de período adicional, apesar do teto literal de 1,30.",
+      "As exigências gerais de autenticação e respectivas exceções, marcação, rubrica e validade de documentos provisórios continuam aplicáveis."
+    ],
+    "evidence": [{"url": "https://www.galaxcms.com.br/up_crud_comum/601/Anexo1-AvaliacaoCurricularPadronizadaEntradaDiretaPSUMG2027-20260716100113.pdf", "title": "PSU-MG 2027 - Anexo 1, avaliação curricular de entrada direta", "pages": "2-3,11-13", "sha256": "8218e70f5fa5ce59f599d54a6075908320c053331be32f37ab70ad8eaf3b64bf"}],
+    "checked_at": "2026-08-30"
+  },
+  {
+    "source_rule_id": "CURR-PSU-MG-2027-DIRECT-4C-RESEARCH-PROJECT",
+    "source_process_id": "2027-MG-PSU-MG-AREMG",
+    "activity_codes": ["RESEARCH"],
+    "title": "Projeto de pesquisa em grupo registrado no CNPq, com resultado divulgado",
+    "access_type": "DIRECT",
+    "specialties_text": null,
+    "source_item": "Anexo 1, item 4c",
+    "status": "REVIEW_REQUIRED",
+    "scoring": {"type": "FIXED", "points_per_unit": 0.5, "unit": "projeto de pesquisa", "max_points": 0.5, "max_units": 1, "description": "0,5 ponto por um projeto elegível. O teto agregado de IC/pesquisa não é calculado devido à ambiguidade entre 4a e 4b."},
+    "shared_caps": [{"code": "PSU-MG-2027-DIRECT-ITEM-4", "label": "Iniciação científica e projeto de pesquisa", "max_points": 1.3, "notes": "Teto literal de 1,30; acumulação entre 4a e 4b exige conferência. O projeto de 4c deve ser diferente dos de 4a/4b."}],
+    "requirements": [
+      "Projeto realizado durante a graduação em Medicina e na instituição de origem, distinto das atividades apresentadas em 4a e 4b.",
+      "Participação mínima de 12 meses consecutivos e 80 horas em grupo de pesquisa registrado no CNPq e com atividades regulares.",
+      "Resultado da pesquisa publicado em revista indexada ou apresentado oralmente ou como pôster em evento científico.",
+      "Certificado ou declaração oficial da instituição de ensino do candidato ou de fomento, em papel timbrado, com candidato, função, projeto/atividade, datas e assinatura/identificação da autoridade ou representante oficial; declaração pessoal não basta.",
+      "Anexar publicação ou certificado de apresentação, identificando candidato e resumo do trabalho resultante; apresentar também comprovação do Diretório de Grupos de Pesquisa do CNPq com candidato e grupo destacados.",
+      "Tolerância máxima de sobreposição de 30 dias entre atividades do item 4."
+    ],
+    "caveats": [
+      "A pontuação individual de 4c está explícita; a revisão necessária diz respeito à acumulação do bloco, cujo teto literal foi preservado.",
+      "Não confundir participação em pesquisa com mera autoria de artigo. As exigências gerais de autenticação e validade documental também se aplicam."
+    ],
+    "evidence": [{"url": "https://www.galaxcms.com.br/up_crud_comum/601/Anexo1-AvaliacaoCurricularPadronizadaEntradaDiretaPSUMG2027-20260716100113.pdf", "title": "PSU-MG 2027 - Anexo 1, avaliação curricular de entrada direta", "pages": "2-3,11-13", "sha256": "8218e70f5fa5ce59f599d54a6075908320c053331be32f37ab70ad8eaf3b64bf"}],
+    "checked_at": "2026-08-30"
+  },
+  {
+    "source_rule_id": "CURR-PSU-MG-2027-DIRECT-9A-EXTENSION-PROJECT",
+    "source_process_id": "2027-MG-PSU-MG-AREMG",
+    "activity_codes": ["EXTENSION_PROJECT"],
+    "title": "Projeto ou programa de extensão médica na instituição de origem",
+    "access_type": "DIRECT",
+    "specialties_text": null,
+    "source_item": "Anexo 1, item 9a",
+    "status": "POINTS_CONFIRMED",
+    "scoring": {"type": "FIXED", "points_per_unit": 0.7, "unit": "projeto de extensão", "max_points": 0.7, "max_units": 1, "description": "0,7 ponto por um projeto de extensão elegível, sem multiplicação por semestre ou carga horária."},
+    "shared_caps": [{"code": "PSU-MG-2027-DIRECT-ITEM-9", "label": "Extensão e participação voluntária junto à comunidade", "max_points": 1, "notes": "Os 0,3 ponto restantes pertencem ao item 9b, com critérios próprios de voluntariado; não são pontos adicionais por extensão."}],
+    "requirements": [
+      "Projeto ou programa de extensão na área médica, na IES de origem durante a graduação em Medicina, sem vínculo com ligas acadêmicas e distinto das atividades do item 9b.",
+      "Um projeto por pelo menos um semestre letivo, com mínimo de 16 semanas e 80 horas totais.",
+      "Cadastro comprovado na pró-reitoria ou coordenação de extensão da IES, com descrição das atividades efetivamente realizadas.",
+      "Certificado em papel timbrado da IES de origem, com candidato, nome do projeto, descrição das atividades, registro institucional, datas de início/término, carga horária e assinatura/identificação da autoridade ou representante oficial.",
+      "Título do projeto sem descrição das atividades não basta; declarações pessoais de professores ou orientadores não são aceitas.",
+      "Tolerância máxima de 30 dias de sobreposição entre atividades do item 9."
+    ],
+    "caveats": [
+      "Excluem-se cursos ou eventos de extensão, estágios extracurriculares práticos, realização de cursos, atividades esportivas/culturais e reuniões clínicas, inclusive discussão de casos, protocolos e artigos.",
+      "Não confundir extensão com voluntariado do item 9b. Observar as exigências gerais de autenticação, marcação, rubrica e validade documental."
+    ],
+    "evidence": [{"url": "https://www.galaxcms.com.br/up_crud_comum/601/Anexo1-AvaliacaoCurricularPadronizadaEntradaDiretaPSUMG2027-20260716100113.pdf", "title": "PSU-MG 2027 - Anexo 1, avaliação curricular de entrada direta", "pages": "2-3,18-19", "sha256": "8218e70f5fa5ce59f599d54a6075908320c053331be32f37ab70ad8eaf3b64bf"}],
+    "checked_at": "2026-08-30"
+  },
+  {
+    "source_rule_id": "CURR-PSU-MG-2027-DIRECT-5A-EVENT-ORGANIZER",
+    "source_process_id": "2027-MG-PSU-MG-AREMG",
+    "activity_codes": ["EVENT_ORGANIZER"],
+    "title": "Organizador de evento de sociedade de especialidade médica ou entidade de classe",
+    "access_type": "DIRECT",
+    "specialties_text": null,
+    "source_item": "Anexo 1, item 5a",
+    "status": "REVIEW_REQUIRED",
+    "scoring": {"type": "FIXED", "points_per_unit": 0.25, "unit": "participação como organizador", "max_points": 0.25, "max_units": 1, "description": "0,25 ponto por uma participação; escopo e duração devem ser conferidos pela divergência entre título e detalhamento."},
+    "shared_caps": [{"code": "PSU-MG-2027-DIRECT-ITEM-5", "label": "Organização e palestra em eventos", "max_points": 0.5, "notes": "Para pontuar organização e palestra, as participações devem ocorrer em eventos diferentes."}],
+    "requirements": [
+      "Atuação durante a graduação em Medicina como organizador de evento promovido por sociedade de especialidade médica ou entidade médica de classe, sem relação com ligas acadêmicas.",
+      "O detalhamento de 5a exige evento de pelo menos 8 horas; o título da seção descreve congressos estaduais/nacionais de 8 horas ou dois dias consecutivos.",
+      "Certificado ou declaração oficial dos responsáveis pela atividade, em papel timbrado ou com carimbo identificador, com candidato, evento/entidades, tipo de participação, datas, carga horária e assinatura/identificação das autoridades.",
+      "Para acumular com 5b, deve ser evento diferente daquele utilizado para comprovar a palestra."
+    ],
+    "caveats": [
+      "Preservada a divergência: título restringe a congressos estaduais/nacionais e admite dois dias; detalhamento cita eventos científicos, mesas-redondas/reuniões e exige 8 horas. Não ampliar escopo nem escolher um ramo silenciosamente.",
+      "Secretário, colaborador ou coordenador de mesa não equivalem ao papel exigido. Aplicam-se também as regras gerais de autenticação e validade documental."
+    ],
+    "evidence": [{"url": "https://www.galaxcms.com.br/up_crud_comum/601/Anexo1-AvaliacaoCurricularPadronizadaEntradaDiretaPSUMG2027-20260716100113.pdf", "title": "PSU-MG 2027 - Anexo 1, avaliação curricular de entrada direta", "pages": "2-3,13-14", "sha256": "8218e70f5fa5ce59f599d54a6075908320c053331be32f37ab70ad8eaf3b64bf"}],
+    "checked_at": "2026-08-30"
+  },
+  {
+    "source_rule_id": "CURR-PSU-MG-2027-DIRECT-5B-EVENT-SPEAKER",
+    "source_process_id": "2027-MG-PSU-MG-AREMG",
+    "activity_codes": ["EVENT_SPEAKER"],
+    "title": "Palestrante em evento de sociedade de especialidade médica ou entidade de classe",
+    "access_type": "DIRECT",
+    "specialties_text": null,
+    "source_item": "Anexo 1, item 5b",
+    "status": "REVIEW_REQUIRED",
+    "scoring": {"type": "FIXED", "points_per_unit": 0.25, "unit": "participação como palestrante", "max_points": 0.25, "max_units": 1, "description": "0,25 ponto por uma participação; escopo e duração devem ser conferidos pela divergência entre título e detalhamento."},
+    "shared_caps": [{"code": "PSU-MG-2027-DIRECT-ITEM-5", "label": "Organização e palestra em eventos", "max_points": 0.5, "notes": "Para pontuar organização e palestra, as participações devem ocorrer em eventos diferentes."}],
+    "requirements": [
+      "Atuação como palestrante durante a graduação em Medicina, em evento promovido por sociedade de especialidade médica ou entidade médica de classe, sem relação com ligas acadêmicas.",
+      "O detalhamento exige evento de pelo menos 8 horas, não palestra de 8 horas; o título menciona congressos estaduais/nacionais de 8 horas ou dois dias consecutivos.",
+      "Certificado ou declaração oficial dos responsáveis pela atividade, em papel timbrado ou com carimbo identificador, com candidato, evento/entidades, tipo de participação, datas, carga horária e assinatura/identificação das autoridades.",
+      "Para acumular com 5a, o evento deve ser diferente daquele utilizado para comprovar a organização."
+    ],
+    "caveats": [
+      "Preservada a divergência entre o escopo e a duração definidos no título e nos subitens. Não escolher automaticamente o critério mais amplo.",
+      "Apresentação de trabalho, tema livre, pôster, palestra orientada, debatedor, mediador, secretário, colaborador ou coordenador de mesa não equivalem a palestrante para este item.",
+      "As regras gerais de autenticação e validade documental também se aplicam."
+    ],
+    "evidence": [{"url": "https://www.galaxcms.com.br/up_crud_comum/601/Anexo1-AvaliacaoCurricularPadronizadaEntradaDiretaPSUMG2027-20260716100113.pdf", "title": "PSU-MG 2027 - Anexo 1, avaliação curricular de entrada direta", "pages": "2-3,13-14", "sha256": "8218e70f5fa5ce59f599d54a6075908320c053331be32f37ab70ad8eaf3b64bf"}],
+    "checked_at": "2026-08-30"
+  }
+]

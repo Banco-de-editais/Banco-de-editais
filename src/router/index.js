@@ -20,6 +20,10 @@ const routes = [
     children: [
       { path: '', name: 'consultation', component: () => import('@/views/ConsultationView.vue') },
       {
+        path: 'planejamento', name: 'curriculum-planning',
+        component: () => import('@/views/CurriculumPlanningView.vue'),
+      },
+      {
         path: 'admin/users', name: 'admin-users',
         component: () => import('@/views/admin/UsersView.vue'), meta: { requiresAdmin: true },
       },
@@ -78,6 +82,7 @@ router.afterEach((to) => {
     login: 'Entrar',
     'auth-confirm': 'Ativar conta',
     consultation: 'Consulta',
+    'curriculum-planning': 'Planejamento curricular',
     'admin-users': 'Usuários',
     'admin-institutions': 'Instituições',
     'admin-journals': 'Revistas',

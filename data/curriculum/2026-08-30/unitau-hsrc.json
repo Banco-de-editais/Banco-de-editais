@@ -1,0 +1,152 @@
+[
+  {
+    "source_rule_id": "CURR-UNITAU-2027-DIRECT-MONITORIA",
+    "source_process_id": "2027-SP-UNITAU-PRPPG",
+    "activity_codes": ["TEACHING_ASSISTANT"],
+    "title": "Monitoria até o quarto ano de Medicina",
+    "access_type": "DIRECT",
+    "specialties_text": null,
+    "source_item": "9.2.11 - acesso direto, item 2(e)",
+    "status": "POINTS_CONFIRMED",
+    "scoring": {"type": "PER_UNIT", "points_per_unit": 5, "unit": "monitoria", "max_points": 10, "max_units": null, "description": "Uma monitoria: 5 pontos; duas ou mais: 10 pontos. O texto limita a pontuação, não explicita limite de documentos."},
+    "shared_caps": [{"code": "CURR-UNITAU-2027-DIRECT-ITEM-2", "label": "Item 2 - monitorias", "max_points": 10}],
+    "requirements": [
+      "Duração de pelo menos um semestre letivo e carga mínima de 20 horas mensais.",
+      "Realizada até o fim do quarto ano ou oitavo período de Medicina.",
+      "Comprovação por documento oficial da instituição, assinado por representante legal conforme o edital e validado pela IES de origem."
+    ],
+    "caveats": ["Horas mensais não são horas totais; semestre letivo não foi convertido em seis meses corridos.", "Regra do acesso direto, sem extensão automática ao pré-requisito."],
+    "evidence": [{"url": "https://unitau.br/arquivos/concursos/edital-2026-2027-revisado_05_08.pdf", "title": "UNITAU - Residência Médica 2027, edital revisado", "pages": "12-14", "sha256": "77df9b6538427c3977f6a3abe9d8e16cefba7fffd0ec92489f08b132dea1307b"}],
+    "checked_at": "2026-08-30"
+  },
+  {
+    "source_rule_id": "CURR-UNITAU-2027-DIRECT-IC",
+    "source_process_id": "2027-SP-UNITAU-PRPPG",
+    "activity_codes": ["RESEARCH"],
+    "title": "Iniciação científica concluída, com ou sem bolsa",
+    "access_type": "DIRECT",
+    "specialties_text": null,
+    "source_item": "9.2.11 - acesso direto, item 3(f)",
+    "status": "POINTS_CONFIRMED",
+    "scoring": {"type": "MAX_ONLY", "points_per_unit": null, "unit": null, "max_points": 15, "max_units": null, "description": "A tabela informa máximo de 15 pontos. Não explicita valor por projeto ou quantidade necessária para alcançar esse teto."},
+    "shared_caps": [{"code": "CURR-UNITAU-2027-DIRECT-ITEM-3", "label": "Item 3 - produção científica", "max_points": 40, "notes": "Compartilhado com outros itens da produção científica; não repetir o mesmo trabalho/publicação em itens diferentes."}],
+    "requirements": [
+      "Projeto regular de iniciação científica finalizado, com ou sem bolsa, de pelo menos um ano ou dois semestres.",
+      "Certificação e regulação pela IES e/ou pelas agências oficiais de fomento indicadas: CNPq e fundações estaduais.",
+      "Documento oficial validado na IES de origem, com assinatura do representante competente conforme o edital.",
+      "Atividade realizada até a data de colação de grau em Medicina."
+    ],
+    "caveats": ["O teto de 15 pontos não foi interpretado como 15 pontos por projeto.", "Proibida a repetição do mesmo trabalho/publicação entre itens do bloco 3."],
+    "evidence": [{"url": "https://unitau.br/arquivos/concursos/edital-2026-2027-revisado_05_08.pdf", "title": "UNITAU - Residência Médica 2027, edital revisado", "pages": "13-14", "sha256": "77df9b6538427c3977f6a3abe9d8e16cefba7fffd0ec92489f08b132dea1307b"}],
+    "checked_at": "2026-08-30"
+  },
+  {
+    "source_rule_id": "CURR-UNITAU-2027-DIRECT-EXTENSAO",
+    "source_process_id": "2027-SP-UNITAU-PRPPG",
+    "activity_codes": ["EXTENSION_PROJECT"],
+    "title": "Projeto de extensão - fórmula conflitante no edital",
+    "access_type": "DIRECT",
+    "specialties_text": null,
+    "source_item": "9.2.11 - acesso direto, item 1(b)",
+    "status": "REVIEW_REQUIRED",
+    "scoring": {"type": "MANUAL", "points_per_unit": null, "unit": "atividade", "max_points": 5, "max_units": null, "description": "Coluna do teto: 5 pontos. O texto menciona 1 ponto por atividade e 5 para cinco ou mais, mas também repete 10/20 pontos de estágio. A divergência exige conferência; nenhuma das fórmulas foi escolhida automaticamente."},
+    "shared_caps": [
+      {"code": "CURR-UNITAU-2027-DIRECT-ITEM-1B", "label": "Item 1(b) - extensão e gestão de ligas", "max_points": 5, "notes": "Extensão e gestão de ligas ocupam a mesma linha, não tetos independentes."},
+      {"code": "CURR-UNITAU-2027-DIRECT-ITEM-1", "label": "Item 1 - estágios e atividades extracurriculares", "max_points": 40}
+    ],
+    "requirements": [
+      "Projeto de extensão regular na IES, com pelo menos um ano.",
+      "Atividade realizada até o fim do quarto ano ou oitavo período de Medicina.",
+      "Comprovação por documento oficial assinado pelo representante competente e validado pela IES de origem."
+    ],
+    "caveats": ["A duplicação da fórmula de estágio foi confirmada visualmente na fonte, não é uma correção presumida do texto extraído.", "Não somar o teto da extensão ao teto de gestão de ligas como se fossem subitens separados."],
+    "evidence": [{"url": "https://unitau.br/arquivos/concursos/edital-2026-2027-revisado_05_08.pdf", "title": "UNITAU - Residência Médica 2027, edital revisado", "pages": "12-13", "sha256": "77df9b6538427c3977f6a3abe9d8e16cefba7fffd0ec92489f08b132dea1307b"}],
+    "checked_at": "2026-08-30"
+  },
+  {
+    "source_rule_id": "CURR-HSRC-2027-DIRECT-EXTENSAO",
+    "source_process_id": "2027-ES-HSRC-IBEST",
+    "activity_codes": ["EXTENSION_PROJECT"],
+    "title": "Projeto de extensão ou comunidade - conferir detalhamento agrupado",
+    "access_type": "DIRECT",
+    "specialties_text": "Anestesiologia, Cirurgia Geral, Clínica Médica e Radiologia e Diagnóstico por Imagem",
+    "source_item": "16.13 - item 2A; detalhamento 17.5.1-17.5.2",
+    "status": "REVIEW_REQUIRED",
+    "scoring": {"type": "PER_UNIT", "points_per_unit": 0.5, "unit": "projeto", "max_points": 1, "max_units": null, "description": "0,5 ponto por projeto elegível, teto de 1 ponto no item 2A. A ressalva é do enquadramento documental no detalhamento."},
+    "shared_caps": [{"code": "CURR-HSRC-2027-DIRECT-BLOCO-2", "label": "Bloco 2 - experiência acadêmica/profissional", "max_points": 5}],
+    "requirements": [
+      "Pelo menos 120 horas no projeto.",
+      "Declaração ou certificado institucional identifica candidato, atividade, carga, período, assinatura responsável e papel no projeto.",
+      "Projeto registrado na instituição/departamento; comprovação oficial, não declaração pessoal de professor ou orientador.",
+      "O detalhamento 17.5.1 agrupa 2A e 2B como estágios/atividades de extensão durante a graduação e exclui atividade curricular obrigatória."
+    ],
+    "caveats": ["O título do detalhamento agrupa extensão com estágio em instituição com residência médica; conferir o alcance desse requisito para o projeto. Não eliminar essa condição por inferência.", "A exigência de certificado de residência/pós-graduação na mesma seção parece estar deslocada, mas não foi silenciosamente corrigida."],
+    "evidence": [{"url": "https://anexos-r2.selecao.net.br/uploads/729/concursos/67/anexos/ad859832-d6fe-4802-8714-a927508f1d26.pdf", "title": "AFECC/HSRC - Edital 1 de 25/08/2026, ingresso 2027", "pages": "1, 14, 17", "sha256": "c5e3b3ff6cbe49b0da6f86593cf65843dd3d8a08ff780762664da9b39d540c32"}],
+    "checked_at": "2026-08-30"
+  },
+  {
+    "source_rule_id": "CURR-HSRC-2027-DIRECT-MONITORIA",
+    "source_process_id": "2027-ES-HSRC-IBEST",
+    "activity_codes": ["TEACHING_ASSISTANT"],
+    "title": "Monitoria / iniciação à docência - conferir duração",
+    "access_type": "DIRECT",
+    "specialties_text": "Anestesiologia, Cirurgia Geral, Clínica Médica e Radiologia e Diagnóstico por Imagem",
+    "source_item": "16.13 - item 2C; detalhamento 17.5.3",
+    "status": "REVIEW_REQUIRED",
+    "scoring": {"type": "PER_UNIT", "points_per_unit": 0.25, "unit": "monitoria elegível", "max_points": 0.5, "max_units": null, "description": "0,25 ponto pela monitoria comprovada; teto de 0,5 ponto. Conferir o requisito adicional de semestre no detalhamento."},
+    "shared_caps": [{"code": "CURR-HSRC-2027-DIRECT-BLOCO-2", "label": "Bloco 2 - experiência acadêmica/profissional", "max_points": 5}],
+    "requirements": [
+      "O quadro exige 80 horas totais ou no mínimo quatro meses.",
+      "O detalhamento também menciona um semestre letivo de monitoria/PID.",
+      "Certificado ou declaração da instituição de ensino em papel timbrado, com candidato, disciplina, assinatura e identificação da autoridade, período e carga semanal e/ou total."
+    ],
+    "caveats": ["Não tratar apenas 80 horas como atendimento automático: o qualificador de semestre do item 17.5.3 foi preservado para conferência.", "Semestre letivo e meses corridos não foram equiparados."],
+    "evidence": [{"url": "https://anexos-r2.selecao.net.br/uploads/729/concursos/67/anexos/ad859832-d6fe-4802-8714-a927508f1d26.pdf", "title": "AFECC/HSRC - Edital 1 de 25/08/2026, ingresso 2027", "pages": "1, 14, 17-18", "sha256": "c5e3b3ff6cbe49b0da6f86593cf65843dd3d8a08ff780762664da9b39d540c32"}],
+    "checked_at": "2026-08-30"
+  },
+  {
+    "source_rule_id": "CURR-HSRC-2027-DIRECT-EVENTOS",
+    "source_process_id": "2027-ES-HSRC-IBEST",
+    "activity_codes": ["EVENT_SPEAKER", "EVENT_ORGANIZER"],
+    "title": "Organização, palestra ou conferência em evento científico",
+    "access_type": "DIRECT",
+    "specialties_text": "Anestesiologia, Cirurgia Geral, Clínica Médica e Radiologia e Diagnóstico por Imagem",
+    "source_item": "16.13 - item 2D; detalhamento 17.5.4",
+    "status": "POINTS_CONFIRMED",
+    "scoring": {"type": "PER_UNIT", "points_per_unit": 0.5, "unit": "participação qualificada em evento", "max_points": 1, "max_units": null, "description": "0,5 ponto pela participação qualificada; teto único de 1 ponto para todas as funções do item 2D."},
+    "shared_caps": [
+      {"code": "CURR-HSRC-2027-DIRECT-ITEM-2D", "label": "Item 2D - organização e participação qualificada", "max_points": 1, "notes": "Mesmo item para palestrante, conferencista, organizador, comissão organizadora, coordenador e integrante formal de mesa científica."},
+      {"code": "CURR-HSRC-2027-DIRECT-BLOCO-2", "label": "Bloco 2 - experiência acadêmica/profissional", "max_points": 5}
+    ],
+    "requirements": [
+      "Atuação como integrante de comissão organizadora, coordenador, organizador, palestrante, conferencista ou integrante formal de mesa científica.",
+      "Evento na área médica/saúde.",
+      "Evento comprovadamente científico, vinculado a instituição de ensino, em um dos formatos especificados na seção 17.5.4.",
+      "Declaração/certificado oficial identifica candidato, função, evento, entidade promotora, período/carga horária e assinatura responsável."
+    ],
+    "caveats": ["A condição de simples participante não pontua neste item.", "Workshop somente é aceito dentro de evento científico previsto; curso de capacitação não identificado como evento científico não é equivalente.", "A comprovação de organização não pode ser reutilizada no item 2G de participante.", "Os filtros de palestrante e organizador encontram esta mesma regra, sem duplicar seu teto."],
+    "evidence": [{"url": "https://anexos-r2.selecao.net.br/uploads/729/concursos/67/anexos/ad859832-d6fe-4802-8714-a927508f1d26.pdf", "title": "AFECC/HSRC - Edital 1 de 25/08/2026, ingresso 2027", "pages": "1, 14-15, 18", "sha256": "c5e3b3ff6cbe49b0da6f86593cf65843dd3d8a08ff780762664da9b39d540c32"}],
+    "checked_at": "2026-08-30"
+  },
+  {
+    "source_rule_id": "CURR-HSRC-2027-DIRECT-IC",
+    "source_process_id": "2027-ES-HSRC-IBEST",
+    "activity_codes": ["RESEARCH"],
+    "title": "Iniciação científica com bolsa ou voluntária por pelo menos um ano",
+    "access_type": "DIRECT",
+    "specialties_text": "Anestesiologia, Cirurgia Geral, Clínica Médica e Radiologia e Diagnóstico por Imagem",
+    "source_item": "16.13 - item 3B; detalhamento 17.6.2",
+    "status": "POINTS_CONFIRMED",
+    "scoring": {"type": "PER_UNIT", "points_per_unit": 0.25, "unit": "projeto elegível", "max_points": 0.25, "max_units": null, "description": "0,25 ponto, com teto de 0,25 ponto no item 3B."},
+    "shared_caps": [{"code": "CURR-HSRC-2027-DIRECT-BLOCO-3", "label": "Bloco 3 - experiências de pesquisa", "max_points": 2.5, "notes": "Compartilhado com capítulos, artigos, resumos e apresentações da mesma seção."}],
+    "requirements": [
+      "Projeto de pesquisa de caráter institucional, CNPq ou fundação estadual de fomento, com bolsa ou participação voluntária por pelo menos um ano.",
+      "Pesquisa/produção científica na área médica.",
+      "Atuação como aluno pesquisador ou função diretamente ligada à realização da pesquisa.",
+      "Declaração/certificado oficial com candidato, função, nome/descrição do projeto, período e assinatura da autoridade ou representante institucional."
+    ],
+    "caveats": ["Não aceita período inferior a um ano nem comprovação como auxiliar, contratado ou em função administrativa como equivalentes à pesquisa.", "Declaração pessoal de professor/orientador/pesquisador não substitui comprovação institucional."],
+    "evidence": [{"url": "https://anexos-r2.selecao.net.br/uploads/729/concursos/67/anexos/ad859832-d6fe-4802-8714-a927508f1d26.pdf", "title": "AFECC/HSRC - Edital 1 de 25/08/2026, ingresso 2027", "pages": "1, 15, 18", "sha256": "c5e3b3ff6cbe49b0da6f86593cf65843dd3d8a08ff780762664da9b39d540c32"}],
+    "checked_at": "2026-08-30"
+  }
+]

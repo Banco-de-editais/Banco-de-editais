@@ -98,7 +98,10 @@ const { isDark, toggleTheme } = useTheme()
 const mobileOpen = ref(false)
 const isSigningOut = ref(false)
 const logoutError = ref('')
-const navigation = [{ name: 'consultation', label: 'Consulta', icon: 'consultation' }]
+const navigation = [
+  { name: 'consultation', label: 'Consulta', icon: 'consultation' },
+  { name: 'curriculum-planning', label: 'Planejamento curricular', icon: 'calendar' },
+]
 const adminNavigation = [
   { name: 'admin-users', label: 'Usuários', icon: 'users' },
   { name: 'admin-institutions', label: 'Instituições', icon: 'institution' },

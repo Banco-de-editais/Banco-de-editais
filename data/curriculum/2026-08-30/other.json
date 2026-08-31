@@ -1,0 +1,376 @@
+[
+  {
+    "source_rule_id": "CURR-FMUSP-2026-DIRECT-MONITORIA",
+    "source_process_id": "2026-SP-FMUSP-FUVEST",
+    "activity_codes": ["TEACHING_ASSISTANT"],
+    "title": "Monitoria conforme duração e carga horária",
+    "access_type": "DIRECT",
+    "specialties_text": null,
+    "source_item": "2.4 - item 4, áreas básicas e acesso direto",
+    "status": "POINTS_CONFIRMED",
+    "scoring": {
+      "type": "TIERS",
+      "points_per_unit": null,
+      "unit": "faixa de duração e carga horária",
+      "max_points": 3,
+      "max_units": null,
+      "tiers": [
+        {"label": "1 semestre letivo na mesma monitoria e pelo menos 64 horas totais", "points": 1},
+        {"label": "2 semestres letivos na mesma monitoria e pelo menos 128 horas totais", "points": 2},
+        {"label": "Mais de 2 semestres letivos na mesma monitoria e pelo menos 192 horas totais", "points": 3}
+      ],
+      "description": "Faixas de 1, 2 ou 3 pontos; teto de 3 pontos no item de monitoria."
+    },
+    "shared_caps": [{"code": "CURR-FMUSP-2026-DIRECT-ITEM-4", "label": "Monitoria - item 4", "max_points": 3}],
+    "requirements": [
+      "Atender simultaneamente à duração e à carga horária total da faixa, na mesma monitoria.",
+      "Certificação da instituição de ensino com período e horas cumpridas, assinada pelo Serviço Acadêmico."
+    ],
+    "caveats": [
+      "As faixas não são parcelas automaticamente somáveis para a mesma monitoria.",
+      "Regra extraída do barema de áreas básicas e acesso direto; não transportar para pré-requisitos."
+    ],
+    "evidence": [{"url": "https://www.fuvest.br/wp-content/uploads/rm2026_edital_03-2025.pdf", "title": "FMUSP - Edital COREME/FM nº 03/2025, ingresso 2026", "pages": "25-26", "sha256": "9718c5ea35c5b16248ed317679cbcac4975089d7aeb36e8d05409b06df0dc3dd"}],
+    "checked_at": "2026-08-30"
+  },
+  {
+    "source_rule_id": "CURR-FMUSP-2026-DIRECT-IC-BOLSA-ARTIGO",
+    "source_process_id": "2026-SP-FMUSP-FUVEST",
+    "activity_codes": ["RESEARCH"],
+    "title": "Iniciação científica com bolsa e artigo relacionado aceito",
+    "access_type": "DIRECT",
+    "specialties_text": null,
+    "source_item": "2.4 - item 5, participação com bolsa, alínea a",
+    "status": "POINTS_CONFIRMED",
+    "scoring": {"type": "PER_UNIT", "points_per_unit": 6, "unit": "projeto", "max_points": 12, "max_units": 2, "description": "6 pontos por projeto; até 2 projetos e 12 pontos."},
+    "shared_caps": [{"code": "CURR-FMUSP-2026-DIRECT-ITEM-5", "label": "Iniciação científica com ou sem bolsa - item 5", "max_points": 12}],
+    "requirements": [
+      "Participação com bolsa documentada pelo órgão emissor.",
+      "Projeto com 2 ou mais semestres letivos e artigo científico relacionado aceito para publicação.",
+      "Certificação da instituição formadora com a carga horária cumprida."
+    ],
+    "caveats": [
+      "Apenas possuir artigo não comprova vínculo com o projeto de iniciação científica.",
+      "Não somar automaticamente as variantes do item 5 para o mesmo projeto.",
+      "A publicação pontuada separadamente no item 6 deve ser diferente da usada no item 5.",
+      "A observação sobre submissão/publicação da p. 27 está no bloco sem bolsa; não substitui automaticamente o aceite exigido nesta alínea."
+    ],
+    "evidence": [{"url": "https://www.fuvest.br/wp-content/uploads/rm2026_edital_03-2025.pdf", "title": "FMUSP - Edital COREME/FM nº 03/2025, ingresso 2026", "pages": "26-27", "sha256": "9718c5ea35c5b16248ed317679cbcac4975089d7aeb36e8d05409b06df0dc3dd"}],
+    "checked_at": "2026-08-30"
+  },
+  {
+    "source_rule_id": "CURR-FMUSP-2026-DIRECT-IC-BOLSA-DURACAO",
+    "source_process_id": "2026-SP-FMUSP-FUVEST",
+    "activity_codes": ["RESEARCH"],
+    "title": "Iniciação científica com bolsa - faixa de 2 semestres",
+    "access_type": "DIRECT",
+    "specialties_text": null,
+    "source_item": "2.4 - item 5, participação com bolsa, alínea b",
+    "status": "POINTS_CONFIRMED",
+    "scoring": {"type": "PER_UNIT", "points_per_unit": 2, "unit": "projeto", "max_points": 4, "max_units": 2, "description": "2 pontos por projeto na faixa de 2 semestres; até 2 projetos e 4 pontos."},
+    "shared_caps": [{"code": "CURR-FMUSP-2026-DIRECT-ITEM-5", "label": "Iniciação científica com ou sem bolsa - item 5", "max_points": 12}],
+    "requirements": [
+      "Participação com bolsa documentada pelo órgão emissor.",
+      "A alínea especifica 2 semestres letivos.",
+      "Certificação da instituição formadora contendo carga horária cumprida."
+    ],
+    "caveats": [
+      "Esta alínea não exige explicitamente artigo; não é a variante de 6 pontos com artigo aceito.",
+      "Não somar automaticamente esta variante à de artigo aceito para o mesmo projeto.",
+      "Não estender a faixa a outras durações por inferência."
+    ],
+    "evidence": [{"url": "https://www.fuvest.br/wp-content/uploads/rm2026_edital_03-2025.pdf", "title": "FMUSP - Edital COREME/FM nº 03/2025, ingresso 2026", "pages": "26-27", "sha256": "9718c5ea35c5b16248ed317679cbcac4975089d7aeb36e8d05409b06df0dc3dd"}],
+    "checked_at": "2026-08-30"
+  },
+  {
+    "source_rule_id": "CURR-FMUSP-2026-DIRECT-IC-SEM-BOLSA-ARTIGO",
+    "source_process_id": "2026-SP-FMUSP-FUVEST",
+    "activity_codes": ["RESEARCH"],
+    "title": "Iniciação científica sem bolsa e artigo relacionado - conferir estado do artigo",
+    "access_type": "DIRECT",
+    "specialties_text": null,
+    "source_item": "2.4 - item 5, participação sem bolsa, alínea a e observação 2",
+    "status": "REVIEW_REQUIRED",
+    "scoring": {"type": "MANUAL", "points_per_unit": null, "unit": "projeto", "max_points": 8, "max_units": 2, "description": "A tabela prevê 4 pontos por projeto, até 2 projetos e 8 pontos; aplicação manual pela divergência entre aceite/publicação na alínea e submissão/publicação na comprovação."},
+    "shared_caps": [{"code": "CURR-FMUSP-2026-DIRECT-ITEM-5", "label": "Iniciação científica com ou sem bolsa - item 5", "max_points": 12}],
+    "requirements": [
+      "Iniciação científica sem bolsa com 2 ou mais semestres letivos, documentada pela instituição.",
+      "Artigo relacionado ao projeto e identificação do candidato entre os autores.",
+      "A observação 2 especifica periódico indexado em SciELO ou PubMed.",
+      "Certificação com tempo e carga horária; na hipótese prevista, relatório de atividades e horas assinado pelo orientador ou responsável."
+    ],
+    "caveats": [
+      "A alínea exige aceitação/publicação, enquanto a observação 2 menciona registro de submissão/publicação; submissão não foi normalizada como aceite.",
+      "Sem cálculo automático enquanto a condição conflitante não for esclarecida.",
+      "Não somar automaticamente variantes para o mesmo projeto; artigo do item 6 precisa ser diferente do utilizado no item 5."
+    ],
+    "evidence": [{"url": "https://www.fuvest.br/wp-content/uploads/rm2026_edital_03-2025.pdf", "title": "FMUSP - Edital COREME/FM nº 03/2025, ingresso 2026", "pages": "26-27", "sha256": "9718c5ea35c5b16248ed317679cbcac4975089d7aeb36e8d05409b06df0dc3dd"}],
+    "checked_at": "2026-08-30"
+  },
+  {
+    "source_rule_id": "CURR-FMUSP-2026-DIRECT-IC-SEM-BOLSA-DURACAO",
+    "source_process_id": "2026-SP-FMUSP-FUVEST",
+    "activity_codes": ["RESEARCH"],
+    "title": "Iniciação científica sem bolsa - conferir comprovação da faixa de 2 semestres",
+    "access_type": "DIRECT",
+    "specialties_text": null,
+    "source_item": "2.4 - item 5, participação sem bolsa, alínea b e observação 2",
+    "status": "REVIEW_REQUIRED",
+    "scoring": {"type": "MANUAL", "points_per_unit": null, "unit": "projeto", "max_points": 2, "max_units": 2, "description": "A tabela prevê 1 ponto por projeto de 2 semestres, até 2 projetos e 2 pontos; conferir se a observação sobre artigo também se aplica a esta faixa."},
+    "shared_caps": [{"code": "CURR-FMUSP-2026-DIRECT-ITEM-5", "label": "Iniciação científica com ou sem bolsa - item 5", "max_points": 12}],
+    "requirements": [
+      "Iniciação científica sem bolsa documentada pela instituição, na faixa textual de 2 semestres letivos.",
+      "Certificação com tempo e carga horária; na hipótese prevista, relatório assinado pelo orientador ou responsável."
+    ],
+    "caveats": [
+      "A alínea b menciona duração, sem artigo, mas a observação 2 do mesmo bloco exige submissão/publicação em SciELO ou PubMed e autoria identificável. O alcance dessa observação não foi resolvido por inferência.",
+      "Sem cálculo automático até esclarecer a documentação aplicável.",
+      "Não acumular automaticamente com a variante de artigo relacionado para o mesmo projeto."
+    ],
+    "evidence": [{"url": "https://www.fuvest.br/wp-content/uploads/rm2026_edital_03-2025.pdf", "title": "FMUSP - Edital COREME/FM nº 03/2025, ingresso 2026", "pages": "26-27", "sha256": "9718c5ea35c5b16248ed317679cbcac4975089d7aeb36e8d05409b06df0dc3dd"}],
+    "checked_at": "2026-08-30"
+  },
+  {
+    "source_rule_id": "CURR-FMUSP-2026-DIRECT-ORGANIZACAO-CONGRESSO-CLASSE",
+    "source_process_id": "2026-SP-FMUSP-FUVEST",
+    "activity_codes": ["EVENT_ORGANIZER"],
+    "title": "Organização de congresso de entidade profissional de classe",
+    "access_type": "DIRECT",
+    "specialties_text": null,
+    "source_item": "2.4 - item 7, alínea a, retificado em 11/12/2025",
+    "status": "POINTS_CONFIRMED",
+    "scoring": {"type": "PER_UNIT", "points_per_unit": 5, "unit": "atividade", "max_points": 5, "max_units": 1, "description": "5 pontos por organização de congresso elegível; no máximo 1 atividade."},
+    "shared_caps": [{"code": "CURR-FMUSP-2026-DIRECT-ITEM-7", "label": "Organização e participação em congressos ou afins - item 7", "max_points": 6, "notes": "Compartilhado com organização acadêmica e participação em eventos do mesmo item."}],
+    "requirements": [
+      "Congresso estadual, nacional ou internacional organizado por entidade profissional de classe.",
+      "Certificado discriminando atividade realizada, tipo de evento e entidade organizadora."
+    ],
+    "caveats": [
+      "A errata de 11/12/2025 substitui os 4 pontos do edital original por 5 apenas no barema de acesso direto.",
+      "Ser participante ou palestrante não comprova a função de organizador."
+    ],
+    "evidence": [
+      {"url": "https://www.fuvest.br/wp-content/uploads/rm2026_edital_03-2025.pdf", "title": "FMUSP - Edital COREME/FM nº 03/2025, ingresso 2026", "pages": "25, 27", "sha256": "9718c5ea35c5b16248ed317679cbcac4975089d7aeb36e8d05409b06df0dc3dd"},
+      {"url": "https://www.fuvest.br/wp-content/uploads/rm2026-retificacao-2025-12-11.pdf", "title": "FMUSP - Errata COREME/FM 02/2025, de 11/12/2025", "pages": "1", "sha256": "493642db3458e135cf4c5b8b43750d762cda09ddc8c253f07bb0d29582bf0ac4"}
+    ],
+    "checked_at": "2026-08-30"
+  },
+  {
+    "source_rule_id": "CURR-FMUSP-2026-DIRECT-ORGANIZACAO-EVENTO-ACADEMICO",
+    "source_process_id": "2026-SP-FMUSP-FUVEST",
+    "activity_codes": ["EVENT_ORGANIZER"],
+    "title": "Organização de encontros, jornadas ou eventos acadêmicos",
+    "access_type": "DIRECT",
+    "specialties_text": null,
+    "source_item": "2.4 - item 7, alínea b, retificado em 11/12/2025",
+    "status": "POINTS_CONFIRMED",
+    "scoring": {"type": "PER_UNIT", "points_per_unit": 1, "unit": "atividade", "max_points": 3, "max_units": 3, "description": "1 ponto por atividade de organização acadêmica; no máximo 3 atividades e 3 pontos."},
+    "shared_caps": [{"code": "CURR-FMUSP-2026-DIRECT-ITEM-7", "label": "Organização e participação em congressos ou afins - item 7", "max_points": 6, "notes": "Compartilhado com organização de congressos profissionais e participação em eventos do mesmo item."}],
+    "requirements": [
+      "Organização de encontro, jornada científica ou evento realizado por liga, estudantes ou diretório acadêmico.",
+      "Certificado discriminando atividade realizada, tipo de evento e entidade organizadora."
+    ],
+    "caveats": [
+      "A errata de 11/12/2025 define 1 ponto por atividade e máximo de 3; vale somente para acesso direto.",
+      "Não confundir com a pontuação por simples participação, que é outro subitem."
+    ],
+    "evidence": [
+      {"url": "https://www.fuvest.br/wp-content/uploads/rm2026_edital_03-2025.pdf", "title": "FMUSP - Edital COREME/FM nº 03/2025, ingresso 2026", "pages": "25, 27", "sha256": "9718c5ea35c5b16248ed317679cbcac4975089d7aeb36e8d05409b06df0dc3dd"},
+      {"url": "https://www.fuvest.br/wp-content/uploads/rm2026-retificacao-2025-12-11.pdf", "title": "FMUSP - Errata COREME/FM 02/2025, de 11/12/2025", "pages": "1", "sha256": "493642db3458e135cf4c5b8b43750d762cda09ddc8c253f07bb0d29582bf0ac4"}
+    ],
+    "checked_at": "2026-08-30"
+  },
+  {
+    "source_rule_id": "CURR-UFCSPA-2027-MONITORIA-IC-EXTENSAO",
+    "source_process_id": "2027-RS-UFCSPA-FUNDMED",
+    "activity_codes": ["TEACHING_ASSISTANT", "RESEARCH", "EXTENSION_PROJECT"],
+    "title": "Monitoria, iniciação científica e extensão selecionadas por edital",
+    "access_type": "BOTH",
+    "specialties_text": null,
+    "source_item": "Anexo III - item e",
+    "status": "POINTS_CONFIRMED",
+    "scoring": {"type": "PER_UNIT", "points_per_unit": 0.5, "unit": "semestre do calendário acadêmico da atividade", "max_points": 2, "max_units": null, "description": "0,5 ponto por semestre acadêmico da atividade; teto conjunto de 2 pontos para o item e."},
+    "shared_caps": [{"code": "CURR-UFCSPA-2027-ITEM-E", "label": "Monitorias e atividades equivalentes - item e", "max_points": 2, "notes": "Único teto para monitoria, pesquisa, IC, extensão, iniciação tecnológica/docência e subinvestigação clínica previstas na fonte."}],
+    "requirements": [
+      "Atividade obtida por seleção mediante edital, independentemente de remuneração.",
+      "Cadastro formal nos órgãos indicados pela fonte: instituição de ensino superior, CAPES, CNPq ou Comitê de Ética e Pesquisa, conforme a modalidade.",
+      "Declaração, atestado ou certificado da instituição na qual a atividade foi desenvolvida, com identificação do candidato.",
+      "Observar o enquadramento formativo das atividades descrito nas observações gerais do Anexo III."
+    ],
+    "caveats": [
+      "Os três filtros apontam para a mesma regra e o mesmo teto; não são três benefícios independentes de 2 pontos.",
+      "A unidade é semestre acadêmico, não projeto nem certificado.",
+      "A fonte não esclarece o acúmulo de atividades simultâneas no mesmo semestre; não somar automaticamente.",
+      "A atualização de 27/08/2026 altera o item g.7, sem modificar a fórmula do item e."
+    ],
+    "evidence": [
+      {"url": "https://fundmed.org.br/website/wp-content/uploads/2026/08/UFCSPA-MEDICA-Edital-de-Abertura-das-Inscricoes-1.pdf", "title": "UFCSPA/Santa Casa - Edital nº 01, residência médica 2027", "pages": "34-35", "sha256": "92884bdcb737e64ec8aa17ddc494160fdccccfd59fdc658a8859fca8b52e0507"},
+      {"url": "https://fundmed.org.br/website/wp-content/uploads/2026/08/UFCSPA-Medica-Atualizacao-do-edital.pdf", "title": "UFCSPA/Santa Casa - Edital nº 01-A, atualização de 27/08/2026", "pages": "1", "sha256": "48b19703a32f4281c853aab632082cb38e695bb476906bba09c59e0a0f8cd208"}
+    ],
+    "checked_at": "2026-08-30"
+  },
+  {
+    "source_rule_id": "CURR-HCPA-2027-DIRECT-MONITORIA-VOLUNTARIA",
+    "source_process_id": "2027-RS-HCPA-FUNDMED",
+    "activity_codes": ["TEACHING_ASSISTANT"],
+    "title": "Monitoria voluntária",
+    "access_type": "DIRECT",
+    "specialties_text": null,
+    "source_item": "Anexo III - acesso direto, item G, monitorias, primeira linha",
+    "status": "POINTS_CONFIRMED",
+    "scoring": {"type": "PER_UNIT", "points_per_unit": 0.1, "unit": "semestre letivo", "max_points": 0.3, "max_units": null, "description": "0,1 ponto por semestre letivo de monitoria voluntária; teto próprio de 0,3 ponto."},
+    "shared_caps": [{"code": "CURR-HCPA-2027-DIRECT-ITEM-G", "label": "Monitorias, projetos e iniciação científica - item G", "max_points": 2, "notes": "Teto conjunto, incluindo as ligas acadêmicas previstas no mesmo item."}],
+    "requirements": ["Monitoria voluntária no período formativo abrangido pelo barema de acesso direto.", "Certificação emitida pela instituição de ensino, com cadastro junto à Pró-Reitoria e identificação do candidato."],
+    "caveats": ["Não acumular automaticamente as três variantes de monitoria para o mesmo período/atividade.", "Não transportar esta regra ao barema de pré-requisitos, que não contém o mesmo item G."],
+    "evidence": [{"url": "https://fundmed.org.br/website/wp-content/uploads/2026/08/HCPA-MEDICA-Edital-de-Abertura-das-Inscricoes-1.pdf", "title": "HCPA - Edital nº 01, residência médica 2027", "pages": "50-51", "sha256": "0f421dbde11c3385906d896a8bd1bff660ed5c92bee256eff81635b49f9984b1"}],
+    "checked_at": "2026-08-30"
+  },
+  {
+    "source_rule_id": "CURR-HCPA-2027-DIRECT-MONITORIA-SEMESTRE",
+    "source_process_id": "2027-RS-HCPA-FUNDMED",
+    "activity_codes": ["TEACHING_ASSISTANT"],
+    "title": "Monitoria por semestre letivo",
+    "access_type": "DIRECT",
+    "specialties_text": null,
+    "source_item": "Anexo III - acesso direto, item G, monitorias, segunda linha",
+    "status": "POINTS_CONFIRMED",
+    "scoring": {"type": "PER_UNIT", "points_per_unit": 0.2, "unit": "semestre letivo", "max_points": 0.6, "max_units": null, "description": "0,2 ponto por semestre letivo de monitoria; teto próprio de 0,6 ponto."},
+    "shared_caps": [{"code": "CURR-HCPA-2027-DIRECT-ITEM-G", "label": "Monitorias, projetos e iniciação científica - item G", "max_points": 2, "notes": "Teto conjunto, incluindo as ligas acadêmicas previstas no mesmo item."}],
+    "requirements": ["Monitoria no período formativo abrangido pelo barema de acesso direto.", "Certificação emitida pela instituição de ensino, com cadastro junto à Pró-Reitoria e identificação do candidato."],
+    "caveats": ["A linha da fonte não especifica bolsa; não foi convertida para monitoria remunerada.", "A fonte apresenta linha própria para voluntária e para semestres consecutivos. Conferir o enquadramento e não acumular automaticamente variantes para o mesmo fato.", "Regra exclusiva do barema de acesso direto."],
+    "evidence": [{"url": "https://fundmed.org.br/website/wp-content/uploads/2026/08/HCPA-MEDICA-Edital-de-Abertura-das-Inscricoes-1.pdf", "title": "HCPA - Edital nº 01, residência médica 2027", "pages": "50-51", "sha256": "0f421dbde11c3385906d896a8bd1bff660ed5c92bee256eff81635b49f9984b1"}],
+    "checked_at": "2026-08-30"
+  },
+  {
+    "source_rule_id": "CURR-HCPA-2027-DIRECT-MONITORIA-CONSECUTIVA",
+    "source_process_id": "2027-RS-HCPA-FUNDMED",
+    "activity_codes": ["TEACHING_ASSISTANT"],
+    "title": "Mesma monitoria em semestres consecutivos",
+    "access_type": "DIRECT",
+    "specialties_text": null,
+    "source_item": "Anexo III - acesso direto, item G, monitorias, terceira linha",
+    "status": "POINTS_CONFIRMED",
+    "scoring": {"type": "PER_UNIT", "points_per_unit": 0.3, "unit": "semestre letivo concluído", "max_points": 0.9, "max_units": null, "description": "0,3 ponto por semestre concluído, em semestres consecutivos na mesma monitoria; teto próprio de 0,9 ponto."},
+    "shared_caps": [{"code": "CURR-HCPA-2027-DIRECT-ITEM-G", "label": "Monitorias, projetos e iniciação científica - item G", "max_points": 2, "notes": "Teto conjunto, incluindo as ligas acadêmicas previstas no mesmo item."}],
+    "requirements": ["Semestres letivos consecutivos e concluídos na mesma monitoria.", "Certificação emitida pela instituição de ensino, com cadastro junto à Pró-Reitoria e identificação do candidato."],
+    "caveats": ["Não acumular automaticamente com as outras linhas de monitoria para o mesmo período.", "Regra exclusiva do barema de acesso direto."],
+    "evidence": [{"url": "https://fundmed.org.br/website/wp-content/uploads/2026/08/HCPA-MEDICA-Edital-de-Abertura-das-Inscricoes-1.pdf", "title": "HCPA - Edital nº 01, residência médica 2027", "pages": "50-51", "sha256": "0f421dbde11c3385906d896a8bd1bff660ed5c92bee256eff81635b49f9984b1"}],
+    "checked_at": "2026-08-30"
+  },
+  {
+    "source_rule_id": "CURR-HCPA-2027-DIRECT-EXTENSAO",
+    "source_process_id": "2027-RS-HCPA-FUNDMED",
+    "activity_codes": ["EXTENSION_PROJECT"],
+    "title": "Projeto de extensão com pelo menos dois semestres",
+    "access_type": "DIRECT",
+    "specialties_text": null,
+    "source_item": "Anexo III - acesso direto, item G, projetos de extensão",
+    "status": "POINTS_CONFIRMED",
+    "scoring": {"type": "PER_UNIT", "points_per_unit": 0.1, "unit": "projeto", "max_points": 0.5, "max_units": null, "description": "0,1 ponto por projeto elegível; teto próprio de 0,5 ponto."},
+    "shared_caps": [{"code": "CURR-HCPA-2027-DIRECT-ITEM-G", "label": "Monitorias, projetos e iniciação científica - item G", "max_points": 2, "notes": "Teto conjunto, incluindo as ligas acadêmicas previstas no mesmo item."}],
+    "requirements": [
+      "Participação por período mínimo de dois semestres letivos.",
+      "Certificação da instituição de ensino com cadastro junto à Pró-Reitoria e nome do candidato.",
+      "Na ausência do certificado, a fonte admite relatório de atividades com nome do candidato e assinatura do professor orientador ou responsável indicado."
+    ],
+    "caveats": ["A unidade é projeto, não semestre.", "O documento usa a expressão responsável pela iniciação científica ao descrever o relatório alternativo de extensão; preservar a redação e conferir a autoridade signatária adequada.", "Regra exclusiva do barema de acesso direto."],
+    "evidence": [{"url": "https://fundmed.org.br/website/wp-content/uploads/2026/08/HCPA-MEDICA-Edital-de-Abertura-das-Inscricoes-1.pdf", "title": "HCPA - Edital nº 01, residência médica 2027", "pages": "50-51", "sha256": "0f421dbde11c3385906d896a8bd1bff660ed5c92bee256eff81635b49f9984b1"}],
+    "checked_at": "2026-08-30"
+  },
+  {
+    "source_rule_id": "CURR-HCPA-2027-DIRECT-IC-SEM-BOLSA",
+    "source_process_id": "2027-RS-HCPA-FUNDMED",
+    "activity_codes": ["RESEARCH"],
+    "title": "Iniciação científica sem bolsa",
+    "access_type": "DIRECT",
+    "specialties_text": null,
+    "source_item": "Anexo III - acesso direto, item G, projeto de pesquisa/iniciação científica",
+    "status": "POINTS_CONFIRMED",
+    "scoring": {"type": "PER_UNIT", "points_per_unit": 0.2, "unit": "semestre", "max_points": 0.6, "max_units": null, "description": "0,2 ponto por semestre de iniciação científica sem bolsa; teto próprio de 0,6 ponto."},
+    "shared_caps": [{"code": "CURR-HCPA-2027-DIRECT-ITEM-G", "label": "Monitorias, projetos e iniciação científica - item G", "max_points": 2, "notes": "Teto conjunto, incluindo as ligas acadêmicas previstas no mesmo item."}],
+    "requirements": ["Iniciação científica sem bolsa, enquadrada no período formativo do barema.", "Comprovação identificando o candidato, conforme as observações gerais do Anexo III."],
+    "caveats": ["Se pontuar como bolsista, a fonte impede pontuação também no item projeto.", "Não converter a pontuação por semestre em pontuação por projeto.", "Regra exclusiva do barema de acesso direto."],
+    "evidence": [{"url": "https://fundmed.org.br/website/wp-content/uploads/2026/08/HCPA-MEDICA-Edital-de-Abertura-das-Inscricoes-1.pdf", "title": "HCPA - Edital nº 01, residência médica 2027", "pages": "50-51", "sha256": "0f421dbde11c3385906d896a8bd1bff660ed5c92bee256eff81635b49f9984b1"}],
+    "checked_at": "2026-08-30"
+  },
+  {
+    "source_rule_id": "CURR-HCPA-2027-DIRECT-IC-BOLSA",
+    "source_process_id": "2027-RS-HCPA-FUNDMED",
+    "activity_codes": ["RESEARCH"],
+    "title": "Iniciação científica com bolsa",
+    "access_type": "DIRECT",
+    "specialties_text": null,
+    "source_item": "Anexo III - acesso direto, item G, projeto de pesquisa/iniciação científica",
+    "status": "POINTS_CONFIRMED",
+    "scoring": {"type": "PER_UNIT", "points_per_unit": 0.3, "unit": "semestre", "max_points": 0.9, "max_units": null, "description": "0,3 ponto por semestre de iniciação científica com bolsa; teto próprio de 0,9 ponto."},
+    "shared_caps": [{"code": "CURR-HCPA-2027-DIRECT-ITEM-G", "label": "Monitorias, projetos e iniciação científica - item G", "max_points": 2, "notes": "Teto conjunto, incluindo as ligas acadêmicas previstas no mesmo item."}],
+    "requirements": ["Iniciação científica com bolsa, enquadrada no período formativo do barema.", "Comprovação identificando o candidato, conforme as observações gerais do Anexo III."],
+    "caveats": ["Se pontuar como bolsista, a fonte impede pontuação também no item projeto.", "Não converter a pontuação por semestre em pontuação por projeto.", "Regra exclusiva do barema de acesso direto."],
+    "evidence": [{"url": "https://fundmed.org.br/website/wp-content/uploads/2026/08/HCPA-MEDICA-Edital-de-Abertura-das-Inscricoes-1.pdf", "title": "HCPA - Edital nº 01, residência médica 2027", "pages": "50-51", "sha256": "0f421dbde11c3385906d896a8bd1bff660ed5c92bee256eff81635b49f9984b1"}],
+    "checked_at": "2026-08-30"
+  },
+  {
+    "source_rule_id": "CURR-HCPA-2027-DIRECT-ORGANIZACAO-CONGRESSO-CLASSE",
+    "source_process_id": "2027-RS-HCPA-FUNDMED",
+    "activity_codes": ["EVENT_ORGANIZER"],
+    "title": "Organização de congresso de entidade profissional de classe",
+    "access_type": "DIRECT",
+    "specialties_text": null,
+    "source_item": "Anexo III - acesso direto, item F, organização de eventos científicos",
+    "status": "POINTS_CONFIRMED",
+    "scoring": {"type": "PER_UNIT", "points_per_unit": 0.3, "unit": "evento", "max_points": 0.6, "max_units": null, "description": "0,3 ponto por congresso elegível organizado; teto próprio de 0,6 ponto."},
+    "shared_caps": [{"code": "CURR-HCPA-2027-DIRECT-ITEM-F", "label": "Organização e participação em eventos - acesso direto, item F", "max_points": 1.2, "notes": "Teto compartilhado com organização acadêmica, participação, premiação e apresentação do mesmo item."}],
+    "requirements": ["Congresso internacional, nacional ou estadual organizado por entidade profissional de classe.", "Certificado com atividade realizada, tipo de evento e entidade organizadora."],
+    "caveats": ["Não confundir função de organização com participação ou apresentação.", "O teto coletivo deste barema é 1,2; no pré-requisito é diferente."],
+    "evidence": [{"url": "https://fundmed.org.br/website/wp-content/uploads/2026/08/HCPA-MEDICA-Edital-de-Abertura-das-Inscricoes-1.pdf", "title": "HCPA - Edital nº 01, residência médica 2027", "pages": "50-51", "sha256": "0f421dbde11c3385906d896a8bd1bff660ed5c92bee256eff81635b49f9984b1"}],
+    "checked_at": "2026-08-30"
+  },
+  {
+    "source_rule_id": "CURR-HCPA-2027-DIRECT-ORGANIZACAO-EVENTO-ACADEMICO",
+    "source_process_id": "2027-RS-HCPA-FUNDMED",
+    "activity_codes": ["EVENT_ORGANIZER"],
+    "title": "Organização de encontros, jornadas ou eventos acadêmicos",
+    "access_type": "DIRECT",
+    "specialties_text": null,
+    "source_item": "Anexo III - acesso direto, item F, organização de eventos científicos",
+    "status": "POINTS_CONFIRMED",
+    "scoring": {"type": "PER_UNIT", "points_per_unit": 0.2, "unit": "evento", "max_points": 0.4, "max_units": null, "description": "0,2 ponto por evento acadêmico elegível organizado; teto próprio de 0,4 ponto."},
+    "shared_caps": [{"code": "CURR-HCPA-2027-DIRECT-ITEM-F", "label": "Organização e participação em eventos - acesso direto, item F", "max_points": 1.2, "notes": "Teto compartilhado com organização profissional, participação, premiação e apresentação do mesmo item."}],
+    "requirements": ["Organização de encontro, jornada científica ou evento realizado por liga, estudantes ou diretório acadêmico.", "Certificado com atividade realizada, tipo de evento e entidade organizadora."],
+    "caveats": ["Não confundir organização com simples participação.", "O teto coletivo deste barema é 1,2; no pré-requisito é diferente."],
+    "evidence": [{"url": "https://fundmed.org.br/website/wp-content/uploads/2026/08/HCPA-MEDICA-Edital-de-Abertura-das-Inscricoes-1.pdf", "title": "HCPA - Edital nº 01, residência médica 2027", "pages": "50-51", "sha256": "0f421dbde11c3385906d896a8bd1bff660ed5c92bee256eff81635b49f9984b1"}],
+    "checked_at": "2026-08-30"
+  },
+  {
+    "source_rule_id": "CURR-HCPA-2027-PREREQUISITE-ORGANIZACAO-CONGRESSO-CLASSE",
+    "source_process_id": "2027-RS-HCPA-FUNDMED",
+    "activity_codes": ["EVENT_ORGANIZER"],
+    "title": "Organização de congresso de entidade profissional de classe",
+    "access_type": "PREREQUISITE",
+    "specialties_text": null,
+    "source_item": "Anexo III - pré-requisitos, item E, organização de eventos científicos",
+    "status": "POINTS_CONFIRMED",
+    "scoring": {"type": "PER_UNIT", "points_per_unit": 0.3, "unit": "evento", "max_points": 0.6, "max_units": null, "description": "0,3 ponto por congresso elegível organizado; teto próprio de 0,6 ponto."},
+    "shared_caps": [{"code": "CURR-HCPA-2027-PREREQUISITE-ITEM-E", "label": "Organização e participação em eventos - pré-requisitos, item E", "max_points": 2, "notes": "Teto compartilhado com organização acadêmica, participação, premiação e apresentação do mesmo item."}],
+    "requirements": ["Congresso internacional, nacional ou estadual organizado por entidade profissional de classe.", "Certificado com atividade realizada, tipo de evento, entidade organizadora e identificação do candidato.", "Observar o período formativo abrangido pelas observações gerais do barema de pré-requisitos."],
+    "caveats": ["Não confundir função de organização com participação ou apresentação.", "O teto coletivo é 2 neste barema, não o teto de 1,2 do acesso direto."],
+    "evidence": [{"url": "https://fundmed.org.br/website/wp-content/uploads/2026/08/HCPA-MEDICA-Edital-de-Abertura-das-Inscricoes-1.pdf", "title": "HCPA - Edital nº 01, residência médica 2027", "pages": "53", "sha256": "0f421dbde11c3385906d896a8bd1bff660ed5c92bee256eff81635b49f9984b1"}],
+    "checked_at": "2026-08-30"
+  },
+  {
+    "source_rule_id": "CURR-HCPA-2027-PREREQUISITE-ORGANIZACAO-EVENTO-ACADEMICO",
+    "source_process_id": "2027-RS-HCPA-FUNDMED",
+    "activity_codes": ["EVENT_ORGANIZER"],
+    "title": "Organização de encontros, jornadas ou eventos acadêmicos",
+    "access_type": "PREREQUISITE",
+    "specialties_text": null,
+    "source_item": "Anexo III - pré-requisitos, item E, organização de eventos científicos",
+    "status": "POINTS_CONFIRMED",
+    "scoring": {"type": "PER_UNIT", "points_per_unit": 0.2, "unit": "evento", "max_points": 0.4, "max_units": null, "description": "0,2 ponto por evento acadêmico elegível organizado; teto próprio de 0,4 ponto."},
+    "shared_caps": [{"code": "CURR-HCPA-2027-PREREQUISITE-ITEM-E", "label": "Organização e participação em eventos - pré-requisitos, item E", "max_points": 2, "notes": "Teto compartilhado com organização profissional, participação, premiação e apresentação do mesmo item."}],
+    "requirements": ["Organização de encontro, jornada científica ou evento realizado por liga, estudantes ou diretório acadêmico.", "Certificado com atividade realizada, tipo de evento, entidade organizadora e identificação do candidato.", "Observar o período formativo abrangido pelas observações gerais do barema de pré-requisitos."],
+    "caveats": ["Não confundir organização com simples participação.", "O teto coletivo é 2 neste barema, não o teto de 1,2 do acesso direto."],
+    "evidence": [{"url": "https://fundmed.org.br/website/wp-content/uploads/2026/08/HCPA-MEDICA-Edital-de-Abertura-das-Inscricoes-1.pdf", "title": "HCPA - Edital nº 01, residência médica 2027", "pages": "53", "sha256": "0f421dbde11c3385906d896a8bd1bff660ed5c92bee256eff81635b49f9984b1"}],
+    "checked_at": "2026-08-30"
+  }
+]
